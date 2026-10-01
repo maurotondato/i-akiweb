@@ -95,13 +95,6 @@ ul,ol{margin:0;padding:0;list-style:none}
    Canvas con red de nodos: la montaña se construye y se desarma. */
 .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
   padding:104px 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
-/* Sierra de fondo: apenas insinuada, da profundidad y escala a la red */
-.hero-bg{position:absolute;left:0;right:0;bottom:0;z-index:0;width:100%;
-  height:min(70%,560px);object-fit:cover;object-position:bottom center;pointer-events:none;
-  opacity:0;filter:saturate(.55);transition:opacity 1.8s var(--ease-out) .4s;
-  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 42%);
-  mask-image:linear-gradient(180deg,transparent 0%,#000 42%)}
-.is-ready .hero-bg{opacity:.24}
 .neuro{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;
   opacity:0;transition:opacity 1.4s var(--ease-out) .25s}
 .is-ready .neuro{opacity:1}
@@ -144,7 +137,6 @@ ul,ol{margin:0;padding:0;list-style:none}
   .hero-grid{grid-template-columns:1fr;gap:14px}
   .hero-media{height:min(36svh,300px)}
   .hero-cut{height:100%;width:auto;max-width:100%}
-  .hero-bg{height:min(52%,420px)}
   .hero::after{background:linear-gradient(176deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.52) 26%,rgba(255,255,255,0) 50%)}
   .hero-chip{left:auto;right:0;bottom:0}
   .nav-links{display:none}
@@ -158,11 +150,15 @@ ul,ol{margin:0;padding:0;list-style:none}
 .reveal.is-in{opacity:1;transform:none}
 
 /* MARQUEE */
-.marquee{position:relative;overflow:hidden;background:var(--ink);color:#fff;padding:17px 0}
+/* display:flex, si no el clon del marquee —que es inline-flex y más
+   ancho que la pantalla— envuelve a una segunda línea y cada club
+   aparece dos veces, uno encima del otro. */
+.marquee{position:relative;overflow:hidden;display:flex;flex-wrap:nowrap;
+  background:var(--ink);color:#fff;padding:17px 0}
 .marquee::before,.marquee::after{content:"";position:absolute;top:0;bottom:0;width:90px;z-index:2;pointer-events:none}
 .marquee::before{left:0;background:linear-gradient(90deg,var(--ink),transparent)}
 .marquee::after{right:0;background:linear-gradient(270deg,var(--ink),transparent)}
-.marquee-track{display:inline-flex;gap:30px;white-space:nowrap;will-change:transform;align-items:center}
+.marquee-track{display:inline-flex;flex:none;gap:30px;white-space:nowrap;will-change:transform;align-items:center}
 .marquee-track span{font-family:var(--cond);font-size:15px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
 .marquee-track i{color:var(--cel);font-size:9px;font-style:normal}
 
@@ -235,10 +231,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .about{padding-block:clamp(70px,10vw,124px);display:flex;flex-direction:column;gap:clamp(54px,7vw,96px)}
 .about-top{display:grid;grid-template-columns:.78fr 1.22fr;gap:clamp(28px,5vw,74px);align-items:center}
 .about-photo{margin:0;position:relative;border-radius:16px;overflow:hidden;
-  box-shadow:0 34px 70px -34px rgba(3,29,64,.55)}
+  aspect-ratio:4/5;box-shadow:0 34px 70px -34px rgba(3,29,64,.55)}
 .about-photo::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,transparent 52%,rgba(3,29,64,.32))}
-.about-photo img{width:100%;aspect-ratio:4/5;object-fit:cover}
+/* Algo más alta que el marco: el parallax la desplaza sin descubrir bordes. */
+.about-photo img{position:absolute;left:0;top:-9%;width:100%;height:118%;object-fit:cover}
 .about-intro{display:flex;flex-direction:column;gap:18px;align-items:flex-start}
 .about-title{font-size:clamp(30px,4.4vw,58px);letter-spacing:-.045em;line-height:1.02;max-width:18ch}
 .about-text{font-size:16.5px;line-height:1.72;color:var(--mute);max-width:54ch}
@@ -390,6 +387,24 @@ ul,ol{margin:0;padding:0;list-style:none}
 @media (hover:hover) and (pointer:fine){
   .wa:hover{gap:11px;padding-inline:18px 22px}
   .wa:hover .wa-label{max-width:140px}}
+
+/* TÁCTIL — sin hover, el feedback lo da la pulsación */
+@media (hover:none){
+  .btn{transition:transform .22s var(--ease-out),box-shadow .3s var(--ease-out)}
+  .btn:active{transform:scale(.965)}
+  .prog,.voice,.why{transition:transform .22s var(--ease-out),box-shadow .4s var(--ease-out)}
+  .prog:active,.voice:active,.why:active{transform:scale(.982)}
+  .cima-index li:active{transform:scale(.95)}
+}
+/* Testimonios: en celular se deslizan de a uno en vez de apilarse */
+@media (max-width:900px){
+  .voices-grid{display:flex;grid-template-columns:none;gap:14px;overflow-x:auto;
+    scroll-snap-type:x mandatory;scroll-padding-inline:var(--gut);
+    margin-inline:calc(var(--gut) * -1);padding:4px var(--gut) 10px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .voices-grid::-webkit-scrollbar{display:none}
+  .voice{flex:0 0 84%;scroll-snap-align:start}
+}
 
 /* MOVIMIENTO REDUCIDO — solo lo intrusivo */
 @media (prefers-reduced-motion:reduce){

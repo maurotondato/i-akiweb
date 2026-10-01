@@ -84,11 +84,15 @@
     });
   }
 
-  /* ---------------- HERO: red de nodos que construye la montaña ----------------
-     Los nodos nacen dispersos (ruido, cabeza desordenada), se enlazan
-     como una red neuronal y se van ordenando hasta dibujar la silueta
-     del isotipo. Después se desarma y vuelve a empezar: la mentalidad
-     no se alcanza, se construye todos los días. */
+  /* ---------------- HERO: la montaña se construye ----------------
+     Antes seguíamos el contorno completo del isotipo, que va y vuelve
+     sobre sí mismo: el resultado parecía un gráfico, no una montaña.
+     Ahora nos quedamos sólo con el PERFIL SUPERIOR del logo —para cada
+     franja vertical, su punto más alto— y además sembramos nodos DENTRO
+     del macizo. Con una línea de horizonte abajo, lo que se arma es
+     inconfundible: una cumbre apoyada sobre el suelo.
+     Los nodos nacen dispersos, se enlazan y se ordenan; después se
+     desarman. La mentalidad se construye, no se alcanza. */
   function initNeuro() {
     var cv = document.querySelector("[data-neuro]");
     var shape = document.querySelector("[data-shape]");
@@ -97,31 +101,55 @@
     var ctx = cv.getContext("2d");
     if (!ctx) return;
 
-    var N = window.innerWidth < 760 ? 84 : 132;
     var bb = shape.getBBox();
     var total = shape.getTotalLength();
     if (!total || !bb.width || !bb.height) return;
 
-    /* Muestreo uniforme de la silueta, normalizado a su propia caja. */
-    var nodes = [];
-    for (var i = 0; i < N; i++) {
-      var o = i / (N - 1);
-      var p = shape.getPointAtLength(total * o);
-      nodes.push({
-        nx: (p.x - bb.x) / bb.width,
-        ny: (p.y - bb.y) / bb.height,
-        /* punto de partida disperso, en la mitad inferior del hero */
-        sx: Math.random(),
-        sy: 0.26 + Math.random() * 0.68,
-        o: o,
-        ph: Math.random() * Math.PI * 2,
-        sp: 0.25 + Math.random() * 0.5,
-        amp: 10 + Math.random() * 26,
-        tx: 0, ty: 0, x: 0, y: 0, t: 0
-      });
+    var small = window.innerWidth < 760;
+    var BINS = small ? 32 : 46;
+    var MASS = small ? 48 : 78;
+
+    /* Perfil superior del isotipo */
+    var i, sky = [];
+    for (i = 0; i < BINS; i++) sky[i] = Infinity;
+    for (var k = 0; k <= 1600; k++) {
+      var sp = shape.getPointAtLength(total * k / 1600);
+      var b = Math.round((sp.x - bb.x) / bb.width * (BINS - 1));
+      if (b < 0) b = 0; else if (b > BINS - 1) b = BINS - 1;
+      if (sp.y < sky[b]) sky[b] = sp.y;
+    }
+    for (i = 0; i < BINS; i++) {
+      if (isFinite(sky[i])) continue;
+      var a = i - 1, c = i + 1;
+      while (a >= 0 && !isFinite(sky[a])) a--;
+      while (c < BINS && !isFinite(sky[c])) c++;
+      sky[i] = a >= 0 && c < BINS ? (sky[a] + sky[c]) / 2 : (a >= 0 ? sky[a] : sky[c]);
+    }
+    var ridge = sky.map(function (y) { return (y - bb.y) / bb.height; });
+    function ridgeAt(nx) {
+      var f = nx * (BINS - 1), i0 = Math.floor(f), i1 = Math.min(BINS - 1, i0 + 1);
+      return ridge[i0] + (ridge[i1] - ridge[i0]) * (f - i0);
     }
 
-    var W = 0, H = 0, LINK = 0;
+    var nodes = [];
+    function add(nx, ny, onRidge) {
+      nodes.push({
+        nx: nx, ny: ny, crest: onRidge, o: nx,
+        sx: Math.random(), sy: 0.18 + Math.random() * 0.76,
+        ph: Math.random() * Math.PI * 2, sp: 0.25 + Math.random() * 0.5,
+        amp: 10 + Math.random() * 26,
+        tx: 0, ty: 0, x: 0, y: 0, t: 0, px: 0, py: 0
+      });
+    }
+    for (i = 0; i < BINS; i++) add(i / (BINS - 1), ridge[i], true);
+    var CREST = nodes.length;
+    for (i = 0; i < MASS; i++) {
+      var nx = 0.02 + Math.random() * 0.96;
+      var top = ridgeAt(nx);
+      add(nx, top + (1 - top) * Math.pow(Math.random(), 0.72), false);
+    }
+
+    var W = 0, H = 0, LINK = 0, BASEY = 0;
     function measure() {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var r = hero.getBoundingClientRect();
@@ -130,20 +158,19 @@
       cv.width = Math.round(W * dpr);
       cv.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      LINK = Math.max(68, W * 0.072);
 
-      /* La silueta se estira en alto para que deje de parecer una
-         cordillera plana. En desktop vive a la derecha, detrás de la
-         figura; en celular se agranda y sangra por los dos costados,
-         así las cumbres asoman por encima de la foto en vez de quedar
-         tapadas por ella. */
-      var narrow = W < 760;
-      var mw = W * (narrow ? 2.0 : 0.86);
-      var mh = mw * (bb.height / bb.width) * (narrow ? 1.5 : 1.26);
-      var ox = narrow ? (W - mw) / 2 : (W - mw) * 0.92;
-      var oy = (narrow ? H * 0.9 : H * 0.99) - mh;
-      for (var k = 0; k < nodes.length; k++) {
-        var n = nodes[k];
+      var nw = W < 760;
+      LINK = nw ? 76 : Math.max(78, W * 0.084);
+      /* En desktop la cumbre vive a la derecha, detrás de la figura.
+         En celular se agranda y sangra por los costados para que las
+         cumbres asomen por encima de la foto en vez de quedar tapadas. */
+      var mw = W * (nw ? 1.22 : 0.84);
+      var mh = H * (nw ? 0.34 : 0.52);
+      var ox = nw ? -W * 0.11 : W * 0.17;
+      BASEY = H * (nw ? 0.86 : 0.93);
+      var oy = BASEY - mh;
+      for (var j = 0; j < nodes.length; j++) {
+        var n = nodes[j];
         n.tx = ox + n.nx * mw;
         n.ty = oy + n.ny * mh;
         n.x = n.sx * W;
@@ -151,7 +178,6 @@
       }
     }
 
-    /* Puntero: la red se aparta, da señal de vida. */
     var mx = -9999, my = -9999;
     if (fine) {
       hero.addEventListener("pointermove", function (e) {
@@ -161,28 +187,33 @@
       hero.addEventListener("pointerleave", function () { mx = -9999; my = -9999; });
     }
 
-    function stag(g, order, spread) {
-      return clamp01((g - order * spread) / (1 - spread));
-    }
+    function stag(g, order, spread) { return clamp01((g - order * spread) / (1 - spread)); }
     function easeOut(x) { return 1 - Math.pow(1 - x, 3); }
     function easeIn(x) { return x * x * x; }
 
-    /* Ciclo: armado · sostener · desarmado · respiro */
-    var A = 3.6, HOLD = 2.6, D = 2.8, REST = 1.0, CYCLE = A + HOLD + D + REST;
-
-    function state(tc) {
+    var A = 3.6, HOLD = 2.8, D = 2.8, REST = 1.0, CYCLE = A + HOLD + D + REST;
+    function phase(tc) {
       if (tc < A) return { g: tc / A, mode: 1 };
       if (tc < A + HOLD) return { g: 1, mode: 2 };
       if (tc < A + HOLD + D) return { g: (tc - A - HOLD) / D, mode: 3 };
       return { g: 1, mode: 4 };
     }
 
-    function draw(time, frozen) {
-      var st = frozen ? { g: 1, mode: 2 } : state(time % CYCLE);
-      var sum = 0, k, n;
+    /* El scroll sacude la red: en celular, donde no hay puntero, es lo
+       que mantiene la animación viva mientras se recorre el hero. */
+    var lastY = window.scrollY || 0, shake = 0;
 
-      for (k = 0; k < nodes.length; k++) {
-        n = nodes[k];
+    function draw(time, frozen) {
+      var st = frozen ? { g: 1, mode: 2 } : phase(time % CYCLE);
+      var sum = 0, j, n;
+
+      var yNow = window.scrollY || 0;
+      var dv = Math.min(Math.abs(yNow - lastY), 70);
+      lastY = yNow;
+      shake += ((frozen ? 0 : dv / 70) - shake) * 0.12;
+
+      for (j = 0; j < nodes.length; j++) {
+        n = nodes[j];
         if (st.mode === 1) n.t = easeOut(stag(st.g, n.o, 0.6));
         else if (st.mode === 2) n.t = 1;
         else if (st.mode === 3) n.t = 1 - easeIn(stag(st.g, 1 - n.o, 0.6));
@@ -192,10 +223,9 @@
         var wob = frozen ? 0 : 1;
         var dx = Math.sin(time * n.sp + n.ph) * n.amp * (1 - n.t * 0.93) * wob;
         var dy = Math.cos(time * n.sp * 0.82 + n.ph) * n.amp * 0.72 * (1 - n.t * 0.93) * wob;
-        var x = n.x + (n.tx - n.x) * n.t + dx;
-        var y = n.y + (n.ty - n.y) * n.t + dy;
+        var x = n.x + (n.tx - n.x) * n.t + dx + Math.sin(time * 7 + n.ph) * shake * 6;
+        var y = n.y + (n.ty - n.y) * n.t + dy + Math.cos(time * 6 + n.ph) * shake * 5;
 
-        /* repulsión suave del puntero */
         var rx = x - mx, ry = y - my;
         var rd = Math.sqrt(rx * rx + ry * ry);
         if (rd < 130 && rd > 0.01) {
@@ -208,77 +238,93 @@
       var ta = sum / nodes.length;
       ctx.clearRect(0, 0, W, H);
 
-      /* Macizo apenas insinuado cuando la silueta ya está armada */
-      if (ta > 0.62) {
+      /* Horizonte: sin suelo la silueta flota y no se lee como montaña */
+      var hg = ctx.createLinearGradient(0, 0, W, 0);
+      var ha = 0.08 + ta * 0.34;
+      hg.addColorStop(0, "rgba(30,137,196,0)");
+      hg.addColorStop(0.45, "rgba(30,137,196," + ha.toFixed(3) + ")");
+      hg.addColorStop(1, "rgba(30,137,196,0)");
+      ctx.strokeStyle = hg;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(0, BASEY);
+      ctx.lineTo(W, BASEY);
+      ctx.stroke();
+
+      /* Macizo: sólo cuando la cresta ya está lo bastante armada */
+      if (ta > 0.72) {
         ctx.beginPath();
-        ctx.moveTo(nodes[0].px, nodes[0].py);
-        for (k = 1; k < nodes.length; k++) ctx.lineTo(nodes[k].px, nodes[k].py);
+        ctx.moveTo(nodes[0].px, BASEY);
+        for (j = 0; j < CREST; j++) ctx.lineTo(nodes[j].px, nodes[j].py);
+        ctx.lineTo(nodes[CREST - 1].px, BASEY);
         ctx.closePath();
-        ctx.fillStyle = "rgba(69,174,229," + ((ta - 0.62) * 0.1).toFixed(3) + ")";
+        ctx.fillStyle = "rgba(69,174,229," + (((ta - 0.72) / 0.28) * 0.16).toFixed(3) + ")";
         ctx.fill();
       }
 
-      /* Enlaces de la red */
+      /* Enlaces */
       ctx.lineWidth = 1;
-      for (k = 0; k < nodes.length; k++) {
-        var a = nodes[k];
-        for (var j = k + 1; j < nodes.length; j++) {
-          var b = nodes[j];
-          var ddx = a.px - b.px, ddy = a.py - b.py;
+      for (j = 0; j < nodes.length; j++) {
+        var p1 = nodes[j];
+        for (var q = j + 1; q < nodes.length; q++) {
+          var p2 = nodes[q];
+          var ddx = p1.px - p2.px, ddy = p1.py - p2.py;
           var d2 = ddx * ddx + ddy * ddy;
           if (d2 > LINK * LINK) continue;
-          var d = Math.sqrt(d2);
-          var al = (1 - d / LINK) * (0.05 + 0.16 * ta);
+          var al = (1 - Math.sqrt(d2) / LINK) * (0.05 + 0.17 * ta);
           if (al < 0.006) continue;
           ctx.strokeStyle = "rgba(3,29,64," + al.toFixed(3) + ")";
           ctx.beginPath();
-          ctx.moveTo(a.px, a.py);
-          ctx.lineTo(b.px, b.py);
+          ctx.moveTo(p1.px, p1.py);
+          ctx.lineTo(p2.px, p2.py);
           ctx.stroke();
         }
       }
 
-      /* Cresta: se va trazando a medida que cada nodo encuentra su lugar */
-      ctx.lineWidth = 2;
+      /* Cresta: se traza a medida que cada nodo encuentra su lugar */
+      ctx.lineWidth = 2.2;
       ctx.lineJoin = "round";
       ctx.lineCap = "round";
-      for (k = 0; k < nodes.length - 1; k++) {
-        var p1 = nodes[k], p2 = nodes[k + 1];
-        var tm = Math.min(p1.t, p2.t);
+      for (j = 0; j < CREST - 1; j++) {
+        var c1 = nodes[j], c2 = nodes[j + 1];
+        var tm = Math.min(c1.t, c2.t);
         if (tm <= 0.4) continue;
-        ctx.strokeStyle = "rgba(30,137,196," + (((tm - 0.4) / 0.6) * 0.5).toFixed(3) + ")";
+        ctx.strokeStyle = "rgba(30,137,196," + (((tm - 0.4) / 0.6) * 0.62).toFixed(3) + ")";
         ctx.beginPath();
-        ctx.moveTo(p1.px, p1.py);
-        ctx.lineTo(p2.px, p2.py);
+        ctx.moveTo(c1.px, c1.py);
+        ctx.lineTo(c2.px, c2.py);
         ctx.stroke();
       }
 
-      /* Nodos */
-      for (k = 0; k < nodes.length; k++) {
-        n = nodes[k];
-        ctx.fillStyle = "rgba(69,174,229," + (0.2 + 0.45 * n.t).toFixed(3) + ")";
-        ctx.beginPath();
-        ctx.arc(n.px, n.py, 1.5 + 1.7 * n.t, 0, Math.PI * 2);
+      /* Nodos: la cresta pesa más que el macizo */
+      for (j = 0; j < nodes.length; j++) {
+        n = nodes[j];
+        if (n.crest) {
+          ctx.fillStyle = "rgba(69,174,229," + (0.22 + 0.48 * n.t).toFixed(3) + ")";
+          ctx.beginPath();
+          ctx.arc(n.px, n.py, 1.6 + 1.8 * n.t, 0, Math.PI * 2);
+        } else {
+          ctx.fillStyle = "rgba(69,174,229," + (0.14 + 0.3 * n.t).toFixed(3) + ")";
+          ctx.beginPath();
+          ctx.arc(n.px, n.py, 1.1 + 1.2 * n.t, 0, Math.PI * 2);
+        }
         ctx.fill();
       }
     }
 
     measure();
-
     if (reduced) { draw(0, true); return; }
 
     var running = true;
     if ("IntersectionObserver" in window) {
-      new IntersectionObserver(function (es) {
-        running = es[0].isIntersecting;
-      }, { threshold: 0 }).observe(hero);
+      new IntersectionObserver(function (es) { running = es[0].isIntersecting; },
+        { threshold: 0 }).observe(hero);
     }
     var t0 = performance.now();
-    function frame(now) {
+    (function frame(now) {
       if (running) draw((now - t0) / 1000, false);
       requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
+    })(t0);
 
     var to;
     window.addEventListener("resize", function () {
@@ -292,8 +338,19 @@
     var els = document.querySelectorAll(".reveal");
     if (!els.length) return;
     var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("is-in"); io.unobserve(e.target); }
+      /* Lo que entra junto se escalona. En celular, donde las grillas
+         se apilan, cada tarjeta gana su propio momento en vez de que
+         aparezcan las tres de golpe. */
+      var batch = [];
+      es.forEach(function (e) { if (e.isIntersecting) batch.push(e.target); });
+      if (!batch.length) return;
+      batch.sort(function (a, b) {
+        return a.compareDocumentPosition(b) & 4 ? -1 : 1;
+      });
+      batch.forEach(function (el, i) {
+        el.style.transitionDelay = Math.min(i * 0.085, 0.42) + "s";
+        el.classList.add("is-in");
+        io.unobserve(el);
       });
     }, { threshold: 0.05, rootMargin: "0px 0px -6% 0px" });
     els.forEach(function (el) { io.observe(el); });
@@ -333,9 +390,22 @@
       track.parentNode.appendChild(clone);
       var d = track.scrollWidth;
       if (!d) return;
-      gsap.to([track, clone], {
+      var tl = gsap.to([track, clone], {
         x: -d, duration: d / 58, ease: "none", repeat: -1,
         modifiers: { x: gsap.utils.unitize(function (x) { return parseFloat(x) % d; }) }
+      });
+      if (reduced) return;
+      /* La pasarela acelera con el scroll: en celular, donde no hay
+         hover, es parte de lo que mantiene la página viva. */
+      var vel = 0;
+      ScrollTrigger.create({
+        trigger: document.body, start: "top top", end: "bottom bottom",
+        onUpdate: function (self) { vel = self.getVelocity(); }
+      });
+      gsap.ticker.add(function () {
+        var want = 1 + Math.min(Math.abs(vel) / 1400, 2.4);
+        tl.timeScale(tl.timeScale() + (want - tl.timeScale()) * 0.07);
+        vel *= 0.92;
       });
     });
   }
@@ -372,6 +442,15 @@
       gsap.to(el, { yPercent: d * 40, ease: "none",
         scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.6 } });
     });
+    /* Las fotos enmarcadas se mueven más lento que su marco: da
+       profundidad sin que nada se despegue del recorte. */
+    document.querySelectorAll("[data-para-img]").forEach(function (img) {
+      var frame = img.closest("figure") || img.parentNode;
+      gsap.fromTo(img, { yPercent: -7 }, {
+        yPercent: 7, ease: "none",
+        scrollTrigger: { trigger: frame, start: "top bottom", end: "bottom top", scrub: 0.8 }
+      });
+    });
   }
 
   /* ---------------- MÉTODO CIMA ----------------
@@ -389,14 +468,14 @@
     var steps = Array.prototype.slice.call(sec.querySelectorAll(".cima-index li"));
     if (!planos.length) return;
 
-    var BASE = 156, TOP = 12;
+    var BASE = 150, TOP = 14;
 
     function render(p) {
       var y = BASE - (BASE - TOP) * p;
       if (rise) rise.setAttribute("y", y.toFixed(1));
       if (level) { level.setAttribute("y1", y.toFixed(1)); level.setAttribute("y2", y.toFixed(1)); }
       if (tag) {
-        tag.setAttribute("y", Math.max(TOP + 11, y - 7).toFixed(1));
+        tag.setAttribute("y", Math.max(TOP + 10, y - 6).toFixed(1));
         tag.textContent = (p * 100 < 10 ? "0" : "") + Math.round(p * 100) + "%";
       }
       if (peak) peak.classList.toggle("is-on", p > 0.96);

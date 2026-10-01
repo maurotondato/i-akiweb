@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css?v=20261005">
+<link rel="stylesheet" href="styles.css?v=20261006">
 </head>
 <body>
 
@@ -48,7 +48,6 @@
      La montaña se arma con una red de nodos y se vuelve a
      desarmar: la mentalidad se construye, no se alcanza. -->
 <header class="hero" id="top">
-  <img class="hero-bg" src="assets/img/montana-bg.webp" alt="" width="2400" height="980" aria-hidden="true">
   <canvas class="neuro" data-neuro aria-hidden="true"></canvas>
   <svg class="path-src" aria-hidden="true" width="0" height="0">
     <path data-shape d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z"/>
@@ -68,7 +67,7 @@
       </div>
     </div>
 
-    <div class="hero-media" data-parallax="-0.06">
+    <div class="hero-media" data-parallax="-0.11">
       <img class="hero-cut" src="assets/img/hero-cuerpo.webp" alt="Iñaki Etchegaray" width="683" height="1400" fetchpriority="high">
       <div class="hero-chip">
         <b data-count-to="5">0</b>
@@ -105,15 +104,19 @@
               <stop offset="0%" stop-color="#0B3A66"/>
               <stop offset="100%" stop-color="#45AEE5"/>
             </linearGradient>
-            <clipPath id="clipRise"><rect data-rise x="0" y="156" width="420" height="420"/></clipPath>
+            <clipPath id="clipRise"><rect data-rise x="0" y="150" width="420" height="420"/></clipPath>
           </defs>
           <g transform="translate(10 18) scale(1.19)">
             <path class="mnt-ghost" d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z"/>
-            <path class="mnt-fill" clip-path="url(#clipRise)" d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z"/>
+          </g>
+          <g clip-path="url(#clipRise)">
+            <g transform="translate(10 18) scale(1.19)">
+              <path class="mnt-fill" d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z"/>
+            </g>
           </g>
           <circle class="peak" data-peak cx="158.8" cy="18" r="4.5"/>
-          <line class="level" data-level x1="4" y1="156" x2="416" y2="156"/>
-          <text class="level-tag" data-level-tag x="416" y="149" text-anchor="end">00%</text>
+          <line class="level" data-level x1="4" y1="150" x2="416" y2="150"/>
+          <text class="level-tag" data-level-tag x="416" y="143" text-anchor="end">00%</text>
         </svg>
       </div>
 
@@ -161,7 +164,7 @@
 <section class="about" id="sobre">
   <div class="shell about-top">
     <figure class="about-photo reveal">
-      <img src="assets/img/sobre-inaki.webp" alt="Iñaki Etchegaray" width="1000" height="1250" loading="lazy">
+      <img data-para-img src="assets/img/sobre-inaki.webp" alt="Iñaki Etchegaray" width="1000" height="1250" loading="lazy">
     </figure>
     <div class="about-intro">
       <p class="kicker reveal">Sobre mí</p>
@@ -357,8 +360,8 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261005"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261005"></script>
-<script defer src="main.js?v=20261005"></script>
+<script defer src="lib/gsap.min.js?v=20261006"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261006"></script>
+<script defer src="main.js?v=20261006"></script>
 </body>
 </html>
