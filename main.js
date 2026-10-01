@@ -35,13 +35,17 @@
 
   /* ---------------- SPLIT TEXT ----------------
      Itera childNodes para no aplastar <em> ni <br>. */
+  /* Agrupa los caracteres por palabra: sin esto el navegador
+     corta a mitad de palabra, porque cada letra es inline-block. */
   function wrapChars(text, cls) {
-    var out = "";
-    for (var i = 0; i < text.length; i++) {
-      var ch = text[i];
-      out += ch === " " ? " " : '<span class="' + cls + '" aria-hidden="true">' + escHTML(ch) + "</span>";
-    }
-    return out;
+    return text.split(/(\s+)/).map(function (word) {
+      if (/^\s*$/.test(word)) return word;
+      var inner = "";
+      for (var i = 0; i < word.length; i++) {
+        inner += '<span class="' + cls + '" aria-hidden="true">' + escHTML(word[i]) + "</span>";
+      }
+      return '<span class="split-unit" aria-hidden="true">' + inner + "</span>";
+    }).join("");
   }
   function wrapWords(text, cls) {
     return text.split(/(\s+)/).map(function (w) {
