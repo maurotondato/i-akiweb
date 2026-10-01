@@ -132,12 +132,16 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       LINK = Math.max(68, W * 0.072);
 
-      /* La silueta ocupa todo el ancho y se estira en alto para que
-         deje de parecer una cordillera plana. */
-      var mw = W * 0.86;
-      var mh = mw * (bb.height / bb.width) * 1.26;
-      var ox = (W - mw) * 0.92;
-      var oy = H * 0.99 - mh;
+      /* La silueta se estira en alto para que deje de parecer una
+         cordillera plana. En desktop vive a la derecha, detrás de la
+         figura; en celular se agranda y sangra por los dos costados,
+         así las cumbres asoman por encima de la foto en vez de quedar
+         tapadas por ella. */
+      var narrow = W < 760;
+      var mw = W * (narrow ? 2.0 : 0.86);
+      var mh = mw * (bb.height / bb.width) * (narrow ? 1.5 : 1.26);
+      var ox = narrow ? (W - mw) / 2 : (W - mw) * 0.92;
+      var oy = (narrow ? H * 0.9 : H * 0.99) - mh;
       for (var k = 0; k < nodes.length; k++) {
         var n = nodes[k];
         n.tx = ox + n.nx * mw;
