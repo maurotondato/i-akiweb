@@ -137,7 +137,7 @@ ul,ol{margin:0;padding:0;list-style:none}
   .hero-grid{grid-template-columns:1fr;gap:14px}
   .hero-media{height:min(36svh,300px)}
   .hero-cut{height:100%;width:auto;max-width:100%}
-  .hero::after{background:linear-gradient(176deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.52) 26%,rgba(255,255,255,0) 50%)}
+  .hero::after{background:linear-gradient(178deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.5) 20%,rgba(255,255,255,0) 40%)}
   .hero-chip{left:auto;right:0;bottom:0}
   .nav-links{display:none}
 }

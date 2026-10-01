@@ -84,72 +84,85 @@
     });
   }
 
-  /* ---------------- HERO: la montaña se construye ----------------
-     Antes seguíamos el contorno completo del isotipo, que va y vuelve
-     sobre sí mismo: el resultado parecía un gráfico, no una montaña.
-     Ahora nos quedamos sólo con el PERFIL SUPERIOR del logo —para cada
-     franja vertical, su punto más alto— y además sembramos nodos DENTRO
-     del macizo. Con una línea de horizonte abajo, lo que se arma es
-     inconfundible: una cumbre apoyada sobre el suelo.
-     Los nodos nacen dispersos, se enlazan y se ordenan; después se
-     desarman. La mentalidad se construye, no se alcanza. */
-  function initNeuro() {
+  /* ---------------- HERO: el macizo que se construye ----------------
+     La red de nodos no se leía como montaña: demasiado fina, sin masa.
+     Acá la montaña está hecha de bloques que crecen desde el suelo,
+     columna por columna. Cada bloque que aparece es un paso: se ve el
+     ascenso, no sólo el resultado. Un punto de cumbre va trepando por
+     lo más alto a medida que el macizo sube.
+     Nunca se derrumba: una vez armado se TRANSFORMA en una cumbre más
+     alta, y después en otra, en bucle. La cima no se alcanza —cada vez
+     que llegás, hay una más arriba para construir. */
+  function initMassif() {
     var cv = document.querySelector("[data-neuro]");
     var shape = document.querySelector("[data-shape]");
     var hero = document.querySelector(".hero");
-    if (!cv || !shape || !hero) return;
+    if (!cv || !hero) return;
     var ctx = cv.getContext("2d");
     if (!ctx) return;
 
-    var bb = shape.getBBox();
-    var total = shape.getTotalLength();
-    if (!total || !bb.width || !bb.height) return;
-
     var small = window.innerWidth < 760;
-    var BINS = small ? 32 : 46;
-    var MASS = small ? 48 : 78;
+    var COLS = small ? 21 : 34;
+    var ROWS = small ? 10 : 13;
+    var GAP = 3;
 
-    /* Perfil superior del isotipo */
-    var i, sky = [];
-    for (i = 0; i < BINS; i++) sky[i] = Infinity;
-    for (var k = 0; k <= 1600; k++) {
-      var sp = shape.getPointAtLength(total * k / 1600);
-      var b = Math.round((sp.x - bb.x) / bb.width * (BINS - 1));
-      if (b < 0) b = 0; else if (b > BINS - 1) b = BINS - 1;
-      if (sp.y < sky[b]) sky[b] = sp.y;
+    /* Un pico: caída casi recta, apenas cóncava, como una ladera real */
+    function peak(x, c, w, h, p) {
+      var d = 1 - Math.abs((x - c) / w);
+      return d <= 0 ? 0 : h * Math.pow(d, p);
     }
-    for (i = 0; i < BINS; i++) {
-      if (isFinite(sky[i])) continue;
-      var a = i - 1, c = i + 1;
-      while (a >= 0 && !isFinite(sky[a])) a--;
-      while (c < BINS && !isFinite(sky[c])) c++;
-      sky[i] = a >= 0 && c < BINS ? (sky[a] + sky[c]) / 2 : (a >= 0 ? sky[a] : sky[c]);
-    }
-    var ridge = sky.map(function (y) { return (y - bb.y) / bb.height; });
-    function ridgeAt(nx) {
-      var f = nx * (BINS - 1), i0 = Math.floor(f), i1 = Math.min(BINS - 1, i0 + 1);
-      return ridge[i0] + (ridge[i1] - ridge[i0]) * (f - i0);
+    function build(fn) {
+      var a = [];
+      for (var i = 0; i < COLS; i++) a.push(Math.max(0.06, fn(i / (COLS - 1))));
+      return a;
     }
 
-    var nodes = [];
-    function add(nx, ny, onRidge) {
-      nodes.push({
-        nx: nx, ny: ny, crest: onRidge, o: nx,
-        sx: Math.random(), sy: 0.18 + Math.random() * 0.76,
-        ph: Math.random() * Math.PI * 2, sp: 0.25 + Math.random() * 0.5,
-        amp: 10 + Math.random() * 26,
-        tx: 0, ty: 0, x: 0, y: 0, t: 0, px: 0, py: 0
-      });
-    }
-    for (i = 0; i < BINS; i++) add(i / (BINS - 1), ridge[i], true);
-    var CREST = nodes.length;
-    for (i = 0; i < MASS; i++) {
-      var nx = 0.02 + Math.random() * 0.96;
-      var top = ridgeAt(nx);
-      add(nx, top + (1 - top) * Math.pow(Math.random(), 0.72), false);
+    /* El perfil del isotipo es uno de los estados: en algún momento del
+       ciclo el macizo ES la montaña de la marca. */
+    function brandProfile() {
+      if (!shape) return null;
+      var bb, total;
+      try { bb = shape.getBBox(); total = shape.getTotalLength(); } catch (e) { return null; }
+      if (!total || !bb.width || !bb.height) return null;
+      var i, sky = [];
+      for (i = 0; i < COLS; i++) sky[i] = Infinity;
+      for (var k = 0; k <= 1400; k++) {
+        var sp = shape.getPointAtLength(total * k / 1400);
+        var b = Math.round((sp.x - bb.x) / bb.width * (COLS - 1));
+        if (b < 0) b = 0; else if (b > COLS - 1) b = COLS - 1;
+        if (sp.y < sky[b]) sky[b] = sp.y;
+      }
+      for (i = 0; i < COLS; i++) {
+        if (isFinite(sky[i])) continue;
+        var a = i - 1, c = i + 1;
+        while (a >= 0 && !isFinite(sky[a])) a--;
+        while (c < COLS && !isFinite(sky[c])) c++;
+        sky[i] = a >= 0 && c < COLS ? (sky[a] + sky[c]) / 2 : (a >= 0 ? sky[a] : sky[c]);
+      }
+      var prof = sky.map(function (y) { return (1 - (y - bb.y) / bb.height) * 0.96; });
+      /* El contorno del logo trae dientes de un píxel que a la escala de
+         los bloques leen como ruido: dos pasadas de suavizado y las
+         laderas quedan limpias. */
+      for (var pass = 0; pass < 1; pass++) {
+        var sm = prof.slice();
+        for (i = 1; i < COLS - 1; i++) sm[i] = (prof[i - 1] + prof[i] * 2 + prof[i + 1]) / 4;
+        prof = sm;
+      }
+      return prof.map(function (v) { return Math.max(0.06, v); });
     }
 
-    var W = 0, H = 0, LINK = 0, BASEY = 0;
+    /* Cumbres angostas a propósito: con laderas anchas el ápice cae
+       menos de un bloque por columna y la cima se amesetaba. */
+    var profiles = [
+      build(function (x) { return Math.max(peak(x, 0.36, 0.26, 0.6, 1.35), peak(x, 0.64, 0.17, 0.4, 1.35)); }),
+      brandProfile() || build(function (x) { return Math.max(peak(x, 0.4, 0.26, 0.82, 1.3), peak(x, 0.7, 0.19, 0.6, 1.3)); }),
+      build(function (x) {
+        return Math.max(peak(x, 0.47, 0.27, 1, 1.3), peak(x, 0.74, 0.19, 0.66, 1.3),
+          peak(x, 0.18, 0.15, 0.4, 1.4));
+      })
+    ];
+
+    var W = 0, H = 0, BASEY = 0, BW = 0, BH = 0, OX = 0;
     function measure() {
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var r = hero.getBoundingClientRect();
@@ -160,89 +173,91 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
       var nw = W < 760;
-      LINK = nw ? 76 : Math.max(78, W * 0.084);
-      /* En desktop la cumbre vive a la derecha, detrás de la figura.
-         En celular se agranda y sangra por los costados para que las
-         cumbres asomen por encima de la foto en vez de quedar tapadas. */
-      var mw = W * (nw ? 1.22 : 0.84);
-      var mh = H * (nw ? 0.34 : 0.52);
-      var ox = nw ? -W * 0.11 : W * 0.17;
-      BASEY = H * (nw ? 0.86 : 0.93);
-      var oy = BASEY - mh;
-      for (var j = 0; j < nodes.length; j++) {
-        var n = nodes[j];
-        n.tx = ox + n.nx * mw;
-        n.ty = oy + n.ny * mh;
-        n.x = n.sx * W;
-        n.y = n.sy * H;
+      /* En desktop el macizo vive a la derecha, detrás de la figura. En
+         celular se agranda y sangra por los costados, así las cumbres
+         asoman por encima de la foto en vez de quedar tapadas. */
+      /* En celular la silueta entra ENTERA y se apoya por encima de la
+         figura: sangrada por los costados sólo se veía una tajada de
+         ladera y las terrazas leían como edificios. Con las dos faldas
+         bajando hasta el horizonte, se lee montaña de una. */
+      var mw = W * (nw ? 1.05 : 0.86);
+      var mh = H * (nw ? 0.25 : 0.58);
+      OX = nw ? -W * 0.025 : W * 0.16;
+      BASEY = H * (nw ? 0.735 : 0.93);
+      BW = mw / COLS;
+      BH = mh / ROWS;
+    }
+
+    var mx = -9999;
+    if (fine) {
+      hero.addEventListener("pointermove", function (e) {
+        mx = e.clientX - hero.getBoundingClientRect().left;
+      });
+      hero.addEventListener("pointerleave", function () { mx = -9999; });
+    }
+
+    function clampf(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+    function stag(g, o, spread) { return clampf((g - o * spread) / (1 - spread)); }
+    function easeOut(x) { return 1 - Math.pow(1 - x, 3); }
+    function easeInOut(x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
+
+    var GROW = 3.4, HOLD = 1.9, MORPH = 2.4;
+    var SEG = MORPH + HOLD, LOOP = profiles.length * SEG;
+    var h = new Array(COLS);
+
+    function heights(time) {
+      var c;
+      if (time < GROW) {
+        var g = time / GROW;
+        for (c = 0; c < COLS; c++) {
+          h[c] = profiles[0][c] * easeOut(stag(g, c / (COLS - 1), 0.62));
+        }
+        return;
+      }
+      var tt = time - GROW;
+      if (tt < HOLD) {
+        for (c = 0; c < COLS; c++) h[c] = profiles[0][c];
+        return;
+      }
+      var u = (tt - HOLD) % LOOP;
+      var seg = Math.floor(u / SEG);
+      var k = (u - seg * SEG) / MORPH;
+      var from = profiles[seg % profiles.length];
+      var to = profiles[(seg + 1) % profiles.length];
+      for (c = 0; c < COLS; c++) {
+        var m = k >= 1 ? 1 : easeInOut(stag(k, c / (COLS - 1), 0.35));
+        h[c] = from[c] + (to[c] - from[c]) * m;
       }
     }
 
-    var mx = -9999, my = -9999;
-    if (fine) {
-      hero.addEventListener("pointermove", function (e) {
-        var r = hero.getBoundingClientRect();
-        mx = e.clientX - r.left; my = e.clientY - r.top;
-      });
-      hero.addEventListener("pointerleave", function () { mx = -9999; my = -9999; });
+    function rect(x, y, w, hh, rad) {
+      if (ctx.roundRect) ctx.roundRect(x, y, w, hh, rad);
+      else ctx.rect(x, y, w, hh);
+    }
+    /* Más alto, más nítido: abajo el macizo se pierde en la bruma */
+    function rowStyle(r, a) {
+      var alt = ROWS > 1 ? r / (ROWS - 1) : 1;
+      var cr = Math.round(14 + 55 * alt);
+      var cg = Math.round(59 + 115 * alt);
+      var cb = Math.round(102 + 127 * alt);
+      return "rgba(" + cr + "," + cg + "," + cb + "," + ((0.14 + 0.44 * alt) * a).toFixed(3) + ")";
     }
 
-    function stag(g, order, spread) { return clamp01((g - order * spread) / (1 - spread)); }
-    function easeOut(x) { return 1 - Math.pow(1 - x, 3); }
-    function easeIn(x) { return x * x * x; }
-
-    var A = 3.6, HOLD = 2.8, D = 2.8, REST = 1.0, CYCLE = A + HOLD + D + REST;
-    function phase(tc) {
-      if (tc < A) return { g: tc / A, mode: 1 };
-      if (tc < A + HOLD) return { g: 1, mode: 2 };
-      if (tc < A + HOLD + D) return { g: (tc - A - HOLD) / D, mode: 3 };
-      return { g: 1, mode: 4 };
-    }
-
-    /* El scroll sacude la red: en celular, donde no hay puntero, es lo
-       que mantiene la animación viva mientras se recorre el hero. */
     var lastY = window.scrollY || 0, shake = 0;
 
     function draw(time, frozen) {
-      var st = frozen ? { g: 1, mode: 2 } : phase(time % CYCLE);
-      var sum = 0, j, n;
+      heights(frozen ? GROW : time);
 
       var yNow = window.scrollY || 0;
-      var dv = Math.min(Math.abs(yNow - lastY), 70);
+      shake += ((frozen ? 0 : Math.min(Math.abs(yNow - lastY), 70) / 70) - shake) * 0.12;
       lastY = yNow;
-      shake += ((frozen ? 0 : dv / 70) - shake) * 0.12;
 
-      for (j = 0; j < nodes.length; j++) {
-        n = nodes[j];
-        if (st.mode === 1) n.t = easeOut(stag(st.g, n.o, 0.6));
-        else if (st.mode === 2) n.t = 1;
-        else if (st.mode === 3) n.t = 1 - easeIn(stag(st.g, 1 - n.o, 0.6));
-        else n.t = 0;
-        sum += n.t;
-
-        var wob = frozen ? 0 : 1;
-        var dx = Math.sin(time * n.sp + n.ph) * n.amp * (1 - n.t * 0.93) * wob;
-        var dy = Math.cos(time * n.sp * 0.82 + n.ph) * n.amp * 0.72 * (1 - n.t * 0.93) * wob;
-        var x = n.x + (n.tx - n.x) * n.t + dx + Math.sin(time * 7 + n.ph) * shake * 6;
-        var y = n.y + (n.ty - n.y) * n.t + dy + Math.cos(time * 6 + n.ph) * shake * 5;
-
-        var rx = x - mx, ry = y - my;
-        var rd = Math.sqrt(rx * rx + ry * ry);
-        if (rd < 130 && rd > 0.01) {
-          var f = (1 - rd / 130) * 38;
-          x += (rx / rd) * f; y += (ry / rd) * f;
-        }
-        n.px = x; n.py = y;
-      }
-
-      var ta = sum / nodes.length;
       ctx.clearRect(0, 0, W, H);
 
-      /* Horizonte: sin suelo la silueta flota y no se lee como montaña */
+      /* Suelo: sin horizonte la silueta flota y deja de leerse montaña */
       var hg = ctx.createLinearGradient(0, 0, W, 0);
-      var ha = 0.08 + ta * 0.34;
       hg.addColorStop(0, "rgba(30,137,196,0)");
-      hg.addColorStop(0.45, "rgba(30,137,196," + ha.toFixed(3) + ")");
+      hg.addColorStop(0.45, "rgba(30,137,196,.34)");
       hg.addColorStop(1, "rgba(30,137,196,0)");
       ctx.strokeStyle = hg;
       ctx.lineWidth = 1.2;
@@ -251,63 +266,74 @@
       ctx.lineTo(W, BASEY);
       ctx.stroke();
 
-      /* Macizo: sólo cuando la cresta ya está lo bastante armada */
-      if (ta > 0.72) {
+      /* Altura efectiva de cada columna, con el relieve del puntero */
+      var c, hv = [];
+      for (c = 0; c < COLS; c++) {
+        var v = h[c] * ROWS;
+        if (mx > -9000) {
+          var dx = Math.abs(OX + (c + 0.5) * BW - mx);
+          if (dx < BW * 5) v += (1 - dx / (BW * 5)) * 1.15;
+        }
+        if (shake > 0.02) v += Math.sin(time * 5 + c * 0.55) * shake * 0.5;
+        hv.push(v);
+      }
+
+      /* Una pasada por fila: 15 rellenos en vez de cientos */
+      var rad = Math.min(2.5, BW * 0.16);
+      for (var r = 0; r < ROWS; r++) {
+        var any = false;
         ctx.beginPath();
-        ctx.moveTo(nodes[0].px, BASEY);
-        for (j = 0; j < CREST; j++) ctx.lineTo(nodes[j].px, nodes[j].py);
-        ctx.lineTo(nodes[CREST - 1].px, BASEY);
-        ctx.closePath();
-        ctx.fillStyle = "rgba(69,174,229," + (((ta - 0.72) / 0.28) * 0.16).toFixed(3) + ")";
+        for (c = 0; c < COLS; c++) {
+          if (hv[c] < r + 1) continue;
+          rect(OX + c * BW + GAP / 2, BASEY - (r + 1) * BH + GAP / 2,
+            BW - GAP, BH - GAP, rad);
+          any = true;
+        }
+        if (!any) continue;
+        ctx.fillStyle = rowStyle(r, 1);
         ctx.fill();
       }
 
-      /* Enlaces */
-      ctx.lineWidth = 1;
-      for (j = 0; j < nodes.length; j++) {
-        var p1 = nodes[j];
-        for (var q = j + 1; q < nodes.length; q++) {
-          var p2 = nodes[q];
-          var ddx = p1.px - p2.px, ddy = p1.py - p2.py;
-          var d2 = ddx * ddx + ddy * ddy;
-          if (d2 > LINK * LINK) continue;
-          var al = (1 - Math.sqrt(d2) / LINK) * (0.05 + 0.17 * ta);
-          if (al < 0.006) continue;
-          ctx.strokeStyle = "rgba(3,29,64," + al.toFixed(3) + ")";
-          ctx.beginPath();
-          ctx.moveTo(p1.px, p1.py);
-          ctx.lineTo(p2.px, p2.py);
-          ctx.stroke();
-        }
+      /* El bloque que está llegando: entra achicado y aterriza */
+      for (c = 0; c < COLS; c++) {
+        var full = Math.floor(hv[c]);
+        var frac = hv[c] - full;
+        if (frac < 0.04 || full >= ROWS) continue;
+        var ins = (1 - frac) * BW * 0.2;
+        ctx.beginPath();
+        rect(OX + c * BW + GAP / 2 + ins, BASEY - (full + 1) * BH + GAP / 2 + (1 - frac) * BH * 0.5,
+          BW - GAP - ins * 2, BH - GAP, rad);
+        ctx.fillStyle = rowStyle(full, frac);
+        ctx.fill();
       }
 
-      /* Cresta: se traza a medida que cada nodo encuentra su lugar */
-      ctx.lineWidth = 2.2;
-      ctx.lineJoin = "round";
+      /* Canto superior: el escalonado se lee como peldaños */
+      ctx.lineWidth = 1.6;
       ctx.lineCap = "round";
-      for (j = 0; j < CREST - 1; j++) {
-        var c1 = nodes[j], c2 = nodes[j + 1];
-        var tm = Math.min(c1.t, c2.t);
-        if (tm <= 0.4) continue;
-        ctx.strokeStyle = "rgba(30,137,196," + (((tm - 0.4) / 0.6) * 0.62).toFixed(3) + ")";
+      for (c = 0; c < COLS; c++) {
+        if (hv[c] < 0.3) continue;
+        var top = BASEY - Math.min(hv[c], ROWS) * BH;
+        ctx.strokeStyle = "rgba(69,174,229," + (0.34 + 0.38 * Math.min(1, hv[c] / ROWS)).toFixed(3) + ")";
         ctx.beginPath();
-        ctx.moveTo(c1.px, c1.py);
-        ctx.lineTo(c2.px, c2.py);
+        ctx.moveTo(OX + c * BW + GAP / 2, top);
+        ctx.lineTo(OX + (c + 1) * BW - GAP / 2, top);
         ctx.stroke();
       }
 
-      /* Nodos: la cresta pesa más que el macizo */
-      for (j = 0; j < nodes.length; j++) {
-        n = nodes[j];
-        if (n.crest) {
-          ctx.fillStyle = "rgba(69,174,229," + (0.22 + 0.48 * n.t).toFixed(3) + ")";
-          ctx.beginPath();
-          ctx.arc(n.px, n.py, 1.6 + 1.8 * n.t, 0, Math.PI * 2);
-        } else {
-          ctx.fillStyle = "rgba(69,174,229," + (0.14 + 0.3 * n.t).toFixed(3) + ")";
-          ctx.beginPath();
-          ctx.arc(n.px, n.py, 1.1 + 1.2 * n.t, 0, Math.PI * 2);
-        }
+      /* El punto de cumbre trepa con el macizo */
+      var best = 0;
+      for (c = 1; c < COLS; c++) if (hv[c] > hv[best]) best = c;
+      if (hv[best] > 0.6) {
+        var px = OX + (best + 0.5) * BW;
+        var py = BASEY - Math.min(hv[best], ROWS) * BH - 7;
+        var pulse = 1 + Math.sin(time * 2.2) * 0.14;
+        ctx.fillStyle = "rgba(69,174,229,.16)";
+        ctx.beginPath();
+        ctx.arc(px, py, 11 * pulse, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(30,137,196,.9)";
+        ctx.beginPath();
+        ctx.arc(px, py, 3.2, 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -572,7 +598,7 @@
     safe(initChrome, "chrome");
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
-    safe(initNeuro, "neuro");
+    safe(initMassif, "massif");
     safe(initCountUp, "countup");
     safe(initMarquee, "marquee");
     safe(initMagnetic, "magnetic");
