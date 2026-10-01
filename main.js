@@ -84,7 +84,28 @@
     });
   }
 
-  /* ---------------- HERO: el macizo que se construye ----------------
+  /* El hero es la escena CIMA (cima.js, WebGL2). Si el dispositivo no
+     la soporta cae al macizo 2D, que dice lo mismo con canvas plano. */
+  function initHero() {
+    var cv = document.querySelector("[data-neuro]");
+    if (!cv) return;
+    /* Si la escena 3D se repliega en marcha —GPU que no da, contexto
+       perdido— avisa por aca y el macizo 2D toma el relevo. */
+    var fell = false;
+    window.CIMA_fallback = function () {
+      if (fell) return;
+      fell = true;
+      /* Un canvas que ya entrego un contexto WebGL no devuelve nunca
+         uno 2d: hay que reponer el elemento antes del relevo. */
+      var old = document.querySelector("[data-neuro]");
+      if (old && old.parentNode) old.parentNode.replaceChild(old.cloneNode(false), old);
+      safe(initMassif, "massif");
+    };
+    if (window.CIMA_mount && window.CIMA_mount(cv)) return;
+    initMassif();
+  }
+
+  /* ---------------- FALLBACK: el macizo que se construye ----------------
      La red de nodos no se leía como montaña: demasiado fina, sin masa.
      Acá la montaña está hecha de bloques que crecen desde el suelo,
      columna por columna. Cada bloque que aparece es un paso: se ve el
@@ -598,7 +619,7 @@
     safe(initChrome, "chrome");
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
-    safe(initMassif, "massif");
+    safe(initHero, "hero");
     safe(initCountUp, "countup");
     safe(initMarquee, "marquee");
     safe(initMagnetic, "magnetic");

@@ -92,16 +92,27 @@ ul,ol{margin:0;padding:0;list-style:none}
   will-change:transform;transition:transform .8s var(--ease-soft)}
 
 /* ---------------- HERO ----------------
-   Canvas con red de nodos: la montaña se construye y se desarma. */
+   El canvas lo toma la escena CIMA (cima.js, WebGL2). */
 .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
   padding:104px 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
+/* La escena se enmascara sobre la columna del titular. Así la
+   legibilidad no depende de dónde quede la cámara en cada instante:
+   por mucho que la geometría se corra, nunca domina esa zona. */
 .neuro{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;
-  opacity:0;transition:opacity 1.4s var(--ease-out) .25s}
+  opacity:0;transition:opacity 1.4s var(--ease-out) .25s;
+  -webkit-mask-image:linear-gradient(100deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.42) 26%,#000 56%);
+  mask-image:linear-gradient(100deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.42) 26%,#000 56%)}
 .is-ready .neuro{opacity:1}
 .path-src{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
-/* Velo que protege la legibilidad del titular sin apagar la red */
-.hero::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
-  background:linear-gradient(104deg,rgba(255,255,255,.88) 0%,rgba(255,255,255,.62) 26%,rgba(255,255,255,0) 52%)}
+/* El amanecer sobre la cresta: lo maneja la escena según el ascenso */
+.dawn{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;
+  background:radial-gradient(58% 44% at 64% 24%,rgba(255,255,255,.92),rgba(200,230,248,.34) 42%,transparent 72%);
+  transition:opacity .5s linear}
+/* Velo sobre el titular. La escena lo afloja con --veil a medida
+   que gana altura y luz, y deja de hacer falta. */
+.hero::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:var(--veil,1);
+  background:linear-gradient(104deg,rgba(255,255,255,.8) 0%,rgba(255,255,255,.5) 28%,rgba(255,255,255,0) 56%);
+  transition:opacity .5s linear}
 .hero-grid{position:relative;z-index:3;display:grid;grid-template-columns:1.06fr .94fr;
   gap:clamp(20px,3vw,48px);align-items:center;max-width:1320px;margin:0 auto;width:100%;padding-inline:var(--gut)}
 .hero-copy{display:flex;flex-direction:column;gap:clamp(18px,2.2vw,28px);align-items:flex-start;will-change:transform}
@@ -117,7 +128,7 @@ ul,ol{margin:0;padding:0;list-style:none}
    un rectángulo visible sobre el fondo. */
 .hero-media::before{content:"";position:absolute;z-index:-1;left:50%;bottom:-4%;
   transform:translateX(-50%);width:128%;height:92%;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 62%,rgba(255,255,255,.8),rgba(255,255,255,.34) 46%,rgba(255,255,255,0) 72%)}
+  background:radial-gradient(ellipse at 50% 62%,rgba(255,255,255,.92),rgba(255,255,255,.5) 44%,rgba(255,255,255,0) 72%)}
 /* El recorte termina a media pierna: se disuelve en vez de cortarse en seco. */
 .hero-cut{height:100%;width:auto;max-width:100%;object-fit:contain;object-position:bottom center;
   opacity:0;transform:translateY(26px) scale(1.02);
@@ -137,7 +148,11 @@ ul,ol{margin:0;padding:0;list-style:none}
   .hero-grid{grid-template-columns:1fr;gap:14px}
   .hero-media{height:min(36svh,300px)}
   .hero-cut{height:100%;width:auto;max-width:100%}
-  .hero::after{background:linear-gradient(178deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.5) 20%,rgba(255,255,255,0) 40%)}
+  /* Apilado, el texto ocupa la franja superior entera: la mascara y
+     el velo pasan a ser verticales y llegan mas abajo. */
+  .hero::after{background:linear-gradient(178deg,rgba(255,255,255,.9) 0%,rgba(255,255,255,.58) 26%,rgba(255,255,255,0) 54%)}
+  .neuro{-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.3) 34%,#000 64%);
+    mask-image:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.3) 34%,#000 64%)}
   .hero-chip{left:auto;right:0;bottom:0}
   .nav-links{display:none}
 }
