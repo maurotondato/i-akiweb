@@ -8,17 +8,16 @@
 <meta name="theme-color" content="#031D40">
 <meta property="og:title" content="Iñaki Etchegaray — Coach deportivo">
 <meta property="og:description" content="La cima no se alcanza. Se construye.">
-<meta property="og:image" content="assets/img/hero-inaki.webp">
+<meta property="og:image" content="assets/img/hero-cuerpo.webp">
 <meta property="og:type" content="website">
 <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css?v=20261002">
+<link rel="stylesheet" href="styles.css?v=20261004">
 </head>
 <body>
 
-<!-- ============ SPLASH ============ -->
 <div class="splash" data-splash aria-hidden="true">
   <div class="splash-inner">
     <svg class="splash-mark" viewBox="0 0 336 110" aria-hidden="true">
@@ -32,42 +31,30 @@
 <div class="progress" aria-hidden="true"><i data-progress></i></div>
 <a class="skip" href="#metodo">Saltar al contenido</a>
 
-<!-- ============ NAV ============ -->
 <nav class="nav" data-nav>
   <a class="brand" href="#top" aria-label="Iñaki Etchegaray, inicio">
-    <img class="brand-logo brand-dark" src="assets/brand/logo-color.webp" alt="Iñaki Etchegaray — Coach deportivo" width="1200" height="583">
-    <img class="brand-logo brand-light" src="assets/brand/logo-blanco.webp" alt="" width="1200" height="583" aria-hidden="true">
+    <img src="assets/brand/logo-celeste.webp" alt="Iñaki Etchegaray — Coach deportivo" width="1200" height="583">
   </a>
   <div class="nav-links">
     <a href="#metodo">Método</a>
+    <a href="#sobre">Sobre mí</a>
     <a href="#proceso">Un proceso</a>
-    <a href="#cancha">En cancha</a>
     <a href="#programas">Programas</a>
   </div>
   <a class="btn btn-sm" href="https://wa.me/5491159236762" data-magnetic data-magnetic-strength="0.25">Agendar charla</a>
 </nav>
 
-<!-- ============ HERO ============ -->
+<!-- ============ HERO ============
+     La montaña se arma con una red de nodos y se vuelve a
+     desarmar: la mentalidad se construye, no se alcanza. -->
 <header class="hero" id="top">
-  <!-- Cordillera de marca: tres capas de la montaña del logo que
-       crecen desde abajo y un sendero que recorre la cresta. -->
-  <svg class="range" viewBox="0 0 1200 420" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-    <g class="range-layer range-far">
-      <path d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z" transform="translate(-120 40) scale(4.2)"/>
-    </g>
-    <g class="range-layer range-mid">
-      <path d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z" transform="translate(260 128) scale(3.1)"/>
-    </g>
-    <g class="range-layer range-near">
-      <path d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z" transform="translate(-40 236) scale(2.2)"/>
-    </g>
-    <!-- recorrido que asciende hasta la cima -->
-    <path class="range-trail" data-trail d="M20 404 C 150 392, 236 356, 300 300 C 352 254, 392 236, 452 214 C 530 186, 584 150, 640 110 C 690 74, 742 56, 800 44"/>
-    <circle class="range-walker" data-walker r="5" cx="20" cy="404"/>
+  <canvas class="neuro" data-neuro aria-hidden="true"></canvas>
+  <svg class="path-src" aria-hidden="true" width="0" height="0">
+    <path data-shape d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z"/>
   </svg>
 
   <div class="hero-grid">
-    <div class="hero-copy" data-parallax="0.16">
+    <div class="hero-copy" data-parallax="0.14">
       <p class="kicker hero-kicker"><i></i>Coaching deportivo · Alto rendimiento</p>
       <h1 class="hero-title" data-split="chars">La cima no se alcanza. <em>Se construye.</em></h1>
       <p class="hero-sub" data-split="words">Trabajo con la persona que existe detrás del deportista. Porque lo que sucede dentro de la cancha empieza mucho antes de entrar a jugar.</p>
@@ -80,8 +67,8 @@
       </div>
     </div>
 
-    <div class="hero-media" data-parallax="-0.07">
-      <img class="hero-cut" src="assets/img/hero-cutout.webp" alt="Iñaki Etchegaray señalando su sien" width="1047" height="806" fetchpriority="high">
+    <div class="hero-media" data-parallax="-0.06">
+      <img class="hero-cut" src="assets/img/hero-cuerpo.webp" alt="Iñaki Etchegaray" width="683" height="1400" fetchpriority="high">
       <div class="hero-chip">
         <b data-count-to="5">0</b>
         <span>años acompañando<br>procesos</span>
@@ -90,43 +77,43 @@
   </div>
 </header>
 
-<!-- ============ MARQUEE ============ -->
 <section class="marquee" aria-label="Clubes y equipos acompañados">
   <div class="marquee-track" data-marquee>
     <span>Los Pumas 7s</span><i>◆</i><span>Las Leonas</span><i>◆</i><span>La Plata Rugby</span><i>◆</i><span>Alumni</span><i>◆</i><span>CUBA Hockey</span><i>◆</i><span>Independiente Rivadavia</span><i>◆</i><span>Oakhill Hockey</span><i>◆</i><span>Los Troncos</span><i>◆</i><span>San Carlos</span><i>◆</i><span>Liceo Francés Madrid</span><i>◆</i>
   </div>
 </section>
 
-<!-- ============ MÉTODO CIMA ============
-     Sección pinneada: la montaña de la marca se dibuja y en cada
-     campamento se abre un plano del método. Un paso por vez, así
-     entra completo en cualquier pantalla. -->
+<!-- ============ MÉTODO CIMA ============ -->
 <section class="cima" id="metodo" data-cima>
   <div class="cima-pin">
+    <div class="cima-head">
+      <p class="kicker kicker-light">El método</p>
+      <ol class="cima-index" aria-hidden="true">
+        <li data-ix="0"><b>C</b><span>Claridad</span></li>
+        <li data-ix="1"><b>I</b><span>Identidad</span></li>
+        <li data-ix="2"><b>M</b><span>Mentalidad</span></li>
+        <li data-ix="3"><b>A</b><span>Acción</span></li>
+      </ol>
+    </div>
+
     <div class="cima-inner">
-
-      <div class="cima-left">
-        <p class="kicker kicker-light">El método</p>
-        <h2 class="cima-title">Método <em>CIMA</em></h2>
-        <p class="cima-lead">Cuatro planos que se construyen uno sobre otro. No se avanza al siguiente hasta que el anterior sostiene.</p>
-
-        <svg class="cima-range" viewBox="0 0 336 150" aria-hidden="true">
-          <path class="cima-silueta" d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z"/>
-          <path class="cima-base" d="M8 136 L72 120 L132 96 L196 60 L252 22"/>
-          <path class="cima-trail" data-cima-trail d="M8 136 L72 120 L132 96 L196 60 L252 22"/>
-          <g class="camp" data-camp="0"><circle class="camp-halo" cx="8" cy="136" r="9"/><circle class="camp-dot" cx="8" cy="136" r="7"/></g>
-          <g class="camp" data-camp="1"><circle class="camp-halo" cx="72" cy="120" r="9"/><circle class="camp-dot" cx="72" cy="120" r="7"/></g>
-          <g class="camp" data-camp="2"><circle class="camp-halo" cx="132" cy="96" r="9"/><circle class="camp-dot" cx="132" cy="96" r="7"/></g>
-          <g class="camp" data-camp="3"><circle class="camp-halo" cx="196" cy="60" r="9"/><circle class="camp-dot" cx="196" cy="60" r="7"/></g>
-          <g class="camp camp-top" data-camp="4"><circle class="camp-dot" cx="252" cy="22" r="6"/><path class="camp-flag" d="M252 22 L252 2 M252 4 L272 10 L252 16 Z"/></g>
+      <div class="cima-visual">
+        <svg class="cima-svg" viewBox="0 0 420 170" aria-hidden="true">
+          <defs>
+            <linearGradient id="gFill" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stop-color="#0B3A66"/>
+              <stop offset="100%" stop-color="#45AEE5"/>
+            </linearGradient>
+            <clipPath id="clipRise"><rect data-rise x="0" y="156" width="420" height="420"/></clipPath>
+          </defs>
+          <g transform="translate(10 18) scale(1.19)">
+            <path class="mnt-ghost" d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z"/>
+            <path class="mnt-fill" clip-path="url(#clipRise)" d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z"/>
+          </g>
+          <circle class="peak" data-peak cx="158.8" cy="18" r="4.5"/>
+          <line class="level" data-level x1="4" y1="156" x2="416" y2="156"/>
+          <text class="level-tag" data-level-tag x="416" y="149" text-anchor="end">00%</text>
         </svg>
-
-        <ol class="cima-dots" aria-hidden="true">
-          <li data-dot="0"><b>C</b></li>
-          <li data-dot="1"><b>I</b></li>
-          <li data-dot="2"><b>M</b></li>
-          <li data-dot="3"><b>A</b></li>
-        </ol>
       </div>
 
       <div class="cima-right">
@@ -137,7 +124,6 @@
           <p class="plano-body">Antes de entrenar la cabeza hay que saber para qué. Definimos tu propósito y separamos los objetivos de resultado de los de rendimiento, que son los únicos que podés controlar.</p>
           <ul class="chips"><li>Propósito</li><li>Objetivos de resultado</li><li>Objetivos de rendimiento</li></ul>
         </article>
-
         <article class="plano" data-plano="1">
           <span class="plano-n">02 / 04</span>
           <h3><em>I</em>dentidad</h3>
@@ -145,7 +131,6 @@
           <p class="plano-body">Quién sos cuando competís. Trabajamos tus fortalezas, tus valores y dónde se te va la energía, para construir una versión tuya que puedas sostener dentro y fuera de la cancha.</p>
           <ul class="chips"><li>Fortalezas</li><li>Valores</li><li>Energía personal</li><li>Mejor versión</li></ul>
         </article>
-
         <article class="plano" data-plano="2">
           <span class="plano-n">03 / 04</span>
           <h3><em>M</em>entalidad</h3>
@@ -153,7 +138,6 @@
           <p class="plano-body">El trabajo fino: cómo volvés después de un error, cómo sostenés la atención en los momentos que definen, y qué te decís a vos mismo cuando el partido se pone difícil.</p>
           <ul class="chips"><li>Autoconfianza</li><li>Gestión emocional</li><li>Concentración</li><li>Presencia plena</li><li>Visualización</li></ul>
         </article>
-
         <article class="plano" data-plano="3">
           <span class="plano-n">04 / 04</span>
           <h3><em>A</em>cción</h3>
@@ -162,7 +146,6 @@
           <ul class="chips"><li>Hábitos</li><li>Disciplina</li><li>Perseverancia</li><li>Rutinas</li></ul>
         </article>
       </div>
-
     </div>
   </div>
 </section>
@@ -173,40 +156,85 @@
   </div>
 </section>
 
-<!-- ============ CASO ============ -->
-<section class="case" id="proceso">
-  <figure class="case-media">
-    <img class="case-img" data-parallax-img src="assets/img/caso-charla.webp" alt="Iñaki dando una charla a un grupo de jugadores" width="1600" height="1066" loading="lazy">
-  </figure>
-  <div class="case-copy">
-    <p class="kicker reveal">Un proceso real</p>
-    <h2 class="case-title reveal" data-split="words">Llegó con 21 años y un sueño: jugar con el estadio lleno.</h2>
-    <p class="case-text reveal">El camino no fue lineal. Atravesó momentos en los que no era citado y tuvo que aprender a convivir con la frustración sin dejar de confiar en su proceso. Trabajamos su confianza, el foco durante la competencia y los hábitos cotidianos que necesitaba sostener.</p>
-    <div class="stats reveal">
-      <div class="stat"><b data-count-to="29">0</b><span>torneos<br>internacionales</span></div>
-      <div class="stat"><b data-count-to="10">0</b><span>medallas<br>de oro</span></div>
+<!-- ============ SOBRE MÍ ============ -->
+<section class="about" id="sobre">
+  <div class="shell about-top">
+    <figure class="about-photo reveal">
+      <img src="assets/img/sobre-inaki.webp" alt="Iñaki Etchegaray" width="1000" height="1250" loading="lazy">
+    </figure>
+    <div class="about-intro">
+      <p class="kicker reveal">Sobre mí</p>
+      <h2 class="about-title reveal" data-split="words">Nací prácticamente en un vestuario.</h2>
+      <p class="about-text reveal">De chico entraba a la cancha para alcanzarle la arena al pateador. Conocí vestuarios llenos de alegría y otros atravesados por la tristeza, el silencio y la frustración. Sé lo que significa competir, equivocarse, quedar afuera y volver a intentarlo.</p>
+      <p class="about-text reveal">Crecí jugando al rugby y entendiendo el mundo a través de un equipo. Dentro de los grupos fui ocupando un lugar de liderazgo, no por lo que hacía con la pelota, sino por mi manera de comunicar y de abrir las conversaciones que un equipo necesita tener.</p>
+      <p class="about-quote reveal">No busco decirte quién tenés que ser. Te acompaño a descubrirlo y a construirlo.</p>
     </div>
-    <p class="case-note reveal">Las medallas son una parte de la historia. La verdadera transformación fue aprender a enfocarse y seguir construyendo incluso cuando los resultados todavía no aparecían.</p>
+  </div>
+
+  <div class="shell why-wrap">
+    <h3 class="why-title reveal">¿Por qué elegirme?</h3>
+    <div class="why-grid">
+      <article class="why reveal">
+        <span class="why-n">01</span>
+        <h4>No acompaño desde un manual</h4>
+        <p>Acompaño desde la cercanía, la escucha y la experiencia de haber vivido el deporte desde adentro.</p>
+      </article>
+      <article class="why reveal">
+        <span class="why-n">02</span>
+        <h4>Podés hablar sin sentirte juzgado</h4>
+        <p>Pero cercanía no significa comodidad: también voy a desafiarte cuando una creencia o un miedo esté limitando tus posibilidades.</p>
+      </article>
+      <article class="why reveal">
+        <span class="why-n">03</span>
+        <h4>Cada proceso se arma a medida</h4>
+        <p>Cada deporte y cada historia son diferentes. Mi trabajo es entender qué necesita esa persona o ese equipo en su momento.</p>
+      </article>
+    </div>
+  </div>
+
+  <div class="shell cv-wrap">
+    <div class="cv-col reveal">
+      <h3 class="cv-title">Formación</h3>
+      <ul class="cv-list">
+        <li><b>Coach ontológico certificado</b><span>Escuela de Formación de Líderes</span></li>
+        <li><b>Coaching deportivo y liderazgo de alto rendimiento</b><span>FC Barcelona · Barça Universitas</span></li>
+        <li><b>Neuropsicología aplicada al deporte y la competencia</b><span>Universidad de Buenos Aires</span></li>
+        <li><b>Entrenamiento mental basado en mindfulness</b><span>Focus Mental</span></li>
+        <li><b>Técnico en comercio exterior</b><span>Diez años en empresas multinacionales antes de dedicarse al coaching</span></li>
+      </ul>
+    </div>
+
+    <div class="cv-col reveal">
+      <h3 class="cv-title">Equipos y clubes</h3>
+      <ul class="cv-list cv-clubs">
+        <li><b>Rugby</b><span>La Plata Rugby — ascenso al TOP 12 (2024, 2025 y 2026) · Asociación Alumni — campeón URBA TOP 12 (2023 y 2024) · Los Troncos, Chile · Liceo Francés, Madrid · San Carlos</span></li>
+        <li><b>Hockey</b><span>CUBA Primera (2026) · Oakhill (2025 y 2026)</span></li>
+        <li><b>Fútbol</b><span>Independiente Rivadavia de Mendoza (2024)</span></li>
+        <li><b>Tenis y polo</b><span>Academia Luján · Academia Matías Chacón · Moove Polo</span></li>
+        <li><b>Procesos individuales</b><span>Tenis, fútbol, rugby, polo, golf, taekwondo, remo y ultratrail</span></li>
+      </ul>
+      <p class="cv-note">Como jugador: rugby en Asociación Alumni, campeón URBA 2018, y entrenador de juveniles.</p>
+    </div>
   </div>
 </section>
 
-<!-- ============ GALERÍA ============ -->
-<section class="showcase" id="cancha">
-  <div class="shell showcase-head">
-    <div>
-      <p class="kicker reveal">En cancha</p>
-      <h2 class="showcase-title reveal" data-split="chars">Dónde sucede</h2>
-    </div>
-    <p class="showcase-lead reveal">Vestuarios, entrenamientos y sesiones. El trabajo real pasa lejos del resultado.</p>
-  </div>
-  <div class="showcase-viewport">
-    <div class="showcase-track" data-showcase>
-      <figure class="shot"><img src="assets/img/g1-charla.webp" alt="Iñaki explicando frente a un grupo" width="900" height="1200" loading="lazy"><figcaption>Charla a equipo</figcaption></figure>
-      <figure class="shot"><img src="assets/img/g2-exterior.webp" alt="Retrato de Iñaki al aire libre" width="900" height="1200" loading="lazy"><figcaption>Entre sesiones</figcaption></figure>
-      <figure class="shot"><img src="assets/img/g3-brazos.webp" alt="Retrato de Iñaki con los brazos cruzados" width="900" height="1200" loading="lazy"><figcaption>Antes de empezar</figcaption></figure>
-      <figure class="shot"><img src="assets/img/g4-sofa.webp" alt="Iñaki durante una sesión individual" width="900" height="1200" loading="lazy"><figcaption>Sesión individual</figcaption></figure>
-      <figure class="shot"><img src="assets/img/g5-sonrisa.webp" alt="Iñaki conversando en sesión" width="900" height="1200" loading="lazy"><figcaption>Conversación</figcaption></figure>
-      <figure class="shot"><img src="assets/img/g6-retrato.webp" alt="Retrato de Iñaki" width="900" height="1200" loading="lazy"><figcaption>Escuchar</figcaption></figure>
+<!-- ============ UN PROCESO ============ -->
+<section class="case" id="proceso">
+  <div class="shell case-inner">
+    <p class="kicker reveal">Un proceso real</p>
+    <h2 class="case-title reveal" data-split="words">Llegó con 21 años y un sueño: jugar con el estadio lleno.</h2>
+    <div class="case-body">
+      <div class="case-col">
+        <p class="case-text reveal">Era apertura de la primera de su club. Sabía lo que quería, pero necesitaba transformar ese deseo en compromiso y acciones concretas.</p>
+        <p class="case-text reveal">El camino no fue lineal. Atravesó momentos en los que no era citado y tuvo que aprender a convivir con la frustración sin dejar de confiar en su proceso. Trabajamos su confianza, el foco durante la competencia y los hábitos cotidianos que necesitaba sostener.</p>
+      </div>
+      <div class="case-col">
+        <div class="stats reveal">
+          <div class="stat"><b data-count-to="29">0</b><span>torneos<br>internacionales</span></div>
+          <div class="stat"><b data-count-to="10">0</b><span>medallas<br>de oro</span></div>
+        </div>
+        <p class="case-note reveal">Las medallas son una parte de la historia. La verdadera transformación fue aprender a enfocarse y seguir construyendo incluso cuando los resultados todavía no aparecían.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -244,7 +272,6 @@
     <p class="kicker reveal">Programas</p>
     <h2 class="programs-title reveal" data-split="words">Tres formas de trabajar juntos</h2>
     <p class="programs-lead reveal">Todas arrancan con una entrevista para ver dónde estás y qué proceso tiene sentido para tu carrera.</p>
-
     <div class="prog-grid">
       <article class="prog reveal" data-prog>
         <div class="prog-top">
@@ -260,7 +287,6 @@
         </ul>
         <a class="btn btn-ghost btn-full" href="https://wa.me/5491159236762">Consultar</a>
       </article>
-
       <article class="prog prog-feat reveal" data-prog>
         <span class="prog-flag">Más elegido</span>
         <div class="prog-top">
@@ -276,7 +302,6 @@
         </ul>
         <a class="btn btn-full" href="https://wa.me/5491159236762">Consultar</a>
       </article>
-
       <article class="prog reveal" data-prog>
         <div class="prog-top">
           <span class="prog-step">03</span>
@@ -296,7 +321,6 @@
   </div>
 </section>
 
-<!-- ============ CIERRE ============ -->
 <section class="final" id="contacto">
   <svg class="final-range" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
     <path class="final-silueta" d="M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z" transform="translate(120 160) scale(3.4)"/>
@@ -327,14 +351,13 @@
   </div>
 </footer>
 
-<!-- ============ WHATSAPP FLOTANTE ============ -->
 <a class="wa" data-wa href="https://wa.me/5491159236762" aria-label="Escribir por WhatsApp">
-  <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.8 3 16c0 2.3.6 4.5 1.7 6.4L3 29l6.8-1.8c1.9 1 4 1.6 6.2 1.6 7.2 0 13-5.8 13-13S23.2 3 16 3zm0 23.6c-2 0-3.9-.5-5.5-1.5l-.4-.2-4 1.1 1.1-3.9-.3-.4c-1.1-1.7-1.6-3.6-1.6-5.6C5.3 10.1 10.1 5.3 16 5.3S26.7 10.1 26.7 16 21.9 26.6 16 26.6zm5.9-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1c-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-2-1.8-2.3s0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.5s0-.4 0-.6c-.1-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.1 1.3 3.3c.2.2 2.3 3.6 5.6 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.735-.1.4-.1 1.9-.8 2.1-1.5.3-.8.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>
+  <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.8 3 3 8.8 3 16c0 2.3.6 4.5 1.7 6.4L3 29l6.8-1.8c1.9 1 4 1.6 6.2 1.6 7.2 0 13-5.8 13-13S23.2 3 16 3zm0 23.6c-2 0-3.9-.5-5.5-1.5l-.4-.2-4 1.1 1.1-3.9-.3-.4c-1.1-1.7-1.6-3.6-1.6-5.6C5.3 10.1 10.1 5.3 16 5.3S26.7 10.1 26.7 16 21.9 26.6 16 26.6zm5.9-7.9c-.3-.2-1.9-.9-2.2-1s-.5-.2-.7.2-.8 1-1 1.2-.4.2-.7.1c-.3-.2-1.4-.5-2.6-1.6-1-.9-1.6-2-1.8-2.3s0-.5.1-.7l.5-.6c.2-.2.2-.3.3-.5s0-.4 0-.6c-.1-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.1 1.3 3.3c.2.2 2.3 3.6 5.6 5 .8.3 1.4.5 1.9.7.8.3 1.5.2 2.1-.1.4-.1 1.9-.8 2.1-1.5.3-.8.3-1.4.2-1.5-.1-.2-.3-.3-.6-.4z"/></svg>
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261002"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261002"></script>
-<script defer src="main.js?v=20261002"></script>
+<script defer src="lib/gsap.min.js?v=20261004"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261004"></script>
+<script defer src="main.js?v=20261004"></script>
 </body>
 </html>
