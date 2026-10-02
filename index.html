@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css?v=20261016">
+<link rel="stylesheet" href="styles.css?v=20261017">
 </head>
 <body>
 
@@ -37,6 +37,7 @@
   </a>
   <div class="nav-links">
     <a href="#metodo">Método</a>
+    <a href="#para-quienes">Para quiénes</a>
     <a href="#sobre">Sobre mí</a>
     <a href="#proceso">Un proceso</a>
     <a href="#programas">Programas</a>
@@ -45,11 +46,37 @@
 </nav>
 
 <!-- ============ HERO ============
-     CIMA: la montaña se desarma en partículas y se rearma de abajo
-     hacia arriba, paso a paso, hasta cerrar la cumbre. -->
+     La cordillera se construye una vez, al entrar: traza el filo,
+     levanta los planos y marca la cumbre. Después queda quieta.
+     SVG + animaciones CSS, que corren fuera del hilo principal. -->
 <header class="hero" id="top">
-  <canvas class="neuro" data-neuro aria-hidden="true"></canvas>
-  <i class="dawn" data-dawn aria-hidden="true"></i>
+  <div class="range-wrap" data-parallax="-0.05">
+  <svg class="range" data-range viewBox="0 0 1200 700" preserveAspectRatio="xMaxYMax slice" aria-hidden="true" focusable="false">
+    <defs><clipPath id="rgClip"><path d="M0.0 700.0 L11.5 700.0 L23.1 700.0 L34.6 696.6 L46.2 689.1 L57.7 680.4 L69.2 670.9 L80.8 660.7 L92.3 649.9 L103.8 638.4 L115.4 626.3 L126.9 613.2 L138.5 599.6 L150.0 585.9 L161.5 572.0 L173.1 557.6 L184.6 542.6 L196.2 526.9 L207.7 510.8 L219.2 494.4 L230.8 477.7 L242.3 466.0 L253.8 475.2 L265.4 484.3 L276.9 493.2 L288.5 502.0 L300.0 488.9 L311.5 474.9 L323.1 460.8 L334.6 446.5 L346.2 432.2 L357.7 417.9 L369.2 403.7 L380.8 389.5 L392.3 375.4 L403.8 361.3 L415.4 347.2 L426.9 333.2 L438.5 319.4 L450.0 305.9 L461.5 292.7 L473.1 279.7 L484.6 266.7 L496.2 253.5 L507.7 240.0 L519.2 225.7 L530.8 210.5 L542.3 194.5 L553.8 178.2 L565.4 162.0 L576.9 146.2 L588.5 130.3 L600.0 114.2 L611.5 142.8 L623.1 170.9 L634.6 198.8 L646.2 226.8 L657.7 255.1 L669.2 283.2 L680.8 310.7 L692.3 337.2 L703.8 362.5 L715.4 386.8 L726.9 410.2 L738.5 433.0 L750.0 455.1 L761.5 476.6 L773.1 497.6 L784.6 517.7 L796.2 537.0 L807.7 555.5 L819.2 573.0 L830.8 589.6 L842.3 605.3 L853.8 611.0 L865.4 596.0 L876.9 580.3 L888.5 563.6 L900.0 546.1 L911.5 527.6 L923.1 508.5 L934.6 488.7 L946.2 468.6 L957.7 448.4 L969.2 427.7 L980.8 406.5 L992.3 384.9 L1003.8 362.8 L1015.4 363.4 L1026.9 377.2 L1038.5 391.5 L1050.0 406.0 L1061.5 420.5 L1073.1 435.0 L1084.6 449.3 L1096.2 463.3 L1107.7 477.4 L1119.2 491.5 L1130.8 505.6 L1142.3 520.0 L1153.8 534.5 L1165.4 549.0 L1176.9 563.5 L1188.5 577.8 L1200.0 592.1 L1200.0 740.0 L0 740.0 Z"/></clipPath></defs>
+    <path class="rg-fill rg-l1" d="M0.0 700.0 L11.5 700.0 L23.1 700.0 L34.6 699.2 L46.2 695.7 L57.7 691.2 L69.2 685.8 L80.8 679.6 L92.3 672.7 L103.8 665.2 L115.4 657.2 L126.9 648.6 L138.5 639.5 L150.0 630.0 L161.5 619.9 L173.1 609.5 L184.6 598.5 L196.2 587.1 L207.7 575.2 L219.2 563.0 L230.8 550.3 L242.3 537.2 L253.8 523.8 L265.4 510.0 L276.9 495.8 L288.5 481.1 L300.0 466.0 L311.5 450.5 L323.1 434.7 L334.6 418.8 L346.2 421.1 L357.7 426.2 L369.2 431.6 L380.8 437.3 L392.3 443.1 L403.8 448.9 L415.4 454.8 L426.9 460.7 L438.5 466.4 L450.0 472.1 L461.5 477.9 L473.1 483.7 L484.6 489.5 L496.2 495.2 L507.7 500.8 L519.2 506.3 L530.8 511.5 L542.3 516.6 L553.8 521.4 L565.4 526.1 L576.9 530.8 L588.5 535.5 L600.0 540.3 L611.5 545.2 L623.1 550.2 L634.6 555.4 L646.2 560.6 L657.7 565.9 L669.2 571.2 L680.8 576.5 L692.3 571.5 L703.8 564.5 L715.4 557.5 L726.9 550.5 L738.5 543.4 L750.0 536.4 L761.5 529.3 L773.1 522.3 L784.6 515.4 L796.2 508.3 L807.7 501.2 L819.2 499.0 L830.8 509.7 L842.3 520.2 L853.8 530.6 L865.4 540.9 L876.9 551.0 L888.5 561.1 L900.0 571.0 L911.5 580.7 L923.1 590.2 L934.6 599.4 L946.2 608.2 L957.7 616.8 L969.2 625.0 L980.8 632.9 L992.3 640.6 L1003.8 648.0 L1015.4 655.1 L1026.9 661.9 L1038.5 668.3 L1050.0 674.3 L1061.5 679.9 L1073.1 685.0 L1084.6 689.7 L1096.2 693.7 L1107.7 697.2 L1119.2 699.8 L1130.8 700.0 L1142.3 700.0 L1153.8 700.0 L1165.4 700.0 L1176.9 700.0 L1188.5 700.0 L1200.0 700.0 L1200.0 740.0 L0 740.0 Z"/>
+    <path class="rg-fill rg-l2" d="M0.0 700.0 L11.5 700.0 L23.1 700.0 L34.6 700.0 L46.2 700.0 L57.7 700.0 L69.2 700.0 L80.8 699.4 L92.3 694.5 L103.8 688.5 L115.4 681.8 L126.9 674.5 L138.5 666.7 L150.0 658.7 L161.5 650.4 L173.1 641.8 L184.6 632.9 L196.2 623.6 L207.7 614.1 L219.2 604.4 L230.8 594.3 L242.3 583.9 L253.8 573.5 L265.4 563.0 L276.9 552.4 L288.5 541.6 L300.0 530.6 L311.5 519.4 L323.1 524.3 L334.6 529.7 L346.2 535.1 L357.7 540.5 L369.2 541.6 L380.8 534.2 L392.3 527.0 L403.8 520.0 L415.4 513.0 L426.9 506.1 L438.5 499.2 L450.0 492.3 L461.5 485.3 L473.1 478.2 L484.6 471.1 L496.2 464.2 L507.7 457.3 L519.2 450.4 L530.8 443.4 L542.3 436.5 L553.8 429.5 L565.4 422.4 L576.9 415.3 L588.5 408.2 L600.0 401.1 L611.5 394.0 L623.1 386.9 L634.6 379.7 L646.2 372.2 L657.7 364.7 L669.2 357.0 L680.8 349.3 L692.3 341.9 L703.8 334.6 L715.4 327.7 L726.9 339.1 L738.5 362.4 L750.0 385.2 L761.5 407.3 L773.1 428.8 L784.6 449.5 L796.2 469.6 L807.7 489.1 L819.2 507.9 L830.8 526.1 L842.3 543.7 L853.8 560.7 L865.4 577.0 L876.9 592.8 L888.5 607.7 L900.0 621.9 L911.5 635.3 L923.1 646.5 L934.6 635.4 L946.2 623.7 L957.7 611.6 L969.2 599.1 L980.8 586.2 L992.3 572.7 L1003.8 558.8 L1015.4 544.4 L1026.9 529.4 L1038.5 513.8 L1050.0 497.8 L1061.5 481.4 L1073.1 464.7 L1084.6 459.3 L1096.2 471.1 L1107.7 483.1 L1119.2 495.0 L1130.8 506.8 L1142.3 518.5 L1153.8 530.1 L1165.4 541.4 L1176.9 552.4 L1188.5 563.2 L1200.0 573.8 L1200.0 740.0 L0 740.0 Z"/>
+    <path class="rg-fill rg-l3" d="M0.0 700.0 L11.5 700.0 L23.1 700.0 L34.6 700.0 L46.2 700.0 L57.7 700.0 L69.2 700.0 L80.8 698.7 L92.3 694.2 L103.8 688.1 L115.4 680.8 L126.9 672.3 L138.5 662.6 L150.0 651.8 L161.5 640.1 L173.1 627.4 L184.6 614.1 L196.2 600.0 L207.7 585.5 L219.2 570.5 L230.8 555.3 L242.3 539.6 L253.8 523.5 L265.4 506.8 L276.9 489.5 L288.5 471.6 L300.0 453.2 L311.5 434.5 L323.1 415.3 L334.6 395.5 L346.2 375.3 L357.7 354.5 L369.2 333.1 L380.8 311.2 L392.3 288.8 L403.8 266.1 L415.4 243.3 L426.9 220.5 L438.5 216.1 L450.0 226.6 L461.5 237.4 L473.1 248.2 L484.6 258.9 L496.2 269.3 L507.7 279.2 L519.2 288.7 L530.8 298.0 L542.3 307.3 L553.8 316.8 L565.4 326.6 L576.9 336.4 L588.5 346.1 L600.0 355.9 L611.5 365.5 L623.1 375.1 L634.6 384.6 L646.2 394.3 L657.7 404.2 L669.2 414.3 L680.8 424.2 L692.3 433.9 L703.8 443.4 L715.4 452.3 L726.9 460.9 L738.5 469.4 L750.0 478.0 L761.5 486.9 L773.1 496.3 L784.6 505.6 L796.2 515.0 L807.7 514.6 L819.2 502.3 L830.8 490.0 L842.3 477.8 L853.8 465.6 L865.4 453.4 L876.9 441.1 L888.5 428.6 L900.0 415.9 L911.5 403.0 L923.1 416.8 L934.6 431.9 L946.2 446.8 L957.7 461.5 L969.2 475.8 L980.8 489.7 L992.3 503.3 L1003.8 516.8 L1015.4 530.0 L1026.9 543.1 L1038.5 556.0 L1050.0 568.6 L1061.5 580.7 L1073.1 592.4 L1084.6 603.6 L1096.2 614.4 L1107.7 625.0 L1119.2 635.2 L1130.8 645.4 L1142.3 655.3 L1153.8 664.9 L1165.4 673.9 L1176.9 682.1 L1188.5 689.4 L1200.0 695.5 L1200.0 740.0 L0 740.0 Z"/>
+    <path class="rg-fill rg-l4" d="M0.0 700.0 L11.5 700.0 L23.1 700.0 L34.6 696.6 L46.2 689.1 L57.7 680.4 L69.2 670.9 L80.8 660.7 L92.3 649.9 L103.8 638.4 L115.4 626.3 L126.9 613.2 L138.5 599.6 L150.0 585.9 L161.5 572.0 L173.1 557.6 L184.6 542.6 L196.2 526.9 L207.7 510.8 L219.2 494.4 L230.8 477.7 L242.3 466.0 L253.8 475.2 L265.4 484.3 L276.9 493.2 L288.5 502.0 L300.0 488.9 L311.5 474.9 L323.1 460.8 L334.6 446.5 L346.2 432.2 L357.7 417.9 L369.2 403.7 L380.8 389.5 L392.3 375.4 L403.8 361.3 L415.4 347.2 L426.9 333.2 L438.5 319.4 L450.0 305.9 L461.5 292.7 L473.1 279.7 L484.6 266.7 L496.2 253.5 L507.7 240.0 L519.2 225.7 L530.8 210.5 L542.3 194.5 L553.8 178.2 L565.4 162.0 L576.9 146.2 L588.5 130.3 L600.0 114.2 L611.5 142.8 L623.1 170.9 L634.6 198.8 L646.2 226.8 L657.7 255.1 L669.2 283.2 L680.8 310.7 L692.3 337.2 L703.8 362.5 L715.4 386.8 L726.9 410.2 L738.5 433.0 L750.0 455.1 L761.5 476.6 L773.1 497.6 L784.6 517.7 L796.2 537.0 L807.7 555.5 L819.2 573.0 L830.8 589.6 L842.3 605.3 L853.8 611.0 L865.4 596.0 L876.9 580.3 L888.5 563.6 L900.0 546.1 L911.5 527.6 L923.1 508.5 L934.6 488.7 L946.2 468.6 L957.7 448.4 L969.2 427.7 L980.8 406.5 L992.3 384.9 L1003.8 362.8 L1015.4 363.4 L1026.9 377.2 L1038.5 391.5 L1050.0 406.0 L1061.5 420.5 L1073.1 435.0 L1084.6 449.3 L1096.2 463.3 L1107.7 477.4 L1119.2 491.5 L1130.8 505.6 L1142.3 520.0 L1153.8 534.5 L1165.4 549.0 L1176.9 563.5 L1188.5 577.8 L1200.0 592.1 L1200.0 740.0 L0 740.0 Z"/>
+    <g class="rg-topo" clip-path="url(#rgClip)">
+      <line class="rg-ln" style="--i:0" x1="0" y1="642.6" x2="1200" y2="642.6"/>
+      <line class="rg-ln" style="--i:1" x1="0" y1="585.2" x2="1200" y2="585.2"/>
+      <line class="rg-ln" style="--i:2" x1="0" y1="527.8" x2="1200" y2="527.8"/>
+      <line class="rg-ln" style="--i:3" x1="0" y1="470.4" x2="1200" y2="470.4"/>
+      <line class="rg-ln" style="--i:4" x1="0" y1="413.0" x2="1200" y2="413.0"/>
+      <line class="rg-ln" style="--i:5" x1="0" y1="355.6" x2="1200" y2="355.6"/>
+      <line class="rg-ln" style="--i:6" x1="0" y1="298.2" x2="1200" y2="298.2"/>
+      <line class="rg-ln" style="--i:7" x1="0" y1="240.8" x2="1200" y2="240.8"/>
+      <line class="rg-ln" style="--i:8" x1="0" y1="183.4" x2="1200" y2="183.4"/>
+    </g>
+    <path class="rg-edge" data-edge pathLength="1" d="M0.0 700.0 L11.5 700.0 L23.1 700.0 L34.6 696.6 L46.2 689.1 L57.7 680.4 L69.2 670.9 L80.8 660.7 L92.3 649.9 L103.8 638.4 L115.4 626.3 L126.9 613.2 L138.5 599.6 L150.0 585.9 L161.5 572.0 L173.1 557.6 L184.6 542.6 L196.2 526.9 L207.7 510.8 L219.2 494.4 L230.8 477.7 L242.3 466.0 L253.8 475.2 L265.4 484.3 L276.9 493.2 L288.5 502.0 L300.0 488.9 L311.5 474.9 L323.1 460.8 L334.6 446.5 L346.2 432.2 L357.7 417.9 L369.2 403.7 L380.8 389.5 L392.3 375.4 L403.8 361.3 L415.4 347.2 L426.9 333.2 L438.5 319.4 L450.0 305.9 L461.5 292.7 L473.1 279.7 L484.6 266.7 L496.2 253.5 L507.7 240.0 L519.2 225.7 L530.8 210.5 L542.3 194.5 L553.8 178.2 L565.4 162.0 L576.9 146.2 L588.5 130.3 L600.0 114.2 L611.5 142.8 L623.1 170.9 L634.6 198.8 L646.2 226.8 L657.7 255.1 L669.2 283.2 L680.8 310.7 L692.3 337.2 L703.8 362.5 L715.4 386.8 L726.9 410.2 L738.5 433.0 L750.0 455.1 L761.5 476.6 L773.1 497.6 L784.6 517.7 L796.2 537.0 L807.7 555.5 L819.2 573.0 L830.8 589.6 L842.3 605.3 L853.8 611.0 L865.4 596.0 L876.9 580.3 L888.5 563.6 L900.0 546.1 L911.5 527.6 L923.1 508.5 L934.6 488.7 L946.2 468.6 L957.7 448.4 L969.2 427.7 L980.8 406.5 L992.3 384.9 L1003.8 362.8 L1015.4 363.4 L1026.9 377.2 L1038.5 391.5 L1050.0 406.0 L1061.5 420.5 L1073.1 435.0 L1084.6 449.3 L1096.2 463.3 L1107.7 477.4 L1119.2 491.5 L1130.8 505.6 L1142.3 520.0 L1153.8 534.5 L1165.4 549.0 L1176.9 563.5 L1188.5 577.8 L1200.0 592.1"/>
+    <g transform="translate(600.0 114.2)">
+      <g class="rg-top" data-top>
+        <circle class="rg-halo" r="15"/>
+        <circle class="rg-dot" r="4.5"/>
+      </g>
+    </g>
+  </svg>
+  </div>
 
   <div class="hero-grid">
     <div class="hero-copy" data-parallax="0.14">
@@ -155,6 +182,57 @@
 <section class="motto-band">
   <div class="shell">
     <p class="cima-motto reveal" data-split="words">La verdadera cima no está afuera. Está en quien te convertís durante el ascenso.</p>
+  </div>
+</section>
+
+<!-- ============ ¿PARA QUIÉNES? ============
+     Los tres destinatarios del PDF. Cada ícono representa su idea:
+     uno asciende, tres ascienden juntos, uno conduce al resto. -->
+<section class="aud" id="para-quienes">
+  <div class="shell">
+    <p class="kicker reveal">¿Para quiénes?</p>
+    <h2 class="aud-title reveal" data-split="words">Tres formas de entrar al proceso</h2>
+    <p class="aud-lead reveal">El método es el mismo. Lo que cambia es desde dónde se empieza y quién lo recorre.</p>
+
+    <div class="aud-grid">
+      <article class="aud-card reveal" data-aud>
+        <span class="aud-n">01</span>
+        <svg class="aud-ico" viewBox="0 0 72 56" aria-hidden="true">
+          <path class="ai-base" pathLength="1" d="M4 48 H68"/>
+          <path class="ai-route" pathLength="1" d="M11 48 L31 33 L52 11"/>
+          <circle class="ai-node ai-n1" cx="52" cy="11" r="5"/>
+        </svg>
+        <h3>Individual</h3>
+        <p>Deportistas que buscan confianza, foco y consistencia. Procesos uno a uno en tenis, fútbol, rugby, polo, golf, taekwondo, remo y ultratrail.</p>
+      </article>
+
+      <article class="aud-card reveal" data-aud>
+        <span class="aud-n">02</span>
+        <svg class="aud-ico" viewBox="0 0 72 56" aria-hidden="true">
+          <path class="ai-base" pathLength="1" d="M4 48 H68"/>
+          <path class="ai-route" pathLength="1" d="M9 48 L22 28 M27 48 L41 15 M46 48 L59 31"/>
+          <circle class="ai-node ai-n1" cx="22" cy="28" r="4.6"/>
+          <circle class="ai-node ai-n2" cx="41" cy="15" r="4.6"/>
+          <circle class="ai-node ai-n3" cx="59" cy="31" r="4.6"/>
+        </svg>
+        <h3>Equipo</h3>
+        <p>Planteles que necesitan una identidad competitiva compartida. Rugby, hockey y fútbol, en clubes de primera división y procesos de pretemporada.</p>
+      </article>
+
+      <article class="aud-card reveal" data-aud>
+        <span class="aud-n">03</span>
+        <svg class="aud-ico" viewBox="0 0 72 56" aria-hidden="true">
+          <path class="ai-base" pathLength="1" d="M4 48 H68"/>
+          <path class="ai-route" pathLength="1" d="M36 13 L16 38 M36 13 L36 38 M36 13 L56 38"/>
+          <circle class="ai-node ai-n1" cx="36" cy="13" r="5"/>
+          <circle class="ai-node ai-n2" cx="16" cy="38" r="3.8"/>
+          <circle class="ai-node ai-n3" cx="36" cy="38" r="3.8"/>
+          <circle class="ai-node ai-n4" cx="56" cy="38" r="3.8"/>
+        </svg>
+        <h3>Staff</h3>
+        <p>Entrenadores y cuerpos técnicos. Liderazgo de alto rendimiento: cómo se comunica, cómo se sostiene al grupo y cómo se decide bajo presión.</p>
+      </article>
+    </div>
   </div>
 </section>
 
@@ -358,9 +436,8 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261016"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261016"></script>
-<script defer src="cima.js?v=20261016"></script>
-<script defer src="main.js?v=20261016"></script>
+<script defer src="lib/gsap.min.js?v=20261017"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261017"></script>
+<script defer src="main.js?v=20261017"></script>
 </body>
 </html>

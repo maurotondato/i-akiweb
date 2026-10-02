@@ -84,13 +84,6 @@
     });
   }
 
-  /* El hero lo dibuja cima.js: la montaña de partículas que se arma
-     paso a paso. Canvas 2D puro, disponible en todos lados. */
-  function initHero() {
-    var cv = document.querySelector("[data-neuro]");
-    if (cv && window.CIMA_mount) window.CIMA_mount(cv);
-  }
-
   /* ---------------- REVEAL ---------------- */
   function initReveal() {
     var els = document.querySelectorAll(".reveal");
@@ -330,7 +323,6 @@
     safe(initChrome, "chrome");
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
-    safe(initHero, "hero");
     safe(initCountUp, "countup");
     safe(initMarquee, "marquee");
     safe(initMagnetic, "magnetic");
