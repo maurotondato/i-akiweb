@@ -92,7 +92,7 @@ ul,ol{margin:0;padding:0;list-style:none}
   will-change:transform;transition:transform .8s var(--ease-soft)}
 
 /* ---------------- HERO ----------------
-   El canvas lo toma la escena CIMA (cima.js, WebGL2). */
+   El canvas lo dibuja cima.js: la montaña de partículas. */
 .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
   padding:104px 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
 /* La escena se enmascara sobre la columna del titular. Así la
@@ -103,7 +103,6 @@ ul,ol{margin:0;padding:0;list-style:none}
   -webkit-mask-image:linear-gradient(100deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.42) 26%,#000 56%);
   mask-image:linear-gradient(100deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.42) 26%,#000 56%)}
 .is-ready .neuro{opacity:1}
-.path-src{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
 /* El amanecer sobre la cresta: lo maneja la escena según el ascenso */
 .dawn{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;
   background:radial-gradient(58% 44% at 64% 24%,rgba(255,255,255,.92),rgba(200,230,248,.34) 42%,transparent 72%);

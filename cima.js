@@ -1,101 +1,20 @@
 (function () {
   "use strict";
   /* ===========================================================
-     CIMA — una pieza escultórica
+     CIMA — el ascenso, partícula por partícula
      Iñaki Etchegaray · M-DATOS
 
-     Un solo macizo abstracto detrás del hero, visto DESDE AFUERA y con
-     cámara casi fija. La versión anterior metía la cámara dentro de un
-     cañón: desde adentro nunca hay silueta, y una montaña se reconoce
-     por su silueta. Además el terreno visto en ángulo rasante producía
-     overdraw y triángulos astilla, que es de donde venían los tirones.
+     Canvas 2D. Decenas de miles de partículas que se desarman y se
+     vuelven a armar DE ABAJO HACIA ARRIBA, en pasos discretos, hasta
+     cerrar la cumbre. Cada paso es una etapa del programa: no se salta
+     ninguno, y la cima es lo último que se forma.
 
-     Renderer WebGL2 propio, sin Three.js: son ~600 KB para un fondo en
-     un sitio sin build step, y lo necesario entra acá. Una sola llamada
-     de dibujo, geometría estática, cámara quieta.
-
-     El canvas se compone CON ALPHA sobre el degradado del hero: la base
-     del macizo se disuelve en el fondo de la página en vez de cortarse,
-     así la pieza se siente más grande que el viewport.
+     Nada de WebGL. Las partículas no se dibujan con arc() ni
+     fillRect() —eso serían decenas de miles de llamadas por cuadro—
+     sino escribiendo directo en el búfer de píxeles de un ImageData,
+     que después se escala al canvas: una sola operación de dibujo, y
+     el escalado regala el halo suave sin coste de blur.
      =========================================================== */
-
-  var VS = [
-    "#version 300 es",
-    "in vec3 aPos;",
-    "uniform mat4 uVP;",
-    "out vec3 vW;",
-    "void main(){ vW = aPos; gl_Position = uVP * vec4(aPos, 1.0); }"
-  ].join("\n");
-
-  var FS = [
-    "#version 300 es",
-    "precision highp float;",
-    "in vec3 vW;",
-    "uniform vec3 uCam, uSun, uRock, uAccent;",
-    "uniform float uLight, uPeak, uBandY, uFade, uFogD;",
-    "out vec4 o;",
-    "void main(){",
-    /* Normal por derivadas: caras planas sin duplicar un vértice */
-    "  vec3 n = normalize(cross(dFdx(vW), dFdy(vW)));",
-    "  if (n.y < 0.0) n = -n;",
-    "  float key = max(dot(n, uSun), 0.0);",
-    "  float sky = 0.5 + 0.5 * n.y;",
-    "  float steep = smoothstep(0.78, 0.16, n.y);",
-    /* Base mate: la luz es la que revela la geometría, no el material */
-    "  vec3 col = uRock * (0.26 + 0.34 * sky);",
-    "  col += vec3(0.94, 0.955, 0.98) * key * uLight * 0.44;",
-    /* La cumbre recibe algo más de luz. Eso es CIMA. */
-    "  float top = smoothstep(uPeak * 0.44, uPeak * 0.98, vW.y);",
-    "  col += vec3(1.0, 0.99, 0.96) * top * key * uLight * 0.3;",
-    /* Acento de marca sólo en el filo que mira a la luz */
-    "  col += uAccent * pow(key, 10.0) * steep * uLight * 0.5;",
-    /* Una luz fina que sube por las aristas: el camino a la cima */
-    "  float band = exp(-pow((vW.y - uBandY) / (uPeak * 0.055), 2.0));",
-    "  col += uAccent * band * steep * pow(key, 2.0) * 0.36;",
-    /* Curvas de nivel; fwidth las apaga solas en los planos muy
-       inclinados y a la distancia, así nunca muaren */
-    "  float b = vW.y * 0.09;",
-    "  float f = abs(fract(b) - 0.5);",
-    "  float w = fwidth(b);",
-    "  col += uAccent * (1.0 - smoothstep(w * 0.8, w * 2.4, f)) * 0.11;",
-    /* La base se disuelve en el fondo de la página, no se corta */
-    /* La base se disuelve en el fondo de la pagina en vez de cortarse.
-       El umbral se ondula con la posicion: un corte por altura pura
-       proyecta un plano, y con la camara nivelada eso es una recta
-       perfectamente visible al pie del macizo. */
-    "  float jit = sin(vW.x * 0.055) * 7.0 + cos(vW.z * 0.047) * 6.0;",
-    "  float a = smoothstep(-14.0, uFade, vW.y + jit);",
-    "  a *= clamp(exp(-pow(distance(vW, uCam) / uFogD, 2.4)), 0.0, 1.0);",
-    "  o = vec4(col * a, a);",
-    "}"
-  ].join("\n");
-
-  var V_MOTE = [
-    "#version 300 es",
-    "in vec3 aP; in float aS;",
-    "uniform mat4 uVP; uniform vec3 uCam; uniform float uT, uDpr;",
-    "out float vA;",
-    "void main(){",
-    "  vec3 p = aP;",
-    "  p.y += sin(uT * 0.19 + aP.x * 0.03) * 3.0;",
-    "  p.x += cos(uT * 0.14 + aP.z * 0.02) * 2.4;",
-    "  gl_Position = uVP * vec4(p, 1.0);",
-    "  float d = distance(p, uCam);",
-    "  vA = (1.0 - smoothstep(120.0, 330.0, d)) * 0.3;",
-    "  gl_PointSize = max(1.0, aS * uDpr * (130.0 / max(d, 60.0)));",
-    "}"
-  ].join("\n");
-
-  var F_MOTE = [
-    "#version 300 es",
-    "precision mediump float;",
-    "in float vA;",
-    "out vec4 o;",
-    "void main(){",
-    "  float a = vA * (1.0 - smoothstep(0.16, 0.5, length(gl_PointCoord - 0.5)));",
-    "  o = vec4(vec3(0.8, 0.88, 0.96) * a, a);",
-    "}"
-  ].join("\n");
 
   /* ---------------- ruido ---------------- */
   function hash2(x, y) {
@@ -129,206 +48,150 @@
     return t * t * (3 - 2 * t);
   }
 
-  /* ---------------- el macizo ----------------
-     Una cumbre principal, un hombro más bajo, y espolones que bajan
-     desde la cima. El ruido angular entra por cos/sen del ángulo —no
-     por el ángulo directo— para que no quede una costura en el eje.
-     Los bordes se desploman: así no aparece un suelo plano alrededor,
-     que es lo que delata una maqueta. */
-  var R = 100, PEAK = 92;
-  function surface(x, z) {
-    var nx = x / R, nz = z / R;
-    var d1 = Math.hypot(nx - 0.06, nz + 0.04);
-    var d2 = Math.hypot(nx + 0.6, nz - 0.3);
-    var c1 = Math.pow(Math.max(0, 1 - d1), 1.45);
-    var c2 = 0.58 * Math.pow(Math.max(0, 1 - d2 / 0.66), 1.6);
-    var h = Math.max(c1, c2);
-
-    var ang = Math.atan2(nz, nx);
-    var spur = ridged(Math.cos(ang) * 2.7 + 7.3, Math.sin(ang) * 2.7 + 3.1, 4);
-    h *= 0.68 + 0.5 * spur;
-
-    h += 0.11 * ridged(nx * 2.3, nz * 2.3, 4) * Math.max(0, 1 - d1 * 0.85);
-    h -= 0.055 * fbm(nx * 3.6, nz * 3.6, 3);
-
-    /* Estratos: aire escultórico, no geológico */
-    var q = h / 0.07, qf = Math.floor(q);
-    h = h * 0.76 + 0.24 * (qf * 0.07 + 0.07 * sstep(0.52, 0.95, q - qf));
-
-    h -= 1.5 * sstep(0.92, 1.3, Math.hypot(nx, nz));
-    return h * PEAK;
+  /* ---------------- la silueta ----------------
+     Cumbres angostas a propósito: con laderas anchas el ápice cae
+     menos que sus vecinos y la cima se amesetaba. */
+  function pk(x, c, w, h, p) {
+    var d = 1 - Math.abs((x - c) / w);
+    return d <= 0 ? 0 : h * Math.pow(d, p);
+  }
+  function profile(u) {
+    /* Una cumbre claramente dominante y dos hombros: con picos de
+       altura parecida la silueta leia como "dos lomas". */
+    var h = Math.max(
+      pk(u, 0.44, 0.33, 1, 1.22),
+      pk(u, 0.76, 0.19, 0.52, 1.32),
+      pk(u, 0.17, 0.16, 0.34, 1.38)
+    );
+    if (h <= 0) return 0;
+    h += 0.085 * ridged(u * 7.4, 2.1, 4) * Math.pow(h, 0.65);
+    h -= 0.03 * fbm(u * 12, 5.5, 3) * h;
+    return h < 0 ? 0 : h;
   }
 
-  /* ---------------- matrices ---------------- */
-  function perspective(out, fovy, aspect, near, far, sx, sy) {
-    var f = 1 / Math.tan(fovy / 2), nf = 1 / (near - far);
-    out[0] = f / aspect; out[1] = 0; out[2] = 0; out[3] = 0;
-    out[4] = 0; out[5] = f; out[6] = 0; out[7] = 0;
-    /* Desplazamiento de lente: encuadra el macizo sin inclinar la
-       cámara, así la perspectiva no se deforma */
-    out[8] = sx; out[9] = sy; out[10] = (far + near) * nf; out[11] = -1;
-    out[12] = 0; out[13] = 0; out[14] = 2 * far * near * nf; out[15] = 0;
-    return out;
-  }
-  function lookAt(out, eye, c) {
-    var zx = eye[0] - c[0], zy = eye[1] - c[1], zz = eye[2] - c[2];
-    var l = Math.hypot(zx, zy, zz) || 1;
-    zx /= l; zy /= l; zz /= l;
-    var xx = zz, xy = 0, xz = -zx;
-    l = Math.hypot(xx, xy, xz) || 1;
-    xx /= l; xy /= l; xz /= l;
-    var yx = zy * xz - zz * xy, yy = zz * xx - zx * xz, yz = zx * xy - zy * xx;
-    out[0] = xx; out[1] = yx; out[2] = zx; out[3] = 0;
-    out[4] = xy; out[5] = yy; out[6] = zy; out[7] = 0;
-    out[8] = xz; out[9] = yz; out[10] = zz; out[11] = 0;
-    out[12] = -(xx * eye[0] + xy * eye[1] + xz * eye[2]);
-    out[13] = -(yx * eye[0] + yy * eye[1] + yz * eye[2]);
-    out[14] = -(zx * eye[0] + zy * eye[1] + zz * eye[2]);
-    out[15] = 1;
-    return out;
-  }
-  function mul(out, a, b) {
-    for (var c = 0; c < 4; c++) {
-      var b0 = b[c * 4], b1 = b[c * 4 + 1], b2 = b[c * 4 + 2], b3 = b[c * 4 + 3];
-      out[c * 4] = b0 * a[0] + b1 * a[4] + b2 * a[8] + b3 * a[12];
-      out[c * 4 + 1] = b0 * a[1] + b1 * a[5] + b2 * a[9] + b3 * a[13];
-      out[c * 4 + 2] = b0 * a[2] + b1 * a[6] + b2 * a[10] + b3 * a[14];
-      out[c * 4 + 3] = b0 * a[3] + b1 * a[7] + b2 * a[11] + b3 * a[15];
-    }
-    return out;
-  }
-
-  function compile(gl, type, src) {
-    var s = gl.createShader(type);
-    gl.shaderSource(s, src); gl.compileShader(s);
-    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
-      console.warn("[cima]", gl.getShaderInfoLog(s)); gl.deleteShader(s); return null;
-    }
-    return s;
-  }
-  function program(gl, vs, fs) {
-    var v = compile(gl, gl.VERTEX_SHADER, vs), f = compile(gl, gl.FRAGMENT_SHADER, fs);
-    if (!v || !f) return null;
-    var p = gl.createProgram();
-    gl.attachShader(p, v); gl.attachShader(p, f); gl.linkProgram(p);
-    gl.deleteShader(v); gl.deleteShader(f);
-    return gl.getProgramParameter(p, gl.LINK_STATUS) ? p : null;
+  /* Azules de la marca, de la base a la cumbre */
+  var RAMP = [
+    [6, 32, 68], [10, 48, 104], [16, 74, 150], [26, 110, 192],
+    [55, 156, 220], [110, 198, 238], [186, 228, 248], [240, 250, 255]
+  ];
+  function ramp(t, out) {
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    var f = t * (RAMP.length - 1), i = Math.floor(f), k = f - i;
+    var a = RAMP[i], b = RAMP[Math.min(RAMP.length - 1, i + 1)];
+    out[0] = a[0] + (b[0] - a[0]) * k;
+    out[1] = a[1] + (b[1] - a[1]) * k;
+    out[2] = a[2] + (b[2] - a[2]) * k;
   }
 
   window.CIMA_mount = function (canvas) {
     if (!canvas) return false;
     var hero = canvas.closest(".hero") || canvas.parentNode;
     if (!hero) return false;
-
-    /* Por ANCHO, no por el menor de los dos lados: con min(w,h) una
-       laptop de 13" a 1280x720 caia en la rama de celular y recibia el
-       encuadre equivocado. */
-    var small = window.innerWidth < 760;
-    var gl = null;
-    try {
-      gl = canvas.getContext("webgl2", {
-        alpha: true, premultipliedAlpha: true, antialias: !small,
-        depth: true, stencil: false, powerPreference: "high-performance"
-      });
-    } catch (e) { return false; }
-    if (!gl) return false;
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return false;
 
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-    var pT = program(gl, VS, FS);
-    if (!pT) return false;
-    var pM = small ? null : program(gl, V_MOTE, F_MOTE);
-
-    /* ---------------- malla ----------------
-       Rejilla con alabeo suave hacia el centro: más resolución donde
-       está la cumbre, menos en la falda que igual se desvanece. */
-    var N = small ? 96 : 156;
-    var EXT = R * 1.3;
-    var verts = new Float32Array((N + 1) * (N + 1) * 3), vi = 0, i, j;
-    var warp = function (t) {
-      var u = t / N * 2 - 1;
-      return Math.sign(u) * Math.pow(Math.abs(u), 1.22) * EXT;
-    };
-    for (j = 0; j <= N; j++) {
-      var zz = warp(j);
-      for (i = 0; i <= N; i++) {
-        var xx = warp(i);
-        verts[vi++] = xx; verts[vi++] = surface(xx, zz); verts[vi++] = zz;
-      }
-    }
-    var idx = new Uint32Array(N * N * 6), ii = 0;
-    for (j = 0; j < N; j++) {
-      for (i = 0; i < N; i++) {
-        var a = j * (N + 1) + i, b = a + 1, c = a + (N + 1), d = c + 1;
-        idx[ii++] = a; idx[ii++] = c; idx[ii++] = b;
-        idx[ii++] = b; idx[ii++] = c; idx[ii++] = d;
-      }
-    }
-
-    var vao = gl.createVertexArray();
-    gl.bindVertexArray(vao);
-    var vbo = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(gl.getAttribLocation(pT, "aPos"));
-    gl.vertexAttribPointer(gl.getAttribLocation(pT, "aPos"), 3, gl.FLOAT, false, 0, 0);
-    var ibo = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
-    gl.bindVertexArray(null);
-
-    /* Polvo atmosférico: contadísimo, sólo para que el aire no esté muerto */
-    var NM = pM ? 90 : 0, vaoM = null, mb1 = null, mb2 = null;
-    if (NM) {
-      var mp = new Float32Array(NM * 3), ms = new Float32Array(NM);
-      for (i = 0; i < NM; i++) {
-        mp[i * 3] = (Math.random() * 2 - 1) * 190;
-        mp[i * 3 + 1] = 10 + Math.random() * 150;
-        mp[i * 3 + 2] = (Math.random() * 2 - 1) * 190;
-        ms[i] = 0.8 + Math.random() * 1.6;
-      }
-      vaoM = gl.createVertexArray();
-      gl.bindVertexArray(vaoM);
-      mb1 = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, mb1);
-      gl.bufferData(gl.ARRAY_BUFFER, mp, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(gl.getAttribLocation(pM, "aP"));
-      gl.vertexAttribPointer(gl.getAttribLocation(pM, "aP"), 3, gl.FLOAT, false, 0, 0);
-      mb2 = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, mb2);
-      gl.bufferData(gl.ARRAY_BUFFER, ms, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(gl.getAttribLocation(pM, "aS"));
-      gl.vertexAttribPointer(gl.getAttribLocation(pM, "aS"), 1, gl.FLOAT, false, 0, 0);
-      gl.bindVertexArray(null);
-    }
-
-    var U = {};
-    ["uVP", "uCam", "uSun", "uRock", "uAccent", "uLight", "uPeak", "uBandY", "uFade", "uFogD"]
-      .forEach(function (n) { U[n] = gl.getUniformLocation(pT, n); });
-    var UM = {};
-    if (pM) ["uVP", "uCam", "uT", "uDpr"].forEach(function (n) { UM[n] = gl.getUniformLocation(pM, n); });
-
-    var ROCK = [0.039, 0.145, 0.263];
-    var ACCENT = [0.271, 0.682, 0.898];
-    var proj = new Float32Array(16), view = new Float32Array(16), vp = new Float32Array(16);
-    /* Con MSAA activo, subir el pixel ratio multiplica el costo de
-       relleno, que es lo que ahoga a una grafica integrada. 1.25 con
-       multimuestreo rinde mas que 1.5 sin el. */
-    var W = 0, H = 0, DPR = 1, MAXDPR = small ? 1 : 1.25, quality = 1;
+    var small = window.innerWidth < 760;
     var dawn = hero.querySelector("[data-dawn]");
 
-    function resize() {
+    /* Lienzo interno a media resolución: menos píxeles que tocar, y al
+       escalarlo cada partícula se convierte en un punto con halo. */
+    var off = document.createElement("canvas");
+    var octx = off.getContext("2d");
+    var img = null, px32 = null;
+    var BW = 0, BH = 0, W = 0, H = 0;
+
+    /* ---------------- partículas (SoA, sin objetos) ---------------- */
+    var N = 0, P = null;
+    var X = 0, Y = 0, VX = 0, VY = 0, TX = 0, TY = 0, HX = 0, HY = 0,
+        ORD = 0, WGT = 0, SPD = 0, PHS = 0, COL = 0;
+
+    var rgb0 = [0, 0, 0];
+    function build(n) {
+      N = n;
+      P = new Float32Array(N * 13);
+      X = 0; Y = N; VX = N * 2; VY = N * 3; TX = N * 4; TY = N * 5;
+      HX = N * 6; HY = N * 7; ORD = N * 8; WGT = N * 9; SPD = N * 10;
+      PHS = N * 11; COL = N * 12;
+      for (var i = 0; i < N; i++) {
+        /* Muestreo pesado por altura de columna: con u uniforme, los
+           bordes finos reciben tantas particulas como la cumbre y la
+           densidad queda al reves de lo que se espera de un macizo. */
+        var u = 0, ridge = 0, guard = 0;
+        do {
+          u = Math.random(); ridge = profile(u);
+          if (Math.random() < ridge) break;
+        } while (++guard < 8);
+        if (ridge < 0.02) ridge = 0.02;
+        /* Un tercio va sobre la cresta misma: es lo que hace que el
+           filo se lea como un corte y no como una nube difusa. */
+        var crest = Math.random() < 0.32;
+        var yy = crest ? ridge * (0.986 + Math.random() * 0.014)
+                       : ridge * Math.pow(Math.random(), 0.82);
+        /* Refuerzo de cumbre. Un macizo tiene poca masa arriba —es
+           geometría, no un error— pero la cima es justo lo que tiene
+           que leerse, así que una parte se reasigna al tramo alto. */
+        if (!crest && Math.random() < 0.09) {
+          var uu = 0.44 + (Math.random() - 0.5) * 0.3;
+          var rr = profile(uu);
+          if (rr > yy) { u = uu; ridge = rr; yy = rr * (0.74 + Math.random() * 0.26); }
+        }
+        P[TX + i] = u;
+        P[TY + i] = yy;
+        P[ORD + i] = yy;
+        /* La nube dispersa nace alrededor del propio objetivo: asi el
+           desarme se lee como el macizo estallando en su lugar, no
+           como polvo repartido por toda la pantalla. */
+        P[HX + i] = u + (Math.random() - 0.5) * 0.85;
+        P[HY + i] = yy + (Math.random() - 0.5) * 0.78;
+        P[X + i] = P[HX + i];
+        P[Y + i] = P[HY + i];
+        P[PHS + i] = Math.random() * 6.283;
+        /* El color depende sólo de la altura y de si va en el filo:
+           ambos son estáticos, así que se empaqueta acá y el bucle de
+           cada cuadro no vuelve a tocar la rampa. */
+        ramp(yy * 0.8 + (crest ? 0.2 : 0), rgb0);
+        P[COL + i] = ((rgb0[2] | 0) << 16) | ((rgb0[1] | 0) << 8) | (rgb0[0] | 0);
+        /* Idem el factor de brillo: dispersión por partícula y el
+           refuerzo por altura, que compensa la poca masa de la cumbre. */
+        P[SPD + i] = (0.5 + 0.5 * (0.55 + Math.random() * 0.9)) * (0.78 + 0.5 * yy);
+      }
+    }
+
+    /* ---------------- encuadre ----------------
+       En desktop el volumen va a la derecha, que es donde no hay
+       texto; apilado, abajo y a todo el ancho. */
+    var MX = 0, MY = 0, MW = 0, MH = 0;
+    function layout() {
       var r = hero.getBoundingClientRect();
       W = Math.max(320, Math.round(r.width));
       H = Math.max(320, Math.round(r.height));
-      DPR = Math.max(0.6, Math.min(window.devicePixelRatio || 1, MAXDPR) * quality);
-      var cw = Math.round(W * DPR), ch = Math.round(H * DPR);
-      if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
-      gl.viewport(0, 0, cw, ch);
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(W * dpr);
+      canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+
+      var scale = small ? 0.46 : 0.5;
+      BW = Math.max(160, Math.round(W * scale));
+      BH = Math.max(160, Math.round(H * scale));
+      off.width = BW; off.height = BH;
+      img = octx.createImageData(BW, BH);
+      px32 = new Uint32Array(img.data.buffer);
+
+      if (small) { MX = -0.05 * BW; MW = 1.1 * BW; MY = 0.87 * BH; MH = 0.38 * BH; }
+      else { MX = 0.3 * BW; MW = 0.84 * BW; MY = 0.95 * BH; MH = 0.66 * BH; }
     }
 
-    var mxT = 0, myT = 0, mx = 0, my = 0;
+    /* ---------------- ciclo ----------------
+       Se desarma rápido y se rearma lento: el mensaje está en subir,
+       no en caerse. */
+    var STEPS = 14;
+    var UP = 10.4, HOLD = 3.2, DOWN = 1.9, REST = 0.9;
+    var CYCLE = UP + HOLD + DOWN + REST;
+
+    var front = 0, flash = 0, mxT = 0, myT = 0, mx = 0, my = 0;
     if (fine) {
       hero.addEventListener("pointermove", function (e) {
         var r = hero.getBoundingClientRect();
@@ -338,123 +201,140 @@
       hero.addEventListener("pointerleave", function () { mxT = 0; myT = 0; });
     }
 
-    function render(t) {
-      var aspect = W / H;
-      /* Encuadre: en desktop el volumen va a la derecha, que es donde no
-         hay texto; apilado, abajo y algo más cerca. */
-      var sx = small ? 0.1 : -0.62;
-      var sy = small ? 0.66 : 0.24;
-      var dist = small ? 278 : 268;
-      var fov = (small ? 36 : 31) * Math.PI / 180;
-      if (aspect < 1) fov = 2 * Math.atan(Math.tan(fov / 2) / aspect) * 0.62;
+    function step(t, dt, frozen) {
+      var tc = frozen ? UP : t % CYCLE;
+      var goal;
+      if (tc < UP) {
+        /* El frente sube a saltos: cada paso trepa y después descansa.
+           Ese descanso es lo que lo hace leer como etapa, no como barra. */
+        var a = tc / UP;
+        var si = Math.floor(a * STEPS), sf = a * STEPS - si;
+        front = (si + sstep(0, 0.52, sf)) / STEPS;
+        goal = 1;
+      } else if (tc < UP + HOLD) { front = 1.02; goal = 1; }
+      else if (tc < UP + HOLD + DOWN) { front = 1.02; goal = 0; }
+      else { front = 0; goal = 0; }
 
-      /* Movimiento: órbita mínima y respiración. Nada de vuelo. */
-      var az = (small ? -0.34 : -0.46) + Math.sin(t * 0.055) * 0.035 + mx * 0.028;
-      var el = 0.235 + Math.sin(t * 0.041) * 0.012 - my * 0.022;
-      var dd = dist * (1 + Math.sin(t * 0.032) * 0.012);
-      var ex = Math.sin(az) * Math.cos(el) * dd;
-      var ey = Math.sin(el) * dd + PEAK * 0.3;
-      var ez = Math.cos(az) * Math.cos(el) * dd;
+      /* Fogonazo cuando se cierra la cumbre */
+      var want = (tc > UP - 0.5 && tc < UP + HOLD * 0.8) ? 1 : 0;
+      flash += (want - flash) * Math.min(1, dt * (want ? 4.5 : 1.1));
 
-      perspective(proj, fov, aspect, 1, 1400, sx, sy);
-      lookAt(view, [ex, ey, ez], [0, PEAK * 0.42, 0]);
-      mul(vp, proj, view);
+      mx += (mxT - mx) * Math.min(1, dt * 1.8);
+      my += (myT - my) * Math.min(1, dt * 1.8);
 
-      gl.clearColor(0, 0, 0, 0);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.enable(gl.DEPTH_TEST);
-      gl.depthFunc(gl.LEQUAL);
-      gl.enable(gl.BLEND);
-      gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      px32.fill(0);
 
-      /* Luz diagonal, fija. Respira muy poco. */
-      var sl = Math.hypot(0.62, 0.52, 0.58);
-      gl.useProgram(pT);
-      gl.uniformMatrix4fv(U.uVP, false, vp);
-      gl.uniform3f(U.uCam, ex, ey, ez);
-      gl.uniform3f(U.uSun, 0.62 / sl, 0.52 / sl, 0.58 / sl);
-      gl.uniform3fv(U.uRock, ROCK);
-      gl.uniform3fv(U.uAccent, ACCENT);
-      gl.uniform1f(U.uLight, 0.92 + Math.sin(t * 0.09) * 0.07);
-      gl.uniform1f(U.uPeak, PEAK);
-      /* La luz sube por las aristas y descansa: ciclo largo */
-      var cyc = (t % 17) / 17;
-      gl.uniform1f(U.uBandY, -PEAK * 0.3 + PEAK * 1.7 * sstep(0, 0.62, cyc));
-      gl.uniform1f(U.uFade, PEAK * 0.52);
-      gl.uniform1f(U.uFogD, 520);
-      gl.bindVertexArray(vao);
-      gl.drawElements(gl.TRIANGLES, idx.length, gl.UNSIGNED_INT, 0);
+      var sx = MX + mx * (small ? 4 : 11);
+      var sy = MY + my * (small ? 3 : 7);
+      var k = Math.min(1, dt * 60) * 0.5;
+      var drift = small ? 0.015 : 0.022;
+      var i, wgt, gx, gy, fx, fy, ix, iy, idx, prev, al, a2;
 
-      if (NM) {
-        gl.depthMask(false);
-        gl.useProgram(pM);
-        gl.uniformMatrix4fv(UM.uVP, false, vp);
-        gl.uniform3f(UM.uCam, ex, ey, ez);
-        gl.uniform1f(UM.uT, t);
-        gl.uniform1f(UM.uDpr, DPR);
-        gl.bindVertexArray(vaoM);
-        gl.drawArrays(gl.POINTS, 0, NM);
-        gl.depthMask(true);
+      for (i = 0; i < N; i++) {
+        /* Peso de ensamblado: 0 disperso, 1 en su lugar */
+        var on = (goal === 1 && P[ORD + i] <= front) ? 1 : 0;
+        wgt = P[WGT + i];
+        wgt += (on - wgt) * Math.min(1, dt * (on ? 1.9 + P[PHS + i] * 0.42 : 1.5));
+        P[WGT + i] = wgt;
+
+        /* Deriva de la nube dispersa */
+        var ph = P[PHS + i];
+        var hx = P[HX + i] + Math.sin(t * 0.3 + ph) * drift;
+        var hy = P[HY + i] + Math.cos(t * 0.24 + ph) * drift * 0.8;
+
+        gx = hx + (P[TX + i] - hx) * wgt;
+        gy = hy + (P[TY + i] - hy) * wgt;
+
+        var cx = P[X + i], cy = P[Y + i];
+        var vx = P[VX + i] * 0.9 + (gx - cx) * k * 0.22;
+        var vy = P[VY + i] * 0.9 + (gy - cy) * k * 0.22;
+        cx += vx; cy += vy;
+        P[X + i] = cx; P[Y + i] = cy; P[VX + i] = vx; P[VY + i] = vy;
+
+        /* A píxeles del búfer. La montaña crece hacia arriba, por eso
+           la y se invierte respecto de la altura normalizada. */
+        fx = sx + cx * MW;
+        fy = sy - cy * MH;
+        ix = fx | 0; iy = fy | 0;
+        if (ix < 0 || iy < 0 || ix >= BW || iy >= BH) continue;
+
+        al = (24 + 178 * wgt) * P[SPD + i];
+        if (al > 248) al = 248;
+        al = al | 0;
+        var col = P[COL + i];
+
+        idx = iy * BW + ix;
+        prev = px32[idx];
+        if (prev === 0) px32[idx] = (al << 24) | col;
+        else {
+          /* Acumular alfa: donde se juntan más partículas, más densidad */
+          a2 = (prev >>> 24) + al;
+          if (a2 > 252) a2 = 252;
+          px32[idx] = (a2 << 24) | (prev & 0x00FFFFFF);
+        }
+        /* Ya en su sitio, cada partícula engrosa un píxel hacia abajo:
+           es lo que convierte la nube en cuerpo sólido. */
+        if (wgt > 0.55 && iy + 1 < BH) {
+          idx += BW;
+          prev = px32[idx];
+          a2 = (prev === 0 ? 0 : prev >>> 24) + (al >> 1);
+          if (a2 > 252) a2 = 252;
+          px32[idx] = (a2 << 24) | (prev === 0 ? col : (prev & 0x00FFFFFF));
+        }
       }
-      gl.bindVertexArray(null);
 
-      if (dawn) dawn.style.opacity = (0.3 + 0.1 * Math.sin(t * 0.09)).toFixed(3);
+      octx.putImageData(img, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      ctx.drawImage(off, 0, 0, W, H);
+
+      /* La línea del frente: hasta dónde llegó el ascenso */
+      if (goal === 1 && front < 1.01) {
+        var ly = (sy - front * MH) / BH * H;
+        var lx0 = sx / BW * W, lx1 = (sx + MW) / BW * W;
+        var g = ctx.createLinearGradient(lx0, 0, lx1, 0);
+        g.addColorStop(0, "rgba(69,174,229,0)");
+        g.addColorStop(0.46, "rgba(69,174,229,.3)");
+        g.addColorStop(0.72, "rgba(69,174,229,.62)");
+        g.addColorStop(1, "rgba(69,174,229,0)");
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(lx0, ly);
+        ctx.lineTo(lx1, ly);
+        ctx.stroke();
+      }
+
+      if (dawn) dawn.style.opacity = (flash * 0.5).toFixed(3);
     }
 
-    resize();
-    if (reduced) { render(3.2); return true; }
+    layout();
+    build(small ? Math.round(W * H / 20) : Math.min(72000, Math.round(W * H / 15)));
 
-    var running = true, raf = 0, lost = false;
+    if (reduced) { step(UP * 0.999, 0.016, true); return true; }
+
+    var running = true, raf = 0;
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) { running = es[0].isIntersecting; },
         { threshold: 0 }).observe(hero);
     }
 
-    function destroy() {
-      cancelAnimationFrame(raf);
-      try {
-        gl.deleteBuffer(vbo); gl.deleteBuffer(ibo);
-        if (mb1) gl.deleteBuffer(mb1);
-        if (mb2) gl.deleteBuffer(mb2);
-        gl.deleteVertexArray(vao);
-        if (vaoM) gl.deleteVertexArray(vaoM);
-        gl.deleteProgram(pT); if (pM) gl.deleteProgram(pM);
-        var ext = gl.getExtension("WEBGL_lose_context");
-        if (ext) ext.loseContext();
-      } catch (e) {}
-      if (dawn) dawn.style.opacity = "0";
-      canvas.width = canvas.height = 1;
-    }
-
-    canvas.addEventListener("webglcontextlost", function (ev) {
-      ev.preventDefault(); lost = true; cancelAnimationFrame(raf);
-      if (window.CIMA_fallback) window.CIMA_fallback();
-    });
-
-    /* Calidad: UNA sola medición tras el arranque y a lo sumo un ajuste.
-       El esquema anterior remedía cada 1.6 s y redimensionaba el buffer,
-       que reasigna memoria de GPU y era en sí mismo fuente de tirones. */
-    var acc = 0, frames = 0, settled = false;
-
-    var t0 = performance.now(), prev = t0;
+    var t0 = performance.now(), prev = t0, acc = 0, nf = 0, settled = false;
     (function loop(now) {
       raf = requestAnimationFrame(loop);
-      if (lost) return;
       var raw = (now - prev) / 1000;
       prev = now;
       if (!running) return;
       var t = (now - t0) / 1000;
-      mx += (mxT - mx) * Math.min(1, raw * 1.7);
-      my += (myT - my) * Math.min(1, raw * 1.7);
-      render(t);
+      step(t, Math.min(0.05, raw), false);
 
+      /* Una sola medición tras el arranque, y como mucho un ajuste: el
+         esquema de remedir y redimensionar en bucle era en sí mismo
+         fuente de tirones. */
       if (!settled && t > 1.2) {
-        acc += raw; frames++;
-        if (acc > 2.2) {
+        acc += raw; nf++;
+        if (acc > 2) {
           settled = true;
-          var avg = acc / frames;
-          if (avg > 0.09) { destroy(); if (window.CIMA_fallback) window.CIMA_fallback(); }
-          else if (avg > 0.026) { quality = 0.68; NM = 0; resize(); }
+          if (acc / nf > 0.027) build(Math.round(N * 0.55));
         }
       }
     })(t0);
@@ -462,7 +342,10 @@
     var to;
     window.addEventListener("resize", function () {
       clearTimeout(to);
-      to = setTimeout(resize, 180);
+      to = setTimeout(function () {
+        small = window.innerWidth < 760;
+        layout();
+      }, 180);
     }, { passive: true });
 
     return true;
