@@ -23,31 +23,36 @@
   /* La serie, punto por punto. No hay interpolación ni suavizado: un
      gráfico de líneas va de dato a dato con una recta.
 
-     La silueta se construye con el CONTRASTE, no con el dentado. Las
-     caídas son profundas y casi verticales; los ascensos son largos y
-     escalonados. Eso es lo que hace que cada remontada se lea como la
-     ladera de una montaña, y no como un serrucho decorativo.
+     EL ISOTIPO ABRE EL GRÁFICO. Los primeros trece vértices no son
+     inventados: son la silueta del logo de Iñaki. Se trazó el borde
+     superior de la montaña del isotipo —el píxel verde más alto de
+     cada columna— y se simplificó con Douglas-Peucker hasta quedarse
+     con sus esquinas reales: el flanco escalonado, la cima principal,
+     el collado, el segundo pico, el espolón corto y la bajada final.
+     Van en x 0..0.300, escalados a y 0.08..0.52. Si mirás el primer
+     tercio de la curva, estás mirando el logo.
 
-     Dos derrumbes grandes y dos remontadas grandes arman la cordillera:
+     De ahí en más, la construcción: dos macizos más, cada uno con su
+     pico más alto que el anterior, y la cumbre al final.
 
-       pico 1  .44  →  valle 1  .12   (-.32)
-       valle 1 .12  →  pico 2   .74   (+.62)
-       pico 2  .74  →  valle 2  .28   (-.46)
-       valle 2 .28  →  pico 3   .87   (+.59)
-       y de ahí, el último empujón a la cumbre.
+     Las BAJADAS son el recurso. Caen casi al doble de pendiente que
+     lo que suben (-7.8 contra +4.1 en una caja de desktop), y eso es
+     lo que hace que cada remontada se lea como una ladera en vez de
+     un serrucho. Dos derrumbes de -.42 y -.36 parten el gráfico.
 
-     La tendencia nunca deja de subir: cada pico supera al anterior y
-     cada valle queda por encima del valle previo. Se cae más hondo,
-     pero nunca se vuelve al punto de partida. */
+     La tendencia nunca deja de subir, pero no punto a punto —por
+     macizo—: las cimas van .52 (el logo) → .68 → .86 → 1.00, y el
+     piso de cada macizo va .08 → .21 → .44. Se cae más hondo cada
+     vez, y aun así nunca se vuelve al punto de partida. */
   var DATA = [
-    [0.000, 0.05], [0.030, 0.13], [0.054, 0.08], [0.082, 0.22], [0.106, 0.16],
-    [0.142, 0.34], [0.166, 0.28], [0.196, 0.44], [0.220, 0.33], [0.240, 0.38],
-    [0.268, 0.12], [0.298, 0.25], [0.320, 0.20], [0.356, 0.41], [0.382, 0.35],
-    [0.418, 0.56], [0.442, 0.49], [0.476, 0.67], [0.498, 0.61], [0.530, 0.74],
-    [0.556, 0.65], [0.576, 0.70], [0.612, 0.28], [0.642, 0.42], [0.664, 0.36],
-    [0.700, 0.58], [0.724, 0.52], [0.762, 0.73], [0.784, 0.67], [0.818, 0.87],
-    [0.842, 0.75], [0.862, 0.81], [0.886, 0.69], [0.912, 0.89], [0.934, 0.83],
-    [0.968, 1.00]
+    [0.000, 0.080], [0.025, 0.208], [0.040, 0.212], [0.080, 0.455], [0.097, 0.426],
+    [0.112, 0.520], [0.128, 0.474], [0.142, 0.498], [0.179, 0.381], [0.217, 0.489],
+    [0.249, 0.289], [0.261, 0.344], [0.300, 0.095], [0.332, 0.270], [0.352, 0.200],
+    [0.386, 0.410], [0.408, 0.330], [0.438, 0.530], [0.460, 0.450], [0.494, 0.680],
+    [0.518, 0.570], [0.538, 0.630], [0.574, 0.210], [0.608, 0.390], [0.630, 0.310],
+    [0.666, 0.530], [0.688, 0.450], [0.724, 0.690], [0.746, 0.610], [0.784, 0.860],
+    [0.806, 0.740], [0.824, 0.800], [0.852, 0.440], [0.888, 0.660], [0.906, 0.600],
+    [0.968, 1.000]
   ];
 
   function sstep(a, b, x) {
@@ -64,7 +69,7 @@
 
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
-    var small = window.innerWidth < 760;
+    var small = window.innerWidth <= 980;   /* igual que el CSS del hero */
 
     /* ---------------- la serie ---------------- */
     var N = DATA.length;
@@ -137,21 +142,31 @@
          cruza con el título en desktop ni con los botones en mobile,
          sin importar el ancho, el tamaño de fuente o lo largo que
          termine siendo el copy de Iñaki. */
-      var gap = Math.max(18, Math.min(52, W * 0.03));
-      var titleR = edge(".hero-title", "right");
+      var gap = Math.max(22, Math.min(56, W * 0.034));
+      var copyR = Math.max(
+        edge(".hero-title", "right") || 0,
+        edge(".hero-sub", "right") || 0,
+        edge(".hero-actions", "right") || 0
+      ) || null;
       var actsB = edge(".hero-actions", "bottom");
 
       if (small) {
-        /* Vertical: la serie arranca debajo de los botones. */
-        BX = -0.05 * W; BW = (W * 0.94 - BX) / SX[N - 1];
+        /* Apilado: la serie arranca debajo de los botones y ocupa lo
+           que quede. Pero si el alto sobrante es poco —una tablet en
+           apaisado, por ejemplo— un gráfico a todo lo ancho sale
+           chato y se pierde la montaña, así que se le limita el ancho
+           contra el alto y se centra. */
         BY = actsB != null ? actsB + gap : 0.58 * H;
-        BY = Math.min(BY, H * 0.72);
-        BH = Math.max(H * 0.18, H * 0.95 - BY);
+        BY = Math.min(BY, H * 0.70);
+        BH = Math.max(H * 0.18, H * 0.97 - BY);
+        var full = (W * 0.94 + W * 0.05) / SX[N - 1];
+        BW = Math.min(full, BH * 2.3);
+        BX = BW >= W ? -0.05 * W : (W - BW) / 2;
       } else {
         /* Horizontal: la serie empieza donde termina el titular, y la
            cumbre cae adentro del lienzo en vez de irse por el borde. */
-        BX = titleR != null ? titleR + gap : 0.52 * W;
-        BX = Math.min(BX, W * 0.60);
+        BX = copyR != null ? copyR + gap : 0.52 * W;
+        BX = Math.min(BX, W * 0.64);
         BW = (W * 0.965 - BX) / SX[N - 1];
         BY = 0.21 * H; BH = 0.50 * H;
       }
@@ -354,7 +369,7 @@
     window.addEventListener("resize", function () {
       clearTimeout(to);
       to = setTimeout(function () {
-        small = window.innerWidth < 760;
+        small = window.innerWidth <= 980;
         layout();
       }, 180);
     }, { passive: true });
