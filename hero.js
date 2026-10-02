@@ -22,37 +22,32 @@
 
   /* Puntos de control del relato. Y en 0..1, donde 1 es la cumbre. */
   var STORY = [
-    [0.00, 0.04], [0.07, 0.15], [0.13, 0.09], [0.22, 0.31],
-    [0.30, 0.21], [0.40, 0.47], [0.47, 0.35], [0.57, 0.63],
-    [0.64, 0.52], [0.75, 0.83], [0.81, 0.71], [0.86, 1.00],
-    [0.93, 0.79], [1.00, 0.88]
+    [0.00, 0.04], [0.05, 0.13], [0.09, 0.10], [0.14, 0.24], [0.19, 0.21],
+    [0.24, 0.37], [0.30, 0.33], [0.36, 0.51], [0.41, 0.45], [0.47, 0.63],
+    [0.53, 0.57], [0.59, 0.77], [0.64, 0.69], [0.70, 0.89], [0.75, 0.81],
+    [0.81, 1.00], [0.86, 0.86], [0.91, 0.94], [1.00, 0.89]
   ];
-  /* Las caídas remontadas: ahí van los marcadores */
-  var DIPS = [2, 4, 6, 8, 10];
-  var SUMMIT = 11;
 
-  /* Generador determinista: la serie es la misma en cada carga y
-     sobrevive a un cambio de tamaño sin reordenarse. */
   function rng(seed) {
     var st = seed >>> 0;
     return function () { st = (st * 1664525 + 1013904223) >>> 0; return st / 4294967296; };
   }
-  /* Catmull-Rom: pasa por los puntos de control, a diferencia de una
-     Bézier. Pero acá sólo define la TENDENCIA, no la línea dibujada:
-     interpolar directo los puntos del relato daba lomas suaves, que
-     es justo lo que una serie real no tiene. */
-  function catmull(p0, p1, p2, p3, t) {
-    var t2 = t * t, t3 = t2 * t;
-    return 0.5 * ((2 * p1) + (-p0 + p2) * t +
-      (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
-      (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
-  }
+  /* Interpolación lineal, no Catmull-Rom: las esquinas vivas entre
+     tramos son justo lo que distingue un gráfico de una curva suave.
+     Suavizar los puntos de control daba lomas redondeadas. */
   function trendAt(u) {
-    var segs = STORY.length - 1;
-    var f = u * segs, si = Math.min(segs - 1, Math.floor(f)), st = f - si;
-    return catmull(STORY[Math.max(0, si - 1)][1], STORY[si][1],
-      STORY[si + 1][1], STORY[Math.min(segs, si + 2)][1], st);
+    var n = STORY.length;
+    if (u <= 0) return STORY[0][1];
+    if (u >= 1) return STORY[n - 1][1];
+    for (var i = 0; i < n - 1; i++) {
+      if (u <= STORY[i + 1][0]) {
+        var t = (u - STORY[i][0]) / (STORY[i + 1][0] - STORY[i][0]);
+        return STORY[i][1] + (STORY[i + 1][1] - STORY[i][1]) * t;
+      }
+    }
+    return STORY[n - 1][1];
   }
+
   function sstep(a, b, x) {
     var t = (x - a) / (b - a); t = t < 0 ? 0 : t > 1 ? 1 : t;
     return t * t * (3 - 2 * t);
@@ -74,7 +69,7 @@
        recibe un choque aleatorio. Eso es lo que da el aspecto de
        serie medida: quiebres, picos y tramos nerviosos, en vez de
        una línea suave que atraviesa unos pocos puntos. */
-    var N = small ? 76 : 124;
+    var N = small ? 40 : 58;
     var SX = new Float32Array(N), SY = new Float32Array(N);
     function buildSeries() {
       var r = rng(20260404), v = STORY[0][1];
@@ -82,10 +77,12 @@
         var u = i / (N - 1);
         var tr = trendAt(u);
         /* Más altura, más en juego: la volatilidad crece con el nivel */
-        var vol = 0.015 + 0.032 * tr;
+        var vol = 0.012 + 0.026 * tr;
         /* Choques ocasionales: los picos que un ruido parejo no da */
-        if (r() < 0.1) vol *= 2.7;
-        v += (tr - v) * 0.33 + (r() - 0.5) * 2 * vol;
+        if (r() < 0.12) vol *= 2.6;
+        /* Reversión fuerte: con pocos puntos, el ruido tiene que ceder
+           ante el escalonado o se come la estructura. */
+        v += (tr - v) * 0.52 + (r() - 0.5) * 2 * vol;
         if (v < 0.012) v = 0.012;
         if (v > 1.06) v = 1.06;
         SX[i] = u; SY[i] = v;
@@ -93,23 +90,30 @@
     }
     buildSeries();
 
-    /* Los marcadores se posan en extremos REALES de la serie, no en
-       los puntos del guion: si no, quedan flotando fuera de la línea. */
-    function lowNear(u, w) {
-      var best = -1, bv = 9;
-      for (var i = 0; i < N; i++) {
-        if (Math.abs(SX[i] - u) > w) continue;
-        if (SY[i] < bv) { bv = SY[i]; best = i; }
-      }
-      return best;
-    }
-    var MARKS = [];
-    for (var di = 0; di < DIPS.length; di++) {
-      var mi = lowNear(STORY[DIPS[di]][0], 0.045);
-      if (mi >= 0) MARKS.push(mi);
-    }
+    /* Los marcadores se posan en los extremos destacados de la serie
+       —máximos y mínimos—, medidos por prominencia: cuánto se despega
+       cada pico de su entorno inmediato. Atarlos a los puntos del
+       guion los dejaba flotando fuera de la línea dibujada. */
     var TOP = 0;
     for (var ti = 1; ti < N; ti++) if (SY[ti] > SY[TOP]) TOP = ti;
+
+    var MARKS = [];
+    (function () {
+      for (var i = 2; i < N - 2; i++) {
+        var up = SY[i] >= SY[i - 1] && SY[i] >= SY[i + 1] && SY[i] > SY[i - 2] && SY[i] > SY[i + 2];
+        var dn = SY[i] <= SY[i - 1] && SY[i] <= SY[i + 1] && SY[i] < SY[i - 2] && SY[i] < SY[i + 2];
+        if (!up && !dn) continue;
+        var lo = 9, hi = -9;
+        for (var k = Math.max(0, i - 4); k <= Math.min(N - 1, i + 4); k++) {
+          if (SY[k] < lo) lo = SY[k];
+          if (SY[k] > hi) hi = SY[k];
+        }
+        if ((up ? SY[i] - lo : hi - SY[i]) < 0.05) continue;
+        if (i === TOP) continue;
+        if (MARKS.length && i - MARKS[MARKS.length - 1] < 3) continue;
+        MARKS.push(i);
+      }
+    })();
 
     /* ---------------- lienzo ---------------- */
     var W = 0, H = 0, DPR = 1, BX = 0, BY = 0, BW = 0, BH = 0;
