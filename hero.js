@@ -31,23 +31,27 @@
   var DIPS = [2, 4, 6, 8, 10];
   var SUMMIT = 11;
 
-  function hash1(n) { var s = Math.sin(n * 127.1) * 43758.5453123; return s - Math.floor(s); }
-  function vnoise(x) {
-    var i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f);
-    return hash1(i) + (hash1(i + 1) - hash1(i)) * u;
-  }
-  function fbm(x) {
-    var s = 0, a = 0.5, fr = 1;
-    for (var i = 0; i < 4; i++) { s += a * (vnoise(x * fr) - 0.5) * 2; a *= 0.5; fr *= 2.07; }
-    return s;
+  /* Generador determinista: la serie es la misma en cada carga y
+     sobrevive a un cambio de tamaño sin reordenarse. */
+  function rng(seed) {
+    var st = seed >>> 0;
+    return function () { st = (st * 1664525 + 1013904223) >>> 0; return st / 4294967296; };
   }
   /* Catmull-Rom: pasa por los puntos de control, a diferencia de una
-     Bézier, que es lo que hace que el relato quede donde se lo puso. */
+     Bézier. Pero acá sólo define la TENDENCIA, no la línea dibujada:
+     interpolar directo los puntos del relato daba lomas suaves, que
+     es justo lo que una serie real no tiene. */
   function catmull(p0, p1, p2, p3, t) {
     var t2 = t * t, t3 = t2 * t;
     return 0.5 * ((2 * p1) + (-p0 + p2) * t +
       (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
       (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+  }
+  function trendAt(u) {
+    var segs = STORY.length - 1;
+    var f = u * segs, si = Math.min(segs - 1, Math.floor(f)), st = f - si;
+    return catmull(STORY[Math.max(0, si - 1)][1], STORY[si][1],
+      STORY[si + 1][1], STORY[Math.min(segs, si + 2)][1], st);
   }
   function sstep(a, b, x) {
     var t = (x - a) / (b - a); t = t < 0 ? 0 : t > 1 ? 1 : t;
@@ -66,33 +70,46 @@
     var small = window.innerWidth < 760;
 
     /* ---------------- la serie ----------------
-       Relato interpolado + micro-volatilidad: ninguna de las dos sola
-       sirve. Sin relato es ruido; sin ruido, una infografía. */
-    var N = small ? 260 : 420;
+       Cada punto parte del anterior, revierte hacia la tendencia y
+       recibe un choque aleatorio. Eso es lo que da el aspecto de
+       serie medida: quiebres, picos y tramos nerviosos, en vez de
+       una línea suave que atraviesa unos pocos puntos. */
+    var N = small ? 76 : 124;
     var SX = new Float32Array(N), SY = new Float32Array(N);
     function buildSeries() {
-      var segs = STORY.length - 1;
+      var r = rng(20260404), v = STORY[0][1];
       for (var i = 0; i < N; i++) {
         var u = i / (N - 1);
-        var f = u * segs, si = Math.min(segs - 1, Math.floor(f)), st = f - si;
-        var p0 = STORY[Math.max(0, si - 1)], p1 = STORY[si];
-        var p2 = STORY[si + 1], p3 = STORY[Math.min(segs, si + 2)];
-        var x = catmull(p0[0], p1[0], p2[0], p3[0], st);
-        var y = catmull(p0[1], p1[1], p2[1], p3[1], st);
-        /* El temblor crece con la altura: arriba se juega más fino */
-        y += fbm(u * 19) * 0.016 * (0.35 + 0.65 * y);
-        SX[i] = x; SY[i] = y < 0 ? 0 : y;
+        var tr = trendAt(u);
+        /* Más altura, más en juego: la volatilidad crece con el nivel */
+        var vol = 0.015 + 0.032 * tr;
+        /* Choques ocasionales: los picos que un ruido parejo no da */
+        if (r() < 0.1) vol *= 2.7;
+        v += (tr - v) * 0.33 + (r() - 0.5) * 2 * vol;
+        if (v < 0.012) v = 0.012;
+        if (v > 1.06) v = 1.06;
+        SX[i] = u; SY[i] = v;
       }
     }
     buildSeries();
 
-    /* Posición en pantalla de cada marcador */
-    function storyIndex(k) {
-      var u = STORY[k][0], best = 0, bd = 9;
-      for (var i = 0; i < N; i++) { var d = Math.abs(SX[i] - u); if (d < bd) { bd = d; best = i; } }
+    /* Los marcadores se posan en extremos REALES de la serie, no en
+       los puntos del guion: si no, quedan flotando fuera de la línea. */
+    function lowNear(u, w) {
+      var best = -1, bv = 9;
+      for (var i = 0; i < N; i++) {
+        if (Math.abs(SX[i] - u) > w) continue;
+        if (SY[i] < bv) { bv = SY[i]; best = i; }
+      }
       return best;
     }
-    var MARKS = DIPS.map(storyIndex), TOP = storyIndex(SUMMIT);
+    var MARKS = [];
+    for (var di = 0; di < DIPS.length; di++) {
+      var mi = lowNear(STORY[DIPS[di]][0], 0.045);
+      if (mi >= 0) MARKS.push(mi);
+    }
+    var TOP = 0;
+    for (var ti = 1; ti < N; ti++) if (SY[ti] > SY[TOP]) TOP = ti;
 
     /* ---------------- lienzo ---------------- */
     var W = 0, H = 0, DPR = 1, BX = 0, BY = 0, BW = 0, BH = 0;
