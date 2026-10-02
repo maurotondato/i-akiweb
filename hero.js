@@ -21,32 +21,20 @@
      =========================================================== */
 
   /* Puntos de control del relato. Y en 0..1, donde 1 es la cumbre. */
-  var STORY = [
-    [0.00, 0.04], [0.05, 0.13], [0.09, 0.10], [0.14, 0.24], [0.19, 0.21],
-    [0.24, 0.37], [0.30, 0.33], [0.36, 0.51], [0.41, 0.45], [0.47, 0.63],
-    [0.53, 0.57], [0.59, 0.77], [0.64, 0.69], [0.70, 0.89], [0.75, 0.81],
-    [0.81, 1.00], [0.86, 0.86], [0.91, 0.94], [1.00, 0.89]
+  /* La serie, punto por punto. No hay interpolación ni paseo
+     aleatorio: un gráfico de líneas va de dato a dato con una recta,
+     y cualquier suavizado devuelve las lomas. El dentado sigue el
+     patrón del isotipo —filos rectos, cada cumbre más alta que la
+     anterior, retrocesos parciales— y termina arriba. */
+  var DATA = [
+    [0.000, 0.05], [0.030, 0.15], [0.055, 0.11], [0.090, 0.24], [0.120, 0.17],
+    [0.150, 0.31], [0.185, 0.24], [0.215, 0.40], [0.250, 0.31], [0.285, 0.47],
+    [0.310, 0.40], [0.345, 0.56], [0.380, 0.44], [0.410, 0.59], [0.445, 0.50],
+    [0.480, 0.68], [0.510, 0.59], [0.545, 0.76], [0.575, 0.64], [0.610, 0.81],
+    [0.645, 0.71], [0.675, 0.89], [0.710, 0.76], [0.745, 0.94], [0.775, 0.82],
+    [0.805, 1.00], [0.840, 0.85], [0.870, 0.96], [0.905, 0.87], [0.940, 0.97],
+    [0.975, 0.89], [1.000, 0.95]
   ];
-
-  function rng(seed) {
-    var st = seed >>> 0;
-    return function () { st = (st * 1664525 + 1013904223) >>> 0; return st / 4294967296; };
-  }
-  /* Interpolación lineal, no Catmull-Rom: las esquinas vivas entre
-     tramos son justo lo que distingue un gráfico de una curva suave.
-     Suavizar los puntos de control daba lomas redondeadas. */
-  function trendAt(u) {
-    var n = STORY.length;
-    if (u <= 0) return STORY[0][1];
-    if (u >= 1) return STORY[n - 1][1];
-    for (var i = 0; i < n - 1; i++) {
-      if (u <= STORY[i + 1][0]) {
-        var t = (u - STORY[i][0]) / (STORY[i + 1][0] - STORY[i][0]);
-        return STORY[i][1] + (STORY[i + 1][1] - STORY[i][1]) * t;
-      }
-    }
-    return STORY[n - 1][1];
-  }
 
   function sstep(a, b, x) {
     var t = (x - a) / (b - a); t = t < 0 ? 0 : t > 1 ? 1 : t;
@@ -64,55 +52,34 @@
     var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     var small = window.innerWidth < 760;
 
-    /* ---------------- la serie ----------------
-       Cada punto parte del anterior, revierte hacia la tendencia y
-       recibe un choque aleatorio. Eso es lo que da el aspecto de
-       serie medida: quiebres, picos y tramos nerviosos, en vez de
-       una línea suave que atraviesa unos pocos puntos. */
-    var N = small ? 40 : 58;
+    /* ---------------- la serie ---------------- */
+    var N = DATA.length;
     var SX = new Float32Array(N), SY = new Float32Array(N);
-    function buildSeries() {
-      var r = rng(20260404), v = STORY[0][1];
-      for (var i = 0; i < N; i++) {
-        var u = i / (N - 1);
-        var tr = trendAt(u);
-        /* Más altura, más en juego: la volatilidad crece con el nivel */
-        var vol = 0.012 + 0.026 * tr;
-        /* Choques ocasionales: los picos que un ruido parejo no da */
-        if (r() < 0.12) vol *= 2.6;
-        /* Reversión fuerte: con pocos puntos, el ruido tiene que ceder
-           ante el escalonado o se come la estructura. */
-        v += (tr - v) * 0.52 + (r() - 0.5) * 2 * vol;
-        if (v < 0.012) v = 0.012;
-        if (v > 1.06) v = 1.06;
-        SX[i] = u; SY[i] = v;
-      }
-    }
-    buildSeries();
+    for (var i = 0; i < N; i++) { SX[i] = DATA[i][0]; SY[i] = DATA[i][1]; }
 
-    /* Los marcadores se posan en los extremos destacados de la serie
-       —máximos y mínimos—, medidos por prominencia: cuánto se despega
-       cada pico de su entorno inmediato. Atarlos a los puntos del
-       guion los dejaba flotando fuera de la línea dibujada. */
     var TOP = 0;
     for (var ti = 1; ti < N; ti++) if (SY[ti] > SY[TOP]) TOP = ti;
 
-    var MARKS = [];
-    (function () {
-      for (var i = 2; i < N - 2; i++) {
-        var up = SY[i] >= SY[i - 1] && SY[i] >= SY[i + 1] && SY[i] > SY[i - 2] && SY[i] > SY[i + 2];
-        var dn = SY[i] <= SY[i - 1] && SY[i] <= SY[i + 1] && SY[i] < SY[i - 2] && SY[i] < SY[i + 2];
+    /* Marcadores en los extremos más destacados —picos y retrocesos—
+       medidos por prominencia: cuánto se despega cada punto de sus
+       vecinos. Con un dentado parejo, marcarlos todos sería ruido. */
+    var MARKS = (function () {
+      var cand = [];
+      for (var i = 1; i < N - 1; i++) {
+        var up = SY[i] > SY[i - 1] && SY[i] > SY[i + 1];
+        var dn = SY[i] < SY[i - 1] && SY[i] < SY[i + 1];
         if (!up && !dn) continue;
-        var lo = 9, hi = -9;
-        for (var k = Math.max(0, i - 4); k <= Math.min(N - 1, i + 4); k++) {
-          if (SY[k] < lo) lo = SY[k];
-          if (SY[k] > hi) hi = SY[k];
-        }
-        if ((up ? SY[i] - lo : hi - SY[i]) < 0.05) continue;
         if (i === TOP) continue;
-        if (MARKS.length && i - MARKS[MARKS.length - 1] < 3) continue;
-        MARKS.push(i);
+        cand.push([i, Math.abs(SY[i] - (SY[i - 1] + SY[i + 1]) / 2)]);
       }
+      cand.sort(function (a, b) { return b[1] - a[1]; });
+      var out = [];
+      for (var c = 0; c < cand.length && out.length < 9; c++) {
+        var idx = cand[c][0], ok = true;
+        for (var o = 0; o < out.length; o++) if (Math.abs(out[o] - idx) < 3) ok = false;
+        if (ok) out.push(idx);
+      }
+      return out.sort(function (a, b) { return a - b; });
     })();
 
     /* ---------------- lienzo ---------------- */
@@ -193,7 +160,7 @@
       ctx.strokeStyle = "rgba(3,29,64,.2)";
       ctx.beginPath();
       ctx.moveTo(px(0), py(0));
-      ctx.lineTo(BX + BW, BY + BH - STORY[STORY.length - 1][1] * BH);
+      ctx.lineTo(px(N - 1), py(N - 1));
       ctx.stroke();
       ctx.restore();
 
@@ -214,30 +181,20 @@
       ctx.fill();
       ctx.globalAlpha = 1;
 
-      /* --- el trazo, como cinta de ancho variable ---
-         Cuanto más empinado el tramo, más grueso: el esfuerzo se ve.
-         Resuelto como un solo relleno —ida por el borde de arriba y
-         vuelta por el de abajo— en vez de cientos de strokes. */
+      /* --- el trazo ---
+         Ancho constante y uniones en punta. La cinta de ancho
+         variable que había antes desplazaba cada borde según la
+         pendiente, y eso redondeaba justo las esquinas que tienen
+         que verse. */
       ctx.beginPath();
-      var j;
-      for (j = 0; j < N; j++) {
-        var nx = px(Math.min(N - 1, j + 1)) - px(Math.max(0, j - 1));
-        var ny = py(Math.min(N - 1, j + 1)) - py(Math.max(0, j - 1));
-        var l = Math.hypot(nx, ny) || 1;
-        var w = (1.5 + 1.9 * Math.min(1, Math.abs(ny / l) * 1.7)) * 0.5;
-        if (j === 0) ctx.moveTo(px(j) + (ny / l) * w, py(j) - (nx / l) * w);
-        else ctx.lineTo(px(j) + (ny / l) * w, py(j) - (nx / l) * w);
-      }
-      for (j = N - 1; j >= 0; j--) {
-        var mx2 = px(Math.min(N - 1, j + 1)) - px(Math.max(0, j - 1));
-        var my2 = py(Math.min(N - 1, j + 1)) - py(Math.max(0, j - 1));
-        var l2 = Math.hypot(mx2, my2) || 1;
-        var w2 = (1.5 + 1.9 * Math.min(1, Math.abs(my2 / l2) * 1.7)) * 0.5;
-        ctx.lineTo(px(j) - (my2 / l2) * w2, py(j) + (mx2 / l2) * w2);
-      }
-      ctx.closePath();
-      ctx.fillStyle = gLine;
-      ctx.fill();
+      ctx.moveTo(px(0), py(0));
+      for (var j = 1; j < N; j++) ctx.lineTo(px(j), py(j));
+      ctx.strokeStyle = gLine;
+      ctx.lineWidth = 2.4;
+      ctx.lineJoin = "miter";
+      ctx.miterLimit = 6;
+      ctx.lineCap = "butt";
+      ctx.stroke();
       ctx.restore();
 
       /* --- marcadores: cada caída remontada --- */

@@ -164,7 +164,9 @@ ul,ol{margin:0;padding:0;list-style:none}
 /* display:flex, si no el clon del marquee —que es inline-flex y más
    ancho que la pantalla— envuelve a una segunda línea y cada club
    aparece dos veces, uno encima del otro. */
-.marquee{position:relative;overflow:hidden;display:flex;flex-wrap:nowrap;
+/* El gap va también en el contenedor: entre la pista y su clon no
+   había separación y el primer club quedaba pegado al rombo. */
+.marquee{position:relative;overflow:hidden;display:flex;flex-wrap:nowrap;gap:30px;
   background:var(--ink);color:#fff;padding:17px 0}
 .marquee::before,.marquee::after{content:"";position:absolute;top:0;bottom:0;width:90px;z-index:2;pointer-events:none}
 .marquee::before{left:0;background:linear-gradient(90deg,var(--ink),transparent)}
@@ -236,7 +238,16 @@ ul,ol{margin:0;padding:0;list-style:none}
 
 .motto-band{background:var(--ink);color:#fff;padding-block:clamp(50px,8vw,96px)}
 .cima-motto{font-family:var(--display);font-size:clamp(24px,3.6vw,46px);line-height:1.18;
-  letter-spacing:-.035em;max-width:24ch}
+  letter-spacing:-.035em;max-width:24ch;display:flex;flex-direction:column;gap:.18em}
+.motto-a{color:#9DB4CC}
+/* La segunda mitad es la idea: entra después, en celeste, y una línea
+   la subraya cuando terminan de caer las palabras. */
+.motto-b{position:relative;color:var(--cel);align-self:flex-start}
+.motto-b::after{content:"";position:absolute;left:0;right:0;bottom:-.14em;height:2px;
+  background:linear-gradient(90deg,var(--cel),rgba(69,174,229,0));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform 1.1s var(--ease-out) 1.15s}
+.cima-motto.is-in .motto-b::after{transform:scaleX(1)}
 
 
 /* ---------------- ¿PARA QUIÉNES? ----------------
@@ -302,6 +313,37 @@ ul,ol{margin:0;padding:0;list-style:none}
 
 @keyframes aiDraw{to{stroke-dashoffset:0}}
 @keyframes aiPop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
+
+/* ---- Movimiento propio de cada ícono, ya en reposo ----
+   Arranca cuando termina la entrada. Cada uno hace lo suyo: el
+   proceso individual sigue girando, el grupo respira en ola, y la
+   jugada se vuelve a dibujar. */
+.ai-orbit{fill:none;stroke:var(--cel);stroke-width:2.6;stroke-linecap:round;
+  stroke-dasharray:.1 .9;stroke-dashoffset:0;opacity:0;
+  transform-origin:50% 50%}
+.aud-card.is-in .ai-orbit{animation:aiFadeIn .5s var(--ease-out) 1.6s forwards,
+  aiOrbit 7s linear 1.6s infinite}
+@keyframes aiFadeIn{to{opacity:.9}}
+@keyframes aiOrbit{to{transform:rotate(360deg)}}
+
+.ai-p{transform-origin:50% 60%}
+.aud-card.is-in .ai-pc{animation:aiBob 3.6s var(--ease-in-out) 1.5s infinite}
+.aud-card.is-in .ai-pa{animation:aiBob 3.6s var(--ease-in-out) 1.72s infinite}
+.aud-card.is-in .ai-pb{animation:aiBob 3.6s var(--ease-in-out) 1.94s infinite}
+@keyframes aiBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.6px)}}
+
+.aud-card.is-in .ai-play{animation:aiDraw 1s var(--ease-out) .75s forwards,
+  aiReplay 7s var(--ease-out) 2.4s infinite}
+@keyframes aiReplay{0%{stroke-dashoffset:1}26%,100%{stroke-dashoffset:0}}
+.aud-card.is-in .ai-tip{animation:aiDraw .3s var(--ease-out) 1.6s forwards,
+  aiTip 7s var(--ease-out) 2.4s infinite}
+@keyframes aiTip{0%,22%{opacity:0}30%,100%{opacity:1}}
+.aud-card.is-in .ai-d1,.aud-card.is-in .ai-d2,.aud-card.is-in .ai-d3{
+  animation:aiPop .4s var(--ease-out) forwards, aiBlink 7s var(--ease-out) infinite}
+@keyframes aiBlink{0%,10%{opacity:1}14%{opacity:.25}22%,100%{opacity:1}}
+.aud-card.is-in .ai-d1{animation-delay:.9s,2.5s}
+.aud-card.is-in .ai-d2{animation-delay:1.1s,2.7s}
+.aud-card.is-in .ai-d3{animation-delay:1.3s,2.9s}
 @media (max-width:900px){.aud-grid{grid-template-columns:1fr}}
 
 /* ---------------- SOBRE MÍ ---------------- */
@@ -494,5 +536,9 @@ ul,ol{margin:0;padding:0;list-style:none}
   .aud-card.is-in .ai-board,.aud-card.is-in .ai-clip,.aud-card.is-in .ai-play,
   .aud-card.is-in .ai-tip{animation:none;stroke-dashoffset:0}
   .aud-card.is-in .ai-head,.aud-card.is-in .ai-dot{animation:rgCalm .4s ease forwards}
+  .aud-card.is-in .ai-orbit,.aud-card.is-in .ai-p,.aud-card.is-in .ai-play,
+  .aud-card.is-in .ai-tip{animation:none}
+  .ai-orbit{opacity:0}
+  .cima-motto.is-in .motto-b::after{transition-duration:.4s;transition-delay:.2s}
   @keyframes rgCalm{from{opacity:0}to{opacity:1}}
 }
