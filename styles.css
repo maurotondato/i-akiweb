@@ -92,62 +92,61 @@ ul,ol{margin:0;padding:0;list-style:none}
   will-change:transform;transition:transform .8s var(--ease-soft)}
 
 /* ---------------- HERO ----------------
-   La cordillera se construye UNA VEZ al entrar y después queda
-   quieta: un fondo en bucle compite con el contenido, una entrada que
-   resuelve lo acompaña. Todo con animaciones CSS, que corren fuera
-   del hilo principal y no pueden trabarse mientras la página carga. */
+   "Del ruido al foco". El hero se ve una vez por visita: ahí el gesto
+   correcto es una ENTRADA que se ejecuta y resuelve, no un fondo en
+   bucle —un bucle compite con el contenido todo el tiempo—. Son
+   animaciones CSS, no requestAnimationFrame: corren fuera del hilo
+   principal y no pueden trabarse mientras la página carga. */
 .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
   padding:104px 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
-/* La caja toma la proporción del viewBox: así el ajuste "slice" no
-   recorta nunca y la cumbre no queda comida por el borde. */
-.range-wrap{position:absolute;right:-6%;bottom:-6%;z-index:1;width:86%;
-  aspect-ratio:1200/700;height:auto;
-  pointer-events:none;will-change:transform;
-  -webkit-mask-image:linear-gradient(100deg,transparent 0%,rgba(0,0,0,.5) 22%,#000 46%);
-  mask-image:linear-gradient(100deg,transparent 0%,rgba(0,0,0,.5) 22%,#000 46%)}
-.range{width:100%;height:100%;display:block;overflow:visible}
+/* El ruido nace en la columna del titular y se apaga ahí mismo: lo que
+   se lee resuelto queda en el aire libre de la derecha. */
+.sig-wrap{position:absolute;right:-2%;top:36%;z-index:1;width:72%;
+  aspect-ratio:1000/300;pointer-events:none;will-change:transform;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 16%,#000 34%);
+  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.35) 16%,#000 34%)}
+.sig{width:100%;height:100%;display:block;overflow:visible}
 
-/* Planos: se levantan de abajo hacia arriba, uno detrás de otro */
-.rg-fill{clip-path:inset(100% 0 0 0)}
-.rg-l1{fill:rgba(69,174,229,.15)}
-.rg-l2{fill:rgba(45,140,205,.17)}
-.rg-l3{fill:rgba(26,98,201,.17)}
-.rg-l4{fill:rgba(6,42,86,.24)}
-.is-ready .rg-fill{animation:rgRise .95s var(--ease-out) forwards}
-.is-ready .rg-l1{animation-delay:.12s}
-.is-ready .rg-l2{animation-delay:.26s}
-.is-ready .rg-l3{animation-delay:.4s}
-.is-ready .rg-l4{animation-delay:.54s}
-@keyframes rgRise{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+/* Eje y marcas: medida, proceso */
+.sg-axis{fill:none;stroke:rgba(3,29,64,.14);stroke-width:1;
+  stroke-dasharray:1;stroke-dashoffset:1}
+.is-ready .sg-axis{animation:sgDraw .7s var(--ease-out) .15s forwards}
+.sg-tk{stroke:rgba(3,29,64,.16);stroke-width:1;opacity:0}
+.is-ready .sg-tk{animation:sgFade .4s var(--ease-out) forwards;
+  animation-delay:calc(.35s + var(--i) * .012s)}
 
-/* Curvas de nivel: altitud, precisión */
-.rg-ln{stroke:rgba(69,174,229,.3);stroke-width:1;opacity:0}
-.is-ready .rg-ln{animation:rgLn .6s var(--ease-out) forwards;
-  animation-delay:calc(.8s + var(--i) * .05s)}
-@keyframes rgLn{to{opacity:1}}
+/* El desorden: se dibuja primero y después lo tapa la señal */
+.sg-ghost{fill:none;stroke:url(#sgGhost);stroke-width:1.4;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:1}
+.is-ready .sg-ghost{animation:sgDraw 1.1s var(--ease-out) .5s forwards}
 
-/* El filo se traza como una ruta: es el ascenso */
-.rg-edge{fill:none;stroke:var(--cel);stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round;
-  stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 6px rgba(69,174,229,.45))}
-.is-ready .rg-edge{animation:rgDraw 1.6s var(--ease-out) .5s forwards}
-@keyframes rgDraw{to{stroke-dashoffset:0}}
+/* La señal: el gesto central. Entra con el ruido y sale resuelta. */
+.sg-line{fill:none;stroke:url(#sgLine);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:1;filter:drop-shadow(0 0 7px rgba(69,174,229,.45))}
+.is-ready .sg-line{animation:sgDraw 2s var(--ease-out) .85s forwards}
 
-/* La cumbre llega última */
-.rg-top{opacity:0;transform-origin:center}
-.rg-dot{fill:#fff;stroke:var(--cel);stroke-width:2.5}
-.rg-halo{fill:none;stroke:var(--cel);stroke-width:1.5;opacity:.55;transform-origin:center}
-.is-ready .rg-top{animation:rgTop .6s var(--ease-out) 1.95s forwards}
-@keyframes rgTop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
-/* Único elemento que reaparece: la luz que recorre el filo. No es un
-   fondo en bucle, es un acento cada nueve segundos. */
-.is-ready .rg-halo{animation:rgPulse 9s var(--ease-out) 3s infinite}
-@keyframes rgPulse{0%,70%{transform:scale(1);opacity:.55}
-  85%{transform:scale(2.1);opacity:0}100%{transform:scale(1);opacity:.55}}
+@keyframes sgDraw{to{stroke-dashoffset:0}}
+@keyframes sgFade{to{opacity:1}}
+
+/* El foco: al resolverse, irradia una vez. Después sólo respira. */
+.sg-end{opacity:0;transform-origin:center}
+.is-ready .sg-end{animation:sgFade .5s var(--ease-out) 2.5s forwards}
+.sg-core{fill:#fff;stroke:var(--cel);stroke-width:2.6}
+.sg-r{fill:none;stroke:var(--cel);stroke-width:1.6;opacity:0;transform-origin:center}
+.is-ready .sg-r{animation:sgRing 2.6s var(--ease-out) forwards}
+.sg-r1{animation-delay:2.6s}
+.sg-r2{animation-delay:2.85s}
+.sg-r3{animation-delay:3.1s}
+@keyframes sgRing{0%{opacity:.55;transform:scale(.4)}100%{opacity:0;transform:scale(4.4)}}
+/* Único elemento que reaparece: el pulso del foco. No es un fondo en
+   bucle, es un acento cada ocho segundos. */
+.is-ready .sg-core{animation:sgBreath 8s var(--ease-out) 4s infinite}
+@keyframes sgBreath{0%,88%{transform:scale(1)}94%{transform:scale(1.22)}100%{transform:scale(1)}}
 
 @media (max-width:980px){
-  .range-wrap{width:168%;left:-44%;right:auto;bottom:-3%;
-    -webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 16%,#000 42%);
-    mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.45) 16%,#000 42%)}
+  .sig-wrap{width:124%;left:-22%;right:auto;top:auto;bottom:17%;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.4) 12%,#000 30%);
+    mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.4) 12%,#000 30%)}
 }
 .hero-grid{position:relative;z-index:3;display:grid;grid-template-columns:1.06fr .94fr;
   gap:clamp(20px,3vw,48px);align-items:center;max-width:1320px;margin:0 auto;width:100%;padding-inline:var(--gut)}
@@ -297,22 +296,49 @@ ul,ol{margin:0;padding:0;list-style:none}
 .aud-n{font-family:var(--cond);font-size:13px;font-weight:600;letter-spacing:.3em;color:var(--cel-dk)}
 .aud-card h3{font-size:25px;letter-spacing:-.03em}
 .aud-card p{font-size:15px;line-height:1.65;color:var(--mute)}
-.aud-ico{width:78px;height:61px;display:block;margin:4px 0 6px;overflow:visible}
-.ai-base{fill:none;stroke:#C7D4E2;stroke-width:1.8;stroke-linecap:round;
+.aud-ico{width:76px;height:76px;display:block;margin:4px 0 8px;overflow:visible}
+.ai-head{fill:var(--cel-dk);opacity:0;transform-box:fill-box;transform-origin:center}
+.ai-body{fill:none;stroke:var(--cel-dk);stroke-width:2.6;stroke-linecap:round;
   stroke-dasharray:1;stroke-dashoffset:1}
-.ai-route{fill:none;stroke:var(--cel-dk);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+.ai-ring,.ai-link{fill:none;stroke:var(--cel);stroke-width:2;stroke-linecap:round;
   stroke-dasharray:1;stroke-dashoffset:1}
-.ai-node{fill:var(--cel);opacity:0;transform-box:fill-box;transform-origin:center}
-/* Arrancan al entrar la tarjeta, no al cargar la página */
-.aud-card.is-in .ai-base{animation:aiDraw .5s var(--ease-out) .05s forwards}
-.aud-card.is-in .ai-route{animation:aiDraw .95s var(--ease-out) .2s forwards}
-.aud-card.is-in .ai-node{animation:aiPop .45s var(--ease-out) forwards}
-.aud-card.is-in .ai-n1{animation-delay:.95s}
-.aud-card.is-in .ai-n2{animation-delay:1.06s}
-.aud-card.is-in .ai-n3{animation-delay:1.17s}
-.aud-card.is-in .ai-n4{animation-delay:1.28s}
+.ai-board,.ai-clip{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:1}
+.ai-play{fill:none;stroke:var(--cel);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:1}
+.ai-tip{fill:none;stroke:var(--cel);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:1}
+.ai-dot{fill:var(--cel-dk);opacity:0;transform-box:fill-box;transform-origin:center}
+
+/* Cada ícono ejecuta su propia idea al entrar en pantalla:
+   uno se completa, tres se reúnen, una jugada se traza. */
+.aud-card.is-in .ai-head{animation:aiPop .45s var(--ease-out) forwards}
+.aud-card.is-in .ai-body{animation:aiDraw .6s var(--ease-out) forwards}
+.aud-card.is-in .ai-dot{animation:aiPop .4s var(--ease-out) forwards}
+
+/* 01 · Individual: la persona aparece y el proceso se cierra en torno */
+.aud-card.is-in .ai-ring{animation:aiDraw 1.1s var(--ease-out) .55s forwards}
+
+/* 02 · Equipo: primero uno, después el grupo, y el arco los une */
+.aud-card.is-in .ai-pc .ai-head{animation-delay:.1s}
+.aud-card.is-in .ai-pc .ai-body{animation-delay:.2s}
+.aud-card.is-in .ai-pa .ai-head{animation-delay:.42s}
+.aud-card.is-in .ai-pa .ai-body{animation-delay:.52s}
+.aud-card.is-in .ai-pb .ai-head{animation-delay:.6s}
+.aud-card.is-in .ai-pb .ai-body{animation-delay:.7s}
+.aud-card.is-in .ai-link{animation:aiDraw .8s var(--ease-out) .95s forwards}
+
+/* 03 · Staff: la pizarra, y encima la jugada */
+.aud-card.is-in .ai-clip{animation:aiDraw .4s var(--ease-out) .1s forwards}
+.aud-card.is-in .ai-board{animation:aiDraw .8s var(--ease-out) .2s forwards}
+.aud-card.is-in .ai-play{animation:aiDraw 1s var(--ease-out) .75s forwards}
+.aud-card.is-in .ai-tip{animation:aiDraw .3s var(--ease-out) 1.6s forwards}
+.aud-card.is-in .ai-d1{animation-delay:.9s}
+.aud-card.is-in .ai-d2{animation-delay:1.1s}
+.aud-card.is-in .ai-d3{animation-delay:1.3s}
+
 @keyframes aiDraw{to{stroke-dashoffset:0}}
-@keyframes aiPop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+@keyframes aiPop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
 @media (max-width:900px){.aud-grid{grid-template-columns:1fr}}
 
 /* ---------------- SOBRE MÍ ---------------- */
@@ -501,13 +527,14 @@ ul,ol{margin:0;padding:0;list-style:none}
   .grain{animation:none}
   .marquee-track{animation:none}
   html{scroll-behavior:auto}
-  .is-ready .rg-fill,.is-ready .rg-ln,.is-ready .rg-edge,.is-ready .rg-top{
-    animation:rgCalm .5s ease forwards;animation-delay:0s}
-  .rg-fill{clip-path:none}
-  .rg-edge{stroke-dashoffset:0}
-  .is-ready .rg-halo{animation:none}
-  .aud-card.is-in .ai-base,.aud-card.is-in .ai-route{
-    animation:none;stroke-dashoffset:0}
-  .aud-card.is-in .ai-node{animation:rgCalm .4s ease forwards}
+  .is-ready .sg-axis,.is-ready .sg-ghost,.is-ready .sg-line,.is-ready .sg-tk,
+  .is-ready .sg-end{animation:rgCalm .5s ease forwards;animation-delay:0s}
+  .sg-axis,.sg-ghost,.sg-line{stroke-dashoffset:0}
+  .is-ready .sg-r,.is-ready .sg-core{animation:none}
+  .sg-r{opacity:0}
+  .aud-card.is-in .ai-body,.aud-card.is-in .ai-ring,.aud-card.is-in .ai-link,
+  .aud-card.is-in .ai-board,.aud-card.is-in .ai-clip,.aud-card.is-in .ai-play,
+  .aud-card.is-in .ai-tip{animation:none;stroke-dashoffset:0}
+  .aud-card.is-in .ai-head,.aud-card.is-in .ai-dot{animation:rgCalm .4s ease forwards}
   @keyframes rgCalm{from{opacity:0}to{opacity:1}}
 }
