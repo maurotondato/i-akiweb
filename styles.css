@@ -235,6 +235,47 @@ ul,ol{margin:0;padding:0;list-style:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
 .chips li{font-family:var(--cond);font-size:13.5px;font-weight:600;letter-spacing:.09em;
   text-transform:uppercase;color:#CFE0F2;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:5px 13px}
+/* ---- El hero en teléfono ----
+   En un iPhone con la barra de Safari quedan ~660px de alto útil, y
+   el bloque de texto se comía 557: la foto de Iñaki y el gráfico
+   entraban recién pasada la mitad, así que al cargar no se veía
+   ninguno de los dos. Acá se recorta el presupuesto de arriba para
+   que los dos entren en la primera pantalla.
+
+   El kicker va en una sola línea —a dos renglones gastaba 43px para
+   decir una bajada—, los botones van uno al lado del otro en vez de
+   apilados, y el titular y los interlineados ceden unos puntos. */
+@media (max-width:620px){
+  .hero-kicker{font-size:11px;letter-spacing:.15em;gap:8px;white-space:nowrap}
+  .hero-kicker i{width:16px}
+  .hero-title{font-size:clamp(37px,9.4vw,46px);line-height:.9}
+  .hero-sub{font-size:15.5px;line-height:1.55}
+  .hero-copy{gap:13px}
+  .hero-grid{gap:10px}
+
+  /* Lado a lado: dos filas de botón costaban 69px de pantalla. */
+  .hero-actions{flex-wrap:nowrap;gap:9px;width:100%}
+  .hero-actions .btn{flex:1 1 0;min-width:0;font-size:13.5px;padding:13px 10px;
+    white-space:nowrap;letter-spacing:-.01em}
+  .hero-actions .btn svg{width:13px;height:13px}
+
+  /* Ahora que la foto entra en pantalla, el chip quedó encima de las
+     manos de Iñaki y de media curva. Como insignia ocupa lo que
+     tiene que ocupar; como banner tapaba la imagen que acabamos de
+     hacer visible. */
+  /* A la derecha caía justo sobre la cumbre de la curva, que es el
+     remate de la animación. A la izquierda se apoya sobre la base de
+     la serie, donde no hay nada que perder. */
+  .hero-chip{left:0;right:auto;padding:10px 14px;gap:9px;border-radius:10px}
+  .hero-chip b{font-size:26px}
+  .hero-chip span{font-size:10.5px;letter-spacing:.11em;line-height:1.3}
+}
+/* En las pantallas más angostas la flecha es lo primero que sobra. */
+@media (max-width:374px){
+  .hero-actions .btn svg{display:none}
+  .hero-actions .btn{padding-inline:8px;font-size:13px}
+}
+
 @media (max-width:980px){
   .cima-pin{min-height:auto;padding-block:clamp(70px,12vw,100px)}
   .cima-inner{grid-template-columns:1fr;gap:24px}
