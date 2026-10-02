@@ -84,10 +84,9 @@
     });
   }
 
-  /* El hero es la esfera WebGL (hero.js). Si el equipo no la soporta
-     —o se repliega en marcha— queda la señal SVG, que es CSS puro. */
+  /* El hero es la curva de rendimiento (hero.js), en canvas 2D. */
   function initHero() {
-    var cv = document.querySelector("[data-orb]");
+    var cv = document.querySelector("[data-curve]");
     if (cv && window.HERO_mount) window.HERO_mount(cv);
   }
 
