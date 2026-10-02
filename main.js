@@ -220,17 +220,23 @@
   /* ---------------- PARALLAX ---------------- */
   function initParallax() {
     if (!hasGSAP || reduced) return;
+    /* En apilado el hero va justo de alto y el gráfico arranca
+       pegado debajo de los botones, así que mover la columna de texto
+       la metería encima de la curva. Ahí se mueve solo la foto. */
+    var stacked = window.innerWidth <= 980;
     document.querySelectorAll("[data-parallax]").forEach(function (el) {
       var d = parseFloat(el.dataset.parallax || "0.12");
-      gsap.to(el, { yPercent: d * 40, ease: "none",
+      if (stacked && d > 0) return;
+      gsap.to(el, { yPercent: d * 100, ease: "none",
         scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.6 } });
     });
     /* Las fotos enmarcadas se mueven más lento que su marco: da
-       profundidad sin que nada se despegue del recorte. */
+       profundidad sin que nada se despegue del recorte. El recorrido
+       (±12%) tiene que entrar en el sobrante que les deja el CSS. */
     document.querySelectorAll("[data-para-img]").forEach(function (img) {
       var frame = img.closest("figure") || img.parentNode;
-      gsap.fromTo(img, { yPercent: -7 }, {
-        yPercent: 7, ease: "none",
+      gsap.fromTo(img, { yPercent: -12 }, {
+        yPercent: 12, ease: "none",
         scrollTrigger: { trigger: frame, start: "top bottom", end: "bottom top", scrub: 0.8 }
       });
     });
@@ -363,7 +369,16 @@
     safe(initParallax, "parallax");
     safe(initCima, "cima");
     safe(initAnchors, "anchors");
-    if (hasGSAP) window.addEventListener("load", function () { ScrollTrigger.refresh(); });
+    if (hasGSAP) {
+      var resort = function () { ScrollTrigger.sort(); ScrollTrigger.refresh(); };
+      resort();
+      window.addEventListener("load", resort);
+      /* Las fotos de más abajo son lazy: cuando entran cambian el
+         alto del documento y hay que volver a medir. */
+      document.querySelectorAll("img[loading=lazy]").forEach(function (im) {
+        if (!im.complete) im.addEventListener("load", resort, { once: true });
+      });
+    }
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);

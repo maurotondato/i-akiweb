@@ -394,8 +394,11 @@ ul,ol{margin:0;padding:0;list-style:none}
   aspect-ratio:4/5;box-shadow:0 34px 70px -34px rgba(3,29,64,.55)}
 .about-photo::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,transparent 52%,rgba(3,29,64,.32))}
-/* Algo más alta que el marco: el parallax la desplaza sin descubrir bordes. */
-.about-photo img{position:absolute;left:0;top:-9%;width:100%;height:118%;object-fit:cover}
+/* Más alta que el marco: el parallax la desplaza sin descubrir bordes.
+   El sobrante (16% arriba y abajo) tiene que cubrir el recorrido que
+   le da main.js (±12% del alto de la imagen = ±16.3% del marco), con
+   un par de puntos de sobra para que ningún redondeo deje una línea. */
+.about-photo img{position:absolute;left:0;top:-19%;width:100%;height:138%;object-fit:cover}
 .about-intro{display:flex;flex-direction:column;gap:18px;align-items:flex-start}
 .about-title{font-size:clamp(30px,4.4vw,58px);letter-spacing:-.045em;line-height:1.02;max-width:18ch}
 .about-text{font-size:16.5px;line-height:1.72;color:var(--mute);max-width:54ch}

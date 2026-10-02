@@ -43,14 +43,19 @@
      La tendencia nunca deja de subir, pero no punto a punto —por
      macizo—: las cimas van .52 (el logo) → .68 → .86 → 1.00, y el
      piso de cada macizo va .08 → .21 → .44. Se cae más hondo cada
-     vez, y aun así nunca se vuelve al punto de partida. */
+     vez, y aun así nunca se vuelve al punto de partida.
+
+     Dos retrocesos chicos salieron a propósito: los que seguían a una
+     cima menor, antes de .494 y antes de .784. Sin ellos, lo que era
+     subida-freno-subida queda como una sola recta larga entrando a
+     cada pico. Prueba a ver cómo lee. */
   var DATA = [
     [0.000, 0.080], [0.025, 0.208], [0.040, 0.212], [0.080, 0.455], [0.097, 0.426],
     [0.112, 0.520], [0.128, 0.474], [0.142, 0.498], [0.179, 0.381], [0.217, 0.489],
     [0.249, 0.289], [0.261, 0.344], [0.300, 0.095], [0.332, 0.270], [0.352, 0.200],
-    [0.386, 0.410], [0.408, 0.330], [0.438, 0.530], [0.460, 0.450], [0.494, 0.680],
+    [0.386, 0.410], [0.408, 0.330], [0.438, 0.530], [0.494, 0.680],
     [0.518, 0.570], [0.538, 0.630], [0.574, 0.210], [0.608, 0.390], [0.630, 0.310],
-    [0.666, 0.530], [0.688, 0.450], [0.724, 0.690], [0.746, 0.610], [0.784, 0.860],
+    [0.666, 0.530], [0.688, 0.450], [0.724, 0.690], [0.784, 0.860],
     [0.806, 0.740], [0.824, 0.800], [0.852, 0.440], [0.888, 0.660], [0.906, 0.600],
     [0.968, 1.000]
   ];
