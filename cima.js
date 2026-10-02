@@ -1,86 +1,33 @@
 (function () {
   "use strict";
   /* ===========================================================
-     CIMA — el ascenso, partícula por partícula
+     CIMA — de muchas a una
      Iñaki Etchegaray · M-DATOS
 
-     Canvas 2D. Decenas de miles de partículas que se desarman y se
-     vuelven a armar DE ABAJO HACIA ARRIBA, en pasos discretos, hasta
-     cerrar la cumbre. Cada paso es una etapa del programa: no se salta
-     ninguno, y la cima es lo último que se forma.
+     Canvas 2D. Un enjambre de partículas va completando, paso a paso y
+     de abajo hacia arriba, la silueta de la montaña del logo. Al
+     llegar arriba no queda una nube de puntos: queda la forma llena,
+     como una sombra celeste traslúcida.
 
-     Nada de WebGL. Las partículas no se dibujan con arc() ni
-     fillRect() —eso serían decenas de miles de llamadas por cuadro—
-     sino escribiendo directo en el búfer de píxeles de un ImageData,
-     que después se escala al canvas: una sola operación de dibujo, y
-     el escalado regala el halo suave sin coste de blur.
+     La clave está en separar las dos cosas. Las partículas son el
+     MECANISMO: pocas, sueltas, visibles sólo mientras viajan. La masa
+     es una SILUETA REAL —el trazado del isotipo rasterizado y
+     rellenado— que se revela de abajo hacia arriba. Resolverlo todo
+     con densidad de partículas era lo que daba ese aspecto de nieve.
      =========================================================== */
 
-  /* ---------------- ruido ---------------- */
-  function hash2(x, y) {
-    var n = Math.sin(x * 127.1 + y * 311.7) * 43758.5453123;
-    return n - Math.floor(n);
-  }
-  function vnoise(x, y) {
-    var ix = Math.floor(x), iy = Math.floor(y);
-    var fx = x - ix, fy = y - iy;
-    var ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
-    var a = hash2(ix, iy), b = hash2(ix + 1, iy);
-    var c = hash2(ix, iy + 1), d = hash2(ix + 1, iy + 1);
-    return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
-  }
-  function fbm(x, y, oct) {
-    var s = 0, amp = 0.5, f = 1;
-    for (var i = 0; i < oct; i++) { s += amp * vnoise(x * f, y * f); amp *= 0.5; f *= 2.03; }
-    return s;
-  }
-  function ridged(x, y, oct) {
-    var s = 0, amp = 0.5, f = 1;
-    for (var i = 0; i < oct; i++) {
-      var n = 1 - Math.abs(vnoise(x * f, y * f) * 2 - 1);
-      s += amp * n * n; amp *= 0.5; f *= 2.07;
-    }
-    return s;
-  }
+  /* El isotipo de la marca. De acá sale la silueta final. */
+  var LOGO = "M125 0 L144 12 L156 4 L199 35 L243 8 L278 58 L290 43 L335 107 L273 59 L238 26 L236 26 L231 35 L225 66 L222 70 L202 74 L199 77 L199 88 L196 93 L171 100 L153 108 L185 63 L195 46 L153 21 L134 12 L127 11 L121 16 L117 26 L107 36 L90 72 L71 73 L68 76 L62 96 L61 105 L0 109 L29 76 L42 78 L46 74 L89 16 L109 23 L124 1 Z";
+  var LOGO_W = 336, LOGO_H = 110;
+
+  /* Resolución interna de la máscara. Los objetivos se guardan
+     normalizados, así un cambio de tamaño no los invalida. */
+  var MW0 = 560, MH0 = 260, RIDGE_H = Math.round(MW0 * LOGO_H / LOGO_W);
+
   function sstep(a, b, x) {
     var t = (x - a) / (b - a);
     t = t < 0 ? 0 : t > 1 ? 1 : t;
     return t * t * (3 - 2 * t);
-  }
-
-  /* ---------------- la silueta ----------------
-     Cumbres angostas a propósito: con laderas anchas el ápice cae
-     menos que sus vecinos y la cima se amesetaba. */
-  function pk(x, c, w, h, p) {
-    var d = 1 - Math.abs((x - c) / w);
-    return d <= 0 ? 0 : h * Math.pow(d, p);
-  }
-  function profile(u) {
-    /* Una cumbre claramente dominante y dos hombros: con picos de
-       altura parecida la silueta leia como "dos lomas". */
-    var h = Math.max(
-      pk(u, 0.44, 0.33, 1, 1.22),
-      pk(u, 0.76, 0.19, 0.52, 1.32),
-      pk(u, 0.17, 0.16, 0.34, 1.38)
-    );
-    if (h <= 0) return 0;
-    h += 0.085 * ridged(u * 7.4, 2.1, 4) * Math.pow(h, 0.65);
-    h -= 0.03 * fbm(u * 12, 5.5, 3) * h;
-    return h < 0 ? 0 : h;
-  }
-
-  /* Azules de la marca, de la base a la cumbre */
-  var RAMP = [
-    [6, 32, 68], [10, 48, 104], [16, 74, 150], [26, 110, 192],
-    [55, 156, 220], [110, 198, 238], [186, 228, 248], [240, 250, 255]
-  ];
-  function ramp(t, out) {
-    t = t < 0 ? 0 : t > 1 ? 1 : t;
-    var f = t * (RAMP.length - 1), i = Math.floor(f), k = f - i;
-    var a = RAMP[i], b = RAMP[Math.min(RAMP.length - 1, i + 1)];
-    out[0] = a[0] + (b[0] - a[0]) * k;
-    out[1] = a[1] + (b[1] - a[1]) * k;
-    out[2] = a[2] + (b[2] - a[2]) * k;
   }
 
   window.CIMA_mount = function (canvas) {
@@ -88,81 +35,113 @@
     var hero = canvas.closest(".hero") || canvas.parentNode;
     if (!hero) return false;
     var ctx = canvas.getContext("2d");
-    if (!ctx) return false;
+    if (!ctx || typeof Path2D !== "function") return false;
 
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     var small = window.innerWidth < 760;
     var dawn = hero.querySelector("[data-dawn]");
 
-    /* Lienzo interno a media resolución: menos píxeles que tocar, y al
-       escalarlo cada partícula se convierte en un punto con halo. */
-    var off = document.createElement("canvas");
-    var octx = off.getContext("2d");
-    var img = null, px32 = null;
-    var BW = 0, BH = 0, W = 0, H = 0;
+    /* ---------------- la silueta ----------------
+       Se rasteriza el trazado del logo, se busca por columna el píxel
+       más alto y se rellena hacia abajo. Resultado: una montaña maciza
+       cuyo perfil es exactamente el del isotipo. El trazado del logo
+       es un contorno; relleno tal cual dejaría huecos internos. */
+    var env = new Int16Array(MW0);
+    var tinted = document.createElement("canvas");
 
-    /* ---------------- partículas (SoA, sin objetos) ---------------- */
-    var N = 0, P = null;
-    var X = 0, Y = 0, VX = 0, VY = 0, TX = 0, TY = 0, HX = 0, HY = 0,
-        ORD = 0, WGT = 0, SPD = 0, PHS = 0, COL = 0;
+    function buildShape() {
+      var m = document.createElement("canvas");
+      m.width = MW0; m.height = MH0;
+      var mc = m.getContext("2d");
+      mc.save();
+      mc.scale(MW0 / LOGO_W, RIDGE_H / LOGO_H);
+      mc.fillStyle = "#fff";
+      mc.fill(new Path2D(LOGO));
+      mc.restore();
 
-    var rgb0 = [0, 0, 0];
-    function build(n) {
-      N = n;
-      P = new Float32Array(N * 13);
-      X = 0; Y = N; VX = N * 2; VY = N * 3; TX = N * 4; TY = N * 5;
-      HX = N * 6; HY = N * 7; ORD = N * 8; WGT = N * 9; SPD = N * 10;
-      PHS = N * 11; COL = N * 12;
-      for (var i = 0; i < N; i++) {
-        /* Muestreo pesado por altura de columna: con u uniforme, los
-           bordes finos reciben tantas particulas como la cumbre y la
-           densidad queda al reves de lo que se espera de un macizo. */
-        var u = 0, ridge = 0, guard = 0;
-        do {
-          u = Math.random(); ridge = profile(u);
-          if (Math.random() < ridge) break;
-        } while (++guard < 8);
-        if (ridge < 0.02) ridge = 0.02;
-        /* Un tercio va sobre la cresta misma: es lo que hace que el
-           filo se lea como un corte y no como una nube difusa. */
-        var crest = Math.random() < 0.32;
-        var yy = crest ? ridge * (0.986 + Math.random() * 0.014)
-                       : ridge * Math.pow(Math.random(), 0.82);
-        /* Refuerzo de cumbre. Un macizo tiene poca masa arriba —es
-           geometría, no un error— pero la cima es justo lo que tiene
-           que leerse, así que una parte se reasigna al tramo alto. */
-        if (!crest && Math.random() < 0.09) {
-          var uu = 0.44 + (Math.random() - 0.5) * 0.3;
-          var rr = profile(uu);
-          if (rr > yy) { u = uu; ridge = rr; yy = rr * (0.74 + Math.random() * 0.26); }
+      var d = mc.getImageData(0, 0, MW0, MH0).data;
+      var x, y;
+      for (x = 0; x < MW0; x++) {
+        env[x] = MH0;
+        for (y = 0; y < RIDGE_H; y++) {
+          if (d[(y * MW0 + x) * 4 + 3] > 24) { env[x] = y; break; }
         }
+      }
+      /* Suavizado corto: el contorno trae dientes de un píxel que a
+         escala de pantalla leen como ruido en el filo. */
+      var sm = Int16Array.from(env);
+      for (var p = 0; p < 2; p++) {
+        for (x = 1; x < MW0 - 1; x++) sm[x] = (env[x - 1] + env[x] * 2 + env[x + 1]) >> 2;
+        env.set(sm);
+      }
+
+      tinted.width = MW0; tinted.height = MH0;
+      var tc = tinted.getContext("2d");
+      tc.beginPath();
+      tc.moveTo(0, MH0);
+      for (x = 0; x < MW0; x++) tc.lineTo(x, env[x]);
+      tc.lineTo(MW0 - 1, MH0);
+      tc.closePath();
+      /* Sombra celeste traslúcida: más densa y profunda en la base,
+         más clara y abierta hacia la cumbre. */
+      var g = tc.createLinearGradient(0, MH0, 0, 0);
+      g.addColorStop(0, "rgba(12,48,92,.34)");
+      g.addColorStop(0.45, "rgba(30,112,186,.3)");
+      g.addColorStop(0.82, "rgba(69,174,229,.36)");
+      g.addColorStop(1, "rgba(122,203,240,.46)");
+      tc.fillStyle = g;
+      tc.fill();
+      /* El filo, apenas marcado: es lo que define la forma */
+      tc.beginPath();
+      tc.moveTo(0, env[0]);
+      for (x = 1; x < MW0; x++) tc.lineTo(x, env[x]);
+      tc.strokeStyle = "rgba(96,190,236,.72)";
+      tc.lineWidth = 1.6;
+      tc.lineJoin = "round";
+      tc.stroke();
+    }
+
+    /* ---------------- partículas ----------------
+       Pocas y sueltas: son el mecanismo, no la masa. */
+    var N = 0, P = null, TX, TY, ORD, HX, HY, X, Y, VX, VY, PH, AMP;
+    function seed(n) {
+      N = n;
+      P = new Float32Array(N * 11);
+      TX = 0; TY = N; ORD = N * 2; HX = N * 3; HY = N * 4;
+      X = N * 5; Y = N * 6; VX = N * 7; VY = N * 8; PH = N * 9; AMP = N * 10;
+
+      /* Columnas sorteadas en proporción a su altura: con x uniforme,
+         los bordes finos reciben tantas partículas como la cumbre. */
+      var cdf = new Float32Array(MW0), acc = 0, i;
+      for (i = 0; i < MW0; i++) { acc += (MH0 - env[i]); cdf[i] = acc; }
+
+      for (i = 0; i < N; i++) {
+        var r = Math.random() * acc, lo = 0, hi = MW0 - 1;
+        while (lo < hi) { var mid = (lo + hi) >> 1; if (cdf[mid] < r) lo = mid + 1; else hi = mid; }
+        var top = env[lo];
+        var crest = Math.random() < 0.4;
+        var py = crest ? top + (MH0 - top) * Math.pow(Math.random(), 4)
+                       : top + (MH0 - top) * Math.random();
+        var u = lo / (MW0 - 1), v = py / MH0;
         P[TX + i] = u;
-        P[TY + i] = yy;
-        P[ORD + i] = yy;
-        /* La nube dispersa nace alrededor del propio objetivo: asi el
-           desarme se lee como el macizo estallando en su lugar, no
-           como polvo repartido por toda la pantalla. */
-        P[HX + i] = u + (Math.random() - 0.5) * 0.85;
-        P[HY + i] = yy + (Math.random() - 0.5) * 0.78;
+        P[TY + i] = v;
+        P[ORD + i] = 1 - v;                       /* 0 base · 1 cumbre */
+        P[HX + i] = u + (Math.random() - 0.5) * 0.7;
+        P[HY + i] = v + (Math.random() - 0.5) * 0.6;
         P[X + i] = P[HX + i];
         P[Y + i] = P[HY + i];
-        P[PHS + i] = Math.random() * 6.283;
-        /* El color depende sólo de la altura y de si va en el filo:
-           ambos son estáticos, así que se empaqueta acá y el bucle de
-           cada cuadro no vuelve a tocar la rampa. */
-        ramp(yy * 0.8 + (crest ? 0.2 : 0), rgb0);
-        P[COL + i] = ((rgb0[2] | 0) << 16) | ((rgb0[1] | 0) << 8) | (rgb0[0] | 0);
-        /* Idem el factor de brillo: dispersión por partícula y el
-           refuerzo por altura, que compensa la poca masa de la cumbre. */
-        P[SPD + i] = (0.5 + 0.5 * (0.55 + Math.random() * 0.9)) * (0.78 + 0.5 * yy);
+        P[PH + i] = Math.random() * 6.283;
+        P[AMP + i] = 0.6 + Math.random() * 0.75;
       }
     }
 
-    /* ---------------- encuadre ----------------
-       En desktop el volumen va a la derecha, que es donde no hay
-       texto; apilado, abajo y a todo el ancho. */
-    var MX = 0, MY = 0, MW = 0, MH = 0;
+    /* ---------------- lienzos ---------------- */
+    var shp = document.createElement("canvas"), sctx = shp.getContext("2d");
+    var dots = document.createElement("canvas"), dctx = dots.getContext("2d");
+    var img = null, px32 = null;
+    var BW = 0, BH = 0, W = 0, H = 0, MX = 0, MY = 0, MWp = 0, MHp = 0;
+
     function layout() {
       var r = hero.getBoundingClientRect();
       W = Math.max(320, Math.round(r.width));
@@ -173,25 +152,28 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = true;
 
-      var scale = small ? 0.46 : 0.5;
-      BW = Math.max(160, Math.round(W * scale));
-      BH = Math.max(160, Math.round(H * scale));
-      off.width = BW; off.height = BH;
-      img = octx.createImageData(BW, BH);
+      var sc = small ? 0.5 : 0.54;
+      BW = Math.max(200, Math.round(W * sc));
+      BH = Math.max(200, Math.round(H * sc));
+      shp.width = BW; shp.height = BH;
+      dots.width = BW; dots.height = BH;
+      dctx.imageSmoothingEnabled = false;
+      img = dctx.createImageData(BW, BH);
       px32 = new Uint32Array(img.data.buffer);
 
-      if (small) { MX = -0.05 * BW; MW = 1.1 * BW; MY = 0.87 * BH; MH = 0.38 * BH; }
-      else { MX = 0.3 * BW; MW = 0.84 * BW; MY = 0.95 * BH; MH = 0.66 * BH; }
+      /* En desktop el volumen va a la derecha, que es donde no hay
+         texto; apilado, abajo y a todo el ancho. */
+      if (small) { MX = -0.08 * BW; MWp = 1.16 * BW; MY = 0.52 * BH; MHp = 0.5 * BH; }
+      else { MX = 0.4 * BW; MWp = 0.82 * BW; MY = 0.28 * BH; MHp = 0.74 * BH; }
     }
 
     /* ---------------- ciclo ----------------
-       Se desarma rápido y se rearma lento: el mensaje está en subir,
-       no en caerse. */
-    var STEPS = 14;
-    var UP = 10.4, HOLD = 3.2, DOWN = 1.9, REST = 0.9;
+       Se desarma rápido y se rearma lento: el mensaje está en subir. */
+    var STEPS = 12;
+    var UP = 10.5, HOLD = 3.4, DOWN = 1.7, REST = 0.8;
     var CYCLE = UP + HOLD + DOWN + REST;
 
-    var front = 0, flash = 0, mxT = 0, myT = 0, mx = 0, my = 0;
+    var mxT = 0, myT = 0, mx = 0, my = 0, flash = 0;
     if (fine) {
       hero.addEventListener("pointermove", function (e) {
         var r = hero.getBoundingClientRect();
@@ -202,99 +184,101 @@
     }
 
     function step(t, dt, frozen) {
-      var tc = frozen ? UP : t % CYCLE;
-      var goal;
+      var tc = frozen ? UP + 1 : t % CYCLE;
+      var front, building;
       if (tc < UP) {
         /* El frente sube a saltos: cada paso trepa y después descansa.
-           Ese descanso es lo que lo hace leer como etapa, no como barra. */
-        var a = tc / UP;
-        var si = Math.floor(a * STEPS), sf = a * STEPS - si;
-        front = (si + sstep(0, 0.52, sf)) / STEPS;
-        goal = 1;
-      } else if (tc < UP + HOLD) { front = 1.02; goal = 1; }
-      else if (tc < UP + HOLD + DOWN) { front = 1.02; goal = 0; }
-      else { front = 0; goal = 0; }
+           Ese descanso es lo que lo hace leer como etapa. */
+        var a = tc / UP, si = Math.floor(a * STEPS), sf = a * STEPS - si;
+        front = (si + sstep(0, 0.5, sf)) / STEPS;
+        building = 1;
+      } else if (tc < UP + HOLD) { front = 1.04; building = 1; }
+      else if (tc < UP + HOLD + DOWN) {
+        front = 1.04 * (1 - sstep(0, 1, (tc - UP - HOLD) / DOWN));
+        building = 0;
+      } else { front = 0; building = 0; }
 
-      /* Fogonazo cuando se cierra la cumbre */
-      var want = (tc > UP - 0.5 && tc < UP + HOLD * 0.8) ? 1 : 0;
-      flash += (want - flash) * Math.min(1, dt * (want ? 4.5 : 1.1));
-
+      var want = (tc > UP - 0.4 && tc < UP + HOLD * 0.75) ? 1 : 0;
+      flash += (want - flash) * Math.min(1, dt * (want ? 4 : 1.1));
       mx += (mxT - mx) * Math.min(1, dt * 1.8);
       my += (myT - my) * Math.min(1, dt * 1.8);
 
+      var ox = MX + mx * (small ? 4 : 10);
+      var oy = MY + my * (small ? 3 : 6);
+
+      /* ---- la silueta, revelada hasta el frente ---- */
+      sctx.clearRect(0, 0, BW, BH);
+      sctx.globalCompositeOperation = "source-over";
+      sctx.drawImage(tinted, ox, oy, MWp, MHp);
+      var fy = oy + (1 - front) * MHp;
+      var soft = MHp * 0.05;
+      var gm = sctx.createLinearGradient(0, fy - soft, 0, fy + soft * 0.4);
+      gm.addColorStop(0, "rgba(0,0,0,0)");
+      gm.addColorStop(1, "rgba(0,0,0,1)");
+      sctx.globalCompositeOperation = "destination-in";
+      sctx.fillStyle = gm;
+      sctx.fillRect(0, 0, BW, BH);
+      sctx.globalCompositeOperation = "source-over";
+
+      /* ---- las partículas en vuelo ---- */
       px32.fill(0);
-
-      var sx = MX + mx * (small ? 4 : 11);
-      var sy = MY + my * (small ? 3 : 7);
-      var k = Math.min(1, dt * 60) * 0.5;
-      var drift = small ? 0.015 : 0.022;
-      var i, wgt, gx, gy, fx, fy, ix, iy, idx, prev, al, a2;
-
+      var i, k = Math.min(1, dt * 60) * 0.5;
       for (i = 0; i < N; i++) {
-        /* Peso de ensamblado: 0 disperso, 1 en su lugar */
-        var on = (goal === 1 && P[ORD + i] <= front) ? 1 : 0;
-        wgt = P[WGT + i];
-        wgt += (on - wgt) * Math.min(1, dt * (on ? 1.9 + P[PHS + i] * 0.42 : 1.5));
-        P[WGT + i] = wgt;
+        var ord = P[ORD + i];
+        /* Visible sólo mientras viaja: una vez que el frente la pasa,
+           ya es parte de la silueta y deja de dibujarse. */
+        var near = building ? sstep(0.34, 0.0, ord - front) : 0;
+        var gone = building ? sstep(0.0, -0.05, ord - front) : 0;
+        var pull = near * (1 - gone);
 
-        /* Deriva de la nube dispersa */
-        var ph = P[PHS + i];
-        var hx = P[HX + i] + Math.sin(t * 0.3 + ph) * drift;
-        var hy = P[HY + i] + Math.cos(t * 0.24 + ph) * drift * 0.8;
-
-        gx = hx + (P[TX + i] - hx) * wgt;
-        gy = hy + (P[TY + i] - hy) * wgt;
+        var ph = P[PH + i];
+        var hx = P[HX + i] + Math.sin(t * 0.26 + ph) * 0.02;
+        var hy = P[HY + i] + Math.cos(t * 0.21 + ph) * 0.016;
+        var gx = hx + (P[TX + i] - hx) * pull;
+        var gy = hy + (P[TY + i] - hy) * pull;
 
         var cx = P[X + i], cy = P[Y + i];
-        var vx = P[VX + i] * 0.9 + (gx - cx) * k * 0.22;
-        var vy = P[VY + i] * 0.9 + (gy - cy) * k * 0.22;
+        var vx = P[VX + i] * 0.9 + (gx - cx) * k * 0.2;
+        var vy = P[VY + i] * 0.9 + (gy - cy) * k * 0.2;
         cx += vx; cy += vy;
         P[X + i] = cx; P[Y + i] = cy; P[VX + i] = vx; P[VY + i] = vy;
 
-        /* A píxeles del búfer. La montaña crece hacia arriba, por eso
-           la y se invierte respecto de la altura normalizada. */
-        fx = sx + cx * MW;
-        fy = sy - cy * MH;
-        ix = fx | 0; iy = fy | 0;
-        if (ix < 0 || iy < 0 || ix >= BW || iy >= BH) continue;
-
-        al = (24 + 178 * wgt) * P[SPD + i];
-        if (al > 248) al = 248;
+        /* Sólo se ven las que están trabajando: repartidas por todo
+           el cuadro leían como polvo, no como material en camino. */
+        var al = (210 * pull + 30 * sstep(0.6, 0.1, ord - front)) * (1 - gone) * P[AMP + i];
+        if (al < 3) continue;
+        if (al > 235) al = 235;
         al = al | 0;
-        var col = P[COL + i];
 
-        idx = iy * BW + ix;
-        prev = px32[idx];
-        if (prev === 0) px32[idx] = (al << 24) | col;
-        else {
-          /* Acumular alfa: donde se juntan más partículas, más densidad */
-          a2 = (prev >>> 24) + al;
-          if (a2 > 252) a2 = 252;
-          px32[idx] = (a2 << 24) | (prev & 0x00FFFFFF);
-        }
-        /* Ya en su sitio, cada partícula engrosa un píxel hacia abajo:
-           es lo que convierte la nube en cuerpo sólido. */
-        if (wgt > 0.55 && iy + 1 < BH) {
-          idx += BW;
-          prev = px32[idx];
-          a2 = (prev === 0 ? 0 : prev >>> 24) + (al >> 1);
-          if (a2 > 252) a2 = 252;
-          px32[idx] = (a2 << 24) | (prev === 0 ? col : (prev & 0x00FFFFFF));
-        }
+        var fx = ox + cx * MWp, fyy = oy + cy * MHp;
+        var ix = fx | 0, iy = fyy | 0;
+        if (ix < 1 || iy < 1 || ix >= BW - 1 || iy >= BH - 1) continue;
+        /* Mota blanda de 3x3: al escalar el búfer queda un punto
+           redondeado en vez de un píxel duro. */
+        var o = iy * BW + ix, h = al >> 1, q = al >> 2;
+        put(o, al, MOTE); put(o - 1, h, MOTE); put(o + 1, h, MOTE);
+        put(o - BW, h, MOTE); put(o + BW, h, MOTE);
+        put(o - BW - 1, q, MOTE); put(o - BW + 1, q, MOTE);
+        put(o + BW - 1, q, MOTE); put(o + BW + 1, q, MOTE);
       }
 
-      octx.putImageData(img, 0, 0);
+      /* ---- composición ----
+         Las motas se componen sobre la silueta A RESOLUCIÓN DE BÚFER y
+         recién después se escala una sola vez: dos escalados a pantalla
+         completa por cuadro costaban el doble sin aportar nada. */
+      dctx.putImageData(img, 0, 0);
+      sctx.drawImage(dots, 0, 0);
       ctx.clearRect(0, 0, W, H);
-      ctx.drawImage(off, 0, 0, W, H);
+      ctx.drawImage(shp, 0, 0, W, H);
 
       /* La línea del frente: hasta dónde llegó el ascenso */
-      if (goal === 1 && front < 1.01) {
-        var ly = (sy - front * MH) / BH * H;
-        var lx0 = sx / BW * W, lx1 = (sx + MW) / BW * W;
+      if (building && front < 1.01 && front > 0.004) {
+        var ly = fy / BH * H;
+        var lx0 = ox / BW * W, lx1 = (ox + MWp) / BW * W;
         var g = ctx.createLinearGradient(lx0, 0, lx1, 0);
         g.addColorStop(0, "rgba(69,174,229,0)");
-        g.addColorStop(0.46, "rgba(69,174,229,.3)");
-        g.addColorStop(0.72, "rgba(69,174,229,.62)");
+        g.addColorStop(0.45, "rgba(69,174,229,.3)");
+        g.addColorStop(0.72, "rgba(69,174,229,.6)");
         g.addColorStop(1, "rgba(69,174,229,0)");
         ctx.strokeStyle = g;
         ctx.lineWidth = 1.2;
@@ -304,39 +288,35 @@
         ctx.stroke();
       }
 
-      if (dawn) dawn.style.opacity = (flash * 0.5).toFixed(3);
+      if (dawn) dawn.style.opacity = (flash * 0.42).toFixed(3);
     }
 
-    layout();
-    build(small ? Math.round(W * H / 20) : Math.min(72000, Math.round(W * H / 15)));
+    /* Celeste claro empaquetado en el orden del búfer (B<<16|G<<8|R) */
+    var MOTE = (239 << 16) | (206 << 8) | 160;
+    function put(o, a, col) {
+      var prev = px32[o];
+      if (prev === 0) { px32[o] = (a << 24) | col; return; }
+      var s = (prev >>> 24) + a;
+      px32[o] = ((s > 250 ? 250 : s) << 24) | col;
+    }
 
-    if (reduced) { step(UP * 0.999, 0.016, true); return true; }
+    buildShape();
+    layout();
+    seed(small ? 2300 : 4800);
+
+    if (reduced) { step(0, 0.016, true); return true; }
 
     var running = true, raf = 0;
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) { running = es[0].isIntersecting; },
         { threshold: 0 }).observe(hero);
     }
-
-    var t0 = performance.now(), prev = t0, acc = 0, nf = 0, settled = false;
+    var t0 = performance.now(), prev = t0;
     (function loop(now) {
       raf = requestAnimationFrame(loop);
       var raw = (now - prev) / 1000;
       prev = now;
-      if (!running) return;
-      var t = (now - t0) / 1000;
-      step(t, Math.min(0.05, raw), false);
-
-      /* Una sola medición tras el arranque, y como mucho un ajuste: el
-         esquema de remedir y redimensionar en bucle era en sí mismo
-         fuente de tirones. */
-      if (!settled && t > 1.2) {
-        acc += raw; nf++;
-        if (acc > 2) {
-          settled = true;
-          if (acc / nf > 0.027) build(Math.round(N * 0.55));
-        }
-      }
+      if (running) step((now - t0) / 1000, Math.min(0.05, raw), false);
     })(t0);
 
     var to;
