@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css?v=20261018">
+<link rel="stylesheet" href="styles.css?v=20261019">
 </head>
 <body>
 
@@ -46,11 +46,12 @@
 </nav>
 
 <!-- ============ HERO ============
-     Del ruido al foco. Una señal entra desordenada —lo que pasa
-     adentro— y se va ordenando hasta volverse un pulso calmo que al
-     resolverse irradia. Se ejecuta una vez y queda quieta.
-     SVG + animaciones CSS: corren fuera del hilo principal. -->
+     Una sola forma: energía contenida. Una esfera de superficie
+     finísima deformada por shaders, recorriendo reposo → tensión →
+     expansión → liberación. Si no hay WebGL2 queda la señal SVG,
+     que dice lo mismo sin GPU. -->
 <header class="hero" id="top">
+  <canvas class="orb" data-orb aria-hidden="true"></canvas>
   <div class="sig-wrap" data-parallax="-0.04">
   <svg class="sig" data-sig viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true" focusable="false">
     <defs>
@@ -487,8 +488,9 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261018"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261018"></script>
-<script defer src="main.js?v=20261018"></script>
+<script defer src="lib/gsap.min.js?v=20261019"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261019"></script>
+<script defer src="hero.js?v=20261019"></script>
+<script defer src="main.js?v=20261019"></script>
 </body>
 </html>

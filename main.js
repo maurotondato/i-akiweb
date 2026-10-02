@@ -84,6 +84,13 @@
     });
   }
 
+  /* El hero es la esfera WebGL (hero.js). Si el equipo no la soporta
+     —o se repliega en marcha— queda la señal SVG, que es CSS puro. */
+  function initHero() {
+    var cv = document.querySelector("[data-orb]");
+    if (cv && window.HERO_mount) window.HERO_mount(cv);
+  }
+
   /* ---------------- REVEAL ---------------- */
   function initReveal() {
     var els = document.querySelectorAll(".reveal");
@@ -320,6 +327,7 @@
 
   function boot() {
     safe(initSplash, "splash");
+    safe(initHero, "hero");
     safe(initChrome, "chrome");
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
