@@ -232,11 +232,13 @@
     });
     /* Las fotos enmarcadas se mueven más lento que su marco: da
        profundidad sin que nada se despegue del recorte. El recorrido
-       (±12%) tiene que entrar en el sobrante que les deja el CSS. */
+       arranca en 0 y sube: la foto y su marco comparten aspecto (4/5),
+       así que el sobrante es poco y si la ventana se corre hacia
+       arriba le corta la cabeza. Ver la nota en .about-photo img. */
     document.querySelectorAll("[data-para-img]").forEach(function (img) {
       var frame = img.closest("figure") || img.parentNode;
-      gsap.fromTo(img, { yPercent: -12 }, {
-        yPercent: 12, ease: "none",
+      gsap.fromTo(img, { yPercent: 0 }, {
+        yPercent: 4.5, ease: "none",
         scrollTrigger: { trigger: frame, start: "top bottom", end: "bottom top", scrub: 0.8 }
       });
     });

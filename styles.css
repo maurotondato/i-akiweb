@@ -98,7 +98,7 @@ ul,ol{margin:0;padding:0;list-style:none}
    animaciones CSS, no requestAnimationFrame: corren fuera del hilo
    principal y no pueden trabarse mientras la página carga. */
 .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
-  padding:104px 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
+  padding:148px 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
 /* El gráfico. Ocupa la derecha, donde no hay texto, y sale de cuadro.
    La máscara deja la columna del titular siempre limpia, pase lo que
    pase con la curva. */
@@ -142,7 +142,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .hero-chip span{font-family:var(--cond);font-size:12.5px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;line-height:1.35}
 @media (max-width:980px){
-  .hero{min-height:auto;padding:100px 0 18px}
+  .hero{min-height:auto;padding:128px 0 18px}
   .hero-grid{grid-template-columns:1fr;gap:14px}
   .hero-media{height:min(36svh,300px)}
   .hero-cut{height:100%;width:auto;max-width:100%}
@@ -243,10 +243,18 @@ ul,ol{margin:0;padding:0;list-style:none}
 /* La segunda mitad es la idea: entra después, en celeste, y una línea
    la subraya cuando terminan de caer las palabras. */
 .motto-b{position:relative;color:var(--cel);align-self:flex-start}
-.motto-b::after{content:"";position:absolute;left:0;right:0;bottom:-.14em;height:2px;
-  background:linear-gradient(90deg,var(--cel),rgba(69,174,229,0));
+/* el riel: hasta dónde va a llegar */
+.motto-b::before{content:"";position:absolute;left:0;right:0;bottom:-.14em;height:3px;
+  border-radius:3px;background:rgba(255,255,255,.12);
+  opacity:0;transition:opacity .45s var(--ease-out) .15s}
+/* la carga */
+.motto-b::after{content:"";position:absolute;left:0;right:0;bottom:-.14em;height:3px;
+  border-radius:3px;
+  background:linear-gradient(90deg,rgba(69,174,229,.55) 0%,var(--cel) 72%,#8FD4F5 100%);
+  box-shadow:0 0 14px rgba(69,174,229,.55);
   transform:scaleX(0);transform-origin:left;
-  transition:transform 1.1s var(--ease-out) 1.15s}
+  transition:transform 1.25s cubic-bezier(.22,.9,.3,1) .3s}
+.cima-motto.is-in .motto-b::before{opacity:1}
 .cima-motto.is-in .motto-b::after{transform:scaleX(1)}
 
 
@@ -396,9 +404,10 @@ ul,ol{margin:0;padding:0;list-style:none}
   background:linear-gradient(180deg,transparent 52%,rgba(3,29,64,.32))}
 /* Más alta que el marco: el parallax la desplaza sin descubrir bordes.
    El sobrante (16% arriba y abajo) tiene que cubrir el recorrido que
-   le da main.js (±12% del alto de la imagen = ±16.3% del marco), con
-   un par de puntos de sobra para que ningún redondeo deje una línea. */
-.about-photo img{position:absolute;left:0;top:-19%;width:100%;height:138%;object-fit:cover}
+   le da main.js. El recorrido es ASIMÉTRICO a propósito: la cabeza de
+   Iñaki está en el 7.5% superior de la foto, así que la ventana puede
+   bajar pero nunca subir por encima de ella. */
+.about-photo img{position:absolute;left:0;top:-6.2%;width:100%;height:114%;object-fit:cover}
 .about-intro{display:flex;flex-direction:column;gap:18px;align-items:flex-start}
 .about-title{font-size:clamp(30px,4.4vw,58px);letter-spacing:-.045em;line-height:1.02;max-width:18ch}
 .about-text{font-size:16.5px;line-height:1.72;color:var(--mute);max-width:54ch}
@@ -586,6 +595,7 @@ ul,ol{margin:0;padding:0;list-style:none}
   .aud-card.is-in .ai-ball{animation:none}
   .ai-orbit,.ai-flow,.ai-ball{opacity:0}
   .aud-card:hover .aud-ico{transform:none}
-  .cima-motto.is-in .motto-b::after{transition-duration:.4s;transition-delay:.2s}
+  .cima-motto.is-in .motto-b::after{transition-duration:.4s;transition-delay:.1s}
+  .motto-b::after{box-shadow:none}
   @keyframes rgCalm{from{opacity:0}to{opacity:1}}
 }
