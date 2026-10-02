@@ -435,6 +435,9 @@ ul,ol{margin:0;padding:0;list-style:none}
   .why:hover{transform:translateY(-7px);border-color:transparent;box-shadow:0 28px 58px -28px rgba(3,29,64,.5)}
   .why:hover::after{transform:scaleX(1)}}
 .why-n{font-family:var(--display);font-size:30px;line-height:1;letter-spacing:-.05em;color:var(--cel)}
+/* El <i> es solo el gancho para recortar el número en mobile; acá no
+   aporta semántica ni cursiva. */
+.why-n i{font-style:normal}
 .why h4{font-size:19px;letter-spacing:-.025em;line-height:1.14}
 .why p{font-size:15px;line-height:1.65;color:var(--mute)}
 
@@ -452,6 +455,36 @@ ul,ol{margin:0;padding:0;list-style:none}
 .cv-clubs b{font-family:var(--cond);font-size:14px;font-weight:600;letter-spacing:.2em;
   text-transform:uppercase;color:var(--cel-dk)}
 .cv-note{font-size:14px;line-height:1.6;color:var(--mute);font-style:italic}
+/* ---- "¿Por qué elegirme?" en mobile ----
+   En desktop cada tarjeta se presenta al pasarle el mouse por encima:
+   se levanta y le cruza un filo celeste. En mobile ese hover no
+   existe, así que las tres quedaban completamente quietas. Acá se
+   presentan solas al entrar en pantalla, con el mismo vocabulario:
+
+     el número sube a su lugar, recortado, como el dígito de un
+     contador que termina de girar;
+     detrás aparece su eco grande, que le da peso a la tarjeta;
+     y el filo celeste cruza el borde superior.
+
+   Son animaciones CSS y no rAF: corren fuera del hilo principal, así
+   que no pueden trabarse mientras la página sigue cargando. */
+@media (max-width:980px){
+  .why-n{display:block;overflow:hidden;line-height:1}
+  .why-n i{display:block;transform:translateY(115%)}
+  .why.is-in .why-n i{animation:whyNum .72s var(--ease-out) .05s forwards}
+  @keyframes whyNum{to{transform:translateY(0)}}
+
+  .why::before{content:attr(data-n);position:absolute;right:-8px;top:-30px;
+    font-family:var(--display);font-size:124px;line-height:1;letter-spacing:-.06em;
+    color:rgba(69,174,229,.085);pointer-events:none;
+    opacity:0;transform:translateY(16px) scale(.93)}
+  .why.is-in::before{animation:whyEco .95s var(--ease-out) .14s forwards}
+  @keyframes whyEco{to{opacity:1;transform:none}}
+
+  .why.is-in::after{animation:whyRule .75s var(--ease-out) .22s forwards}
+  @keyframes whyRule{to{transform:scaleX(1)}}
+}
+
 @media (max-width:980px){
   .about-top{grid-template-columns:1fr;gap:28px}
   /* width:100% es necesario: un margen inline auto en un item de
@@ -645,6 +678,9 @@ ul,ol{margin:0;padding:0;list-style:none}
   .ai-orbit,.ai-flow,.ai-ball{opacity:0}
   .aud-card:hover .aud-ico{transform:none}
   .cima-motto.is-in .motto-b::after{transition-duration:.4s;transition-delay:.1s}
+  .why.is-in .why-n i,.why.is-in::before,.why.is-in::after{animation:none}
+  .why-n i{transform:none}
+  .why::before{opacity:1;transform:none}
   .motto-b::after{box-shadow:none}
   @keyframes rgCalm{from{opacity:0}to{opacity:1}}
 }
