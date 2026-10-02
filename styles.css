@@ -470,11 +470,14 @@ ul,ol{margin:0;padding:0;list-style:none}
 .why{position:relative;border:1px solid var(--hair);border-radius:16px;padding:30px 26px 28px;
   background:var(--paper);display:flex;flex-direction:column;gap:12px;overflow:hidden;
   transition:transform .45s var(--ease-out),border-color .45s var(--ease-out),box-shadow .45s var(--ease-out)}
-.why::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cel);
+/* El filo y el eco son elementos reales y no pseudos: GSAP no puede
+   animar un ::after, y en mobile los maneja el scroll. */
+.why-rule{position:absolute;left:0;right:0;top:0;height:3px;background:var(--cel);
   transform:scaleX(0);transform-origin:left;transition:transform .55s var(--ease-out)}
+.why-eco{display:none}
 @media (hover:hover) and (pointer:fine){
   .why:hover{transform:translateY(-7px);border-color:transparent;box-shadow:0 28px 58px -28px rgba(3,29,64,.5)}
-  .why:hover::after{transform:scaleX(1)}}
+  .why:hover .why-rule{transform:scaleX(1)}}
 .why-n{font-family:var(--display);font-size:30px;line-height:1;letter-spacing:-.05em;color:var(--cel)}
 /* El <i> es solo el gancho para recortar el número en mobile; acá no
    aporta semántica ni cursiva. */
@@ -511,19 +514,17 @@ ul,ol{margin:0;padding:0;list-style:none}
    que no pueden trabarse mientras la página sigue cargando. */
 @media (max-width:980px){
   .why-n{display:block;overflow:hidden;line-height:1}
-  .why-n i{display:block;transform:translateY(115%)}
-  .why.is-in .why-n i{animation:whyNum .72s var(--ease-out) .05s forwards}
-  @keyframes whyNum{to{transform:translateY(0)}}
-
-  .why::before{content:attr(data-n);position:absolute;right:-8px;top:-30px;
+  .why-n i{display:block}
+  .why-eco{display:block;position:absolute;right:-8px;top:-30px;
     font-family:var(--display);font-size:124px;line-height:1;letter-spacing:-.06em;
-    color:rgba(69,174,229,.085);pointer-events:none;
-    opacity:0;transform:translateY(16px) scale(.93)}
-  .why.is-in::before{animation:whyEco .95s var(--ease-out) .14s forwards}
-  @keyframes whyEco{to{opacity:1;transform:none}}
+    color:rgba(69,174,229,.1);pointer-events:none;user-select:none}
 
-  .why.is-in::after{animation:whyRule .75s var(--ease-out) .22s forwards}
-  @keyframes whyRule{to{transform:scaleX(1)}}
+  /* El estado de partida lo fija GSAP, NO el CSS. Si se declara acá,
+     GSAP lo lee como base y le suma el suyo encima: el número
+     arrancaba al doble de abajo y terminaba parado en el valor del
+     CSS, sin llegar nunca a su lugar. Dejándolo fuera, además, si el
+     JS no corre las tarjetas se ven completas. */
+  .why-grid.is-scrub .why-rule{transition:none}
 }
 
 @media (max-width:980px){
@@ -719,9 +720,9 @@ ul,ol{margin:0;padding:0;list-style:none}
   .ai-orbit,.ai-flow,.ai-ball{opacity:0}
   .aud-card:hover .aud-ico{transform:none}
   .cima-motto.is-in .motto-b::after{transition-duration:.4s;transition-delay:.1s}
-  .why.is-in .why-n i,.why.is-in::before,.why.is-in::after{animation:none}
-  .why-n i{transform:none}
-  .why::before{opacity:1;transform:none}
+  .why-n i{transform:none!important}
+  .why-eco{opacity:1!important;transform:none!important}
+  .why-rule{transform:scaleX(1)!important}
   .motto-b::after{box-shadow:none}
   @keyframes rgCalm{from{opacity:0}to{opacity:1}}
 }

@@ -243,6 +243,55 @@
     });
   }
 
+  /* ---------------- "¿POR QUÉ ELEGIRME?" EN MOBILE ----------------
+     En desktop cada tarjeta se presenta al pasarle el mouse. En mobile
+     no hay hover, y una animación de ENTRADA tampoco alcanza: el
+     observer la dispara apenas la tarjeta asoma un 5%, así que para
+     cuando la tenés a la vista ya terminó y no se ve nada moverse.
+
+     Acá el movimiento va atado al scroll: avanza a medida que la
+     tarjeta sube por la pantalla y retrocede si volvés para arriba.
+     El dedo maneja la animación.
+
+     Va con ScrollTrigger y no con animation-timeline de CSS porque
+     Safari de iOS todavía no lo soporta, y el cliente mira la web
+     desde un iPhone.
+
+     Si GSAP no está, hay movimiento reducido o estamos en desktop, no
+     se toca nada: el CSS ya deja las tarjetas completas, así que no
+     hay forma de que algo quede escondido. */
+  function initWhyScroll() {
+    var grid = document.querySelector(".why-grid");
+    if (!grid) return;
+    if (!hasGSAP || reduced || window.innerWidth > 980) return;
+    grid.classList.add("is-scrub");
+
+    grid.querySelectorAll(".why").forEach(function (card) {
+      var num = card.querySelector(".why-n i");
+      var eco = card.querySelector(".why-eco");
+      var rule = card.querySelector(".why-rule");
+      if (!num || !eco || !rule) return;
+
+      /* Una sola línea de tiempo por tarjeta, normalizada a su
+         recorrido completo por la pantalla. Lo que se arma lo hace en
+         el primer tercio —así queda listo cuando la tarjeta está a la
+         vista— y el eco sigue derivando todo el trayecto, que es lo
+         que mantiene algo en movimiento mientras scrolleás. */
+      var tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: card,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.5
+        }
+      });
+      tl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: 0.3, ease: "none" }, 0.02)
+        .fromTo(num, { yPercent: 115 }, { yPercent: 0, duration: 0.28, ease: "none" }, 0.04)
+        .fromTo(eco, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "none" }, 0.06)
+        .fromTo(eco, { y: 38 }, { y: -38, duration: 1, ease: "none" }, 0);
+    });
+  }
+
   /* ---------------- MARQUEE ---------------- */
   function initMarquee() {
     if (!hasGSAP) return;
@@ -476,6 +525,7 @@
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
     safe(initCountUp, "countup");
+    safe(initWhyScroll, "whyScroll");
     safe(initWaForm, "waForm");
     safe(initMarquee, "marquee");
     safe(initMagnetic, "magnetic");
