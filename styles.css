@@ -344,6 +344,47 @@ ul,ol{margin:0;padding:0;list-style:none}
 .aud-card.is-in .ai-d1{animation-delay:.9s,2.5s}
 .aud-card.is-in .ai-d2{animation-delay:1.1s,2.7s}
 .aud-card.is-in .ai-d3{animation-delay:1.3s,2.9s}
+
+/* Segunda capa de movimiento: que el ícono no se quede quieto nunca.
+   01 la figura respira dentro de un proceso que gira en dos sentidos,
+   02 un pulso viaja por el arco que une al grupo,
+   03 la pelota recorre la jugada mientras se traza. */
+
+/* 01 · Individual */
+.ai-orbit2{stroke-width:2.2;stroke-dasharray:.07 .93}
+.aud-card.is-in .ai-orbit2{animation:aiFadeDim .5s var(--ease-out) 1.9s forwards,
+  aiOrbitBack 5.2s linear 1.9s infinite}
+@keyframes aiFadeDim{to{opacity:.55}}
+@keyframes aiOrbitBack{to{transform:rotate(-360deg)}}
+.ai-ring{transform-box:fill-box;transform-origin:center}
+.aud-card.is-in .ai-ring{animation:aiDraw 1.1s var(--ease-out) .55s forwards,
+  aiBreathe 4.4s var(--ease-in-out) 1.7s infinite}
+@keyframes aiBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
+.ai-fig{transform-box:fill-box;transform-origin:50% 100%}
+.aud-card.is-in .ai-fig{animation:aiRise 4.4s var(--ease-in-out) 1.7s infinite}
+@keyframes aiRise{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.2px)}}
+
+/* 02 · Equipo */
+.ai-flow{fill:none;stroke:var(--cel-dk);stroke-width:2.6;stroke-linecap:round;
+  stroke-dasharray:.1 .9;stroke-dashoffset:1;opacity:0}
+.aud-card.is-in .ai-flow{animation:aiFadeIn .4s var(--ease-out) 1.75s forwards,
+  aiPulse 3.2s linear 1.75s infinite}
+@keyframes aiPulse{to{stroke-dashoffset:0}}
+
+/* 03 · Staff */
+.ai-ball{fill:var(--cel-dk);opacity:0;
+  offset-path:path("M22 52 L31 40 L41 46 L50 28");offset-rotate:0deg}
+.aud-card.is-in .ai-ball{animation:aiBall 7s var(--ease-out) 2.4s infinite}
+@keyframes aiBall{
+  0%{offset-distance:0%;opacity:0}
+  4%{opacity:1}
+  26%{offset-distance:100%;opacity:1}
+  36%,100%{offset-distance:100%;opacity:0}}
+
+/* Al pasar el mouse la tarjeta acerca su ícono: el movimiento ya está,
+   el hover solo lo pone un poco más cerca. */
+.aud-ico{transition:transform .5s var(--ease-out)}
+.aud-card:hover .aud-ico{transform:scale(1.07)}
 @media (max-width:900px){.aud-grid{grid-template-columns:1fr}}
 
 /* ---------------- SOBRE MÍ ---------------- */
@@ -416,8 +457,8 @@ ul,ol{margin:0;padding:0;list-style:none}
 
 /* TESTIMONIOS */
 .voices{background:var(--paper);padding-block:clamp(74px,10vw,125px);position:relative;overflow:hidden}
-.voices-head{display:flex;flex-direction:column;gap:14px;margin-bottom:46px;max-width:30ch}
-.voices-title{font-size:clamp(30px,4.4vw,56px);letter-spacing:-.04em;line-height:1.02}
+.voices-head{display:flex;flex-direction:column;gap:14px;margin-bottom:46px}
+.voices-title{font-size:clamp(30px,4.4vw,56px);letter-spacing:-.04em;line-height:1.02;max-width:22ch}
 .voices-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
 .voice{position:relative;background:var(--bone);border:1px solid var(--hair);border-radius:16px;
   padding:34px 30px 28px;display:flex;flex-direction:column;gap:20px;justify-content:space-between;
@@ -537,8 +578,11 @@ ul,ol{margin:0;padding:0;list-style:none}
   .aud-card.is-in .ai-tip{animation:none;stroke-dashoffset:0}
   .aud-card.is-in .ai-head,.aud-card.is-in .ai-dot{animation:rgCalm .4s ease forwards}
   .aud-card.is-in .ai-orbit,.aud-card.is-in .ai-p,.aud-card.is-in .ai-play,
-  .aud-card.is-in .ai-tip{animation:none}
-  .ai-orbit{opacity:0}
+  .aud-card.is-in .ai-tip,.aud-card.is-in .ai-orbit2,.aud-card.is-in .ai-ring,
+  .aud-card.is-in .ai-fig,.aud-card.is-in .ai-flow,
+  .aud-card.is-in .ai-ball{animation:none}
+  .ai-orbit,.ai-flow,.ai-ball{opacity:0}
+  .aud-card:hover .aud-ico{transform:none}
   .cima-motto.is-in .motto-b::after{transition-duration:.4s;transition-delay:.2s}
   @keyframes rgCalm{from{opacity:0}to{opacity:1}}
 }

@@ -122,17 +122,43 @@
       var target = parseFloat(el.dataset.countTo), done = false;
       function run() {
         if (done) return; done = true;
-        if (hasGSAP) {
+        if (hasGSAP && !reduced) {
           var o = { v: 0 };
           gsap.to(o, { v: target, duration: 1.5, ease: "power2.out",
             onUpdate: function () { el.textContent = Math.round(o.v); } });
         } else el.textContent = target;
       }
-      var io = new IntersectionObserver(function (es) {
-        es.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); run(); } });
-      }, { threshold: 0.05 });
-      io.observe(el);
-      setTimeout(run, 6000);
+      /* El conteo tiene que pasar DELANTE del visitante. Antes había un
+         setTimeout(run, 6000) sin condición, así que los números de más
+         abajo —los torneos, las medallas— terminaban de contar mientras
+         todavía se estaba leyendo el hero, y al llegar ya estaban quietos.
+         La red de seguridad queda, pero solo dispara si el número está
+         efectivamente en pantalla. */
+      function visible() {
+        var r = el.getBoundingClientRect();
+        return r.top < innerHeight * 0.95 && r.bottom > 0;
+      }
+      function check() {
+        if (done) { off(); return; }
+        if (visible()) { run(); off(); }
+      }
+      function off() {
+        removeEventListener("scroll", check);
+        removeEventListener("resize", check);
+      }
+      if (window.IntersectionObserver) {
+        var io = new IntersectionObserver(function (es) {
+          es.forEach(function (e) {
+            if (e.isIntersecting) { io.unobserve(e.target); off(); run(); }
+          });
+        }, { threshold: 0.05 });
+        io.observe(el);
+        setTimeout(check, 6000);
+      } else {
+        addEventListener("scroll", check, { passive: true });
+        addEventListener("resize", check);
+        check();
+      }
     });
   }
 

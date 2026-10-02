@@ -26,14 +26,19 @@
      y cualquier suavizado devuelve las lomas. El dentado sigue el
      patrón del isotipo —filos rectos, cada cumbre más alta que la
      anterior, retrocesos parciales— y termina arriba. */
+  /* La serie, punto por punto. No hay interpolación ni suavizado: un
+     gráfico de líneas va de dato a dato con una recta.
+
+     Lo que le da verdad es la IRREGULARIDAD: tramos largos en
+     diagonal, V cerradas, y racimos de quiebres cortos entre medio.
+     Un zigzag de paso parejo lee como patrón decorativo, no como una
+     serie. Siempre ascendente, y la cumbre al final. */
   var DATA = [
-    [0.000, 0.05], [0.030, 0.15], [0.055, 0.11], [0.090, 0.24], [0.120, 0.17],
-    [0.150, 0.31], [0.185, 0.24], [0.215, 0.40], [0.250, 0.31], [0.285, 0.47],
-    [0.310, 0.40], [0.345, 0.56], [0.380, 0.44], [0.410, 0.59], [0.445, 0.50],
-    [0.480, 0.68], [0.510, 0.59], [0.545, 0.76], [0.575, 0.64], [0.610, 0.81],
-    [0.645, 0.71], [0.675, 0.89], [0.710, 0.76], [0.745, 0.94], [0.775, 0.82],
-    [0.805, 1.00], [0.840, 0.85], [0.870, 0.96], [0.905, 0.87], [0.940, 0.97],
-    [0.975, 0.89], [1.000, 0.95]
+    [0.000, 0.03], [0.105, 0.28], [0.133, 0.21], [0.163, 0.34], [0.188, 0.26],
+    [0.213, 0.38], [0.236, 0.30], [0.300, 0.53], [0.331, 0.40], [0.356, 0.48],
+    [0.386, 0.42], [0.470, 0.64], [0.499, 0.56], [0.520, 0.67], [0.546, 0.59],
+    [0.640, 0.81], [0.674, 0.67], [0.700, 0.75], [0.721, 0.69], [0.800, 0.91],
+    [0.829, 0.81], [0.855, 0.96], [0.881, 0.87], [0.950, 1.00]
   ];
 
   function sstep(a, b, x) {
@@ -239,12 +244,19 @@
         ctx.lineWidth = 2; ctx.strokeStyle = "#45AEE5"; ctx.stroke();
       }
 
-      /* --- lectura bajo el cursor: es un gráfico, se inspecciona --- */
+      /* --- lectura bajo el cursor ---
+         El punto se desliza SOBRE la línea: se busca el tramo donde
+         cae el cursor y se interpola dentro de él. Engancharlo al
+         vértice más cercano lo hacía saltar de dato en dato. */
       if (hov > 0.01 && prog > 0.2) {
         var u = (mx - ox - BX) / BW;
-        if (u > 0 && u < prog) {
-          var ci = Math.max(0, Math.min(N - 1, Math.round(u * (N - 1))));
-          var cx = px(ci), cy = py(ci);
+        if (u > SX[0] && u < Math.min(prog, SX[N - 1])) {
+          var si = 0;
+          while (si < N - 2 && SX[si + 1] < u) si++;
+          var seg = SX[si + 1] - SX[si];
+          var ft = seg > 0 ? (u - SX[si]) / seg : 0;
+          var cx = px(si) + (px(si + 1) - px(si)) * ft;
+          var cy = py(si) + (py(si + 1) - py(si)) * ft;
           ctx.globalAlpha = hov * 0.55;
           ctx.save();
           ctx.setLineDash([2, 5]);
