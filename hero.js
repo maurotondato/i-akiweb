@@ -20,25 +20,34 @@
      solo relleno, y lectura del gráfico bajo el cursor.
      =========================================================== */
 
-  /* Puntos de control del relato. Y en 0..1, donde 1 es la cumbre. */
-  /* La serie, punto por punto. No hay interpolación ni paseo
-     aleatorio: un gráfico de líneas va de dato a dato con una recta,
-     y cualquier suavizado devuelve las lomas. El dentado sigue el
-     patrón del isotipo —filos rectos, cada cumbre más alta que la
-     anterior, retrocesos parciales— y termina arriba. */
   /* La serie, punto por punto. No hay interpolación ni suavizado: un
      gráfico de líneas va de dato a dato con una recta.
 
-     Lo que le da verdad es la IRREGULARIDAD: tramos largos en
-     diagonal, V cerradas, y racimos de quiebres cortos entre medio.
-     Un zigzag de paso parejo lee como patrón decorativo, no como una
-     serie. Siempre ascendente, y la cumbre al final. */
+     La silueta se construye con el CONTRASTE, no con el dentado. Las
+     caídas son profundas y casi verticales; los ascensos son largos y
+     escalonados. Eso es lo que hace que cada remontada se lea como la
+     ladera de una montaña, y no como un serrucho decorativo.
+
+     Dos derrumbes grandes y dos remontadas grandes arman la cordillera:
+
+       pico 1  .44  →  valle 1  .12   (-.32)
+       valle 1 .12  →  pico 2   .74   (+.62)
+       pico 2  .74  →  valle 2  .28   (-.46)
+       valle 2 .28  →  pico 3   .87   (+.59)
+       y de ahí, el último empujón a la cumbre.
+
+     La tendencia nunca deja de subir: cada pico supera al anterior y
+     cada valle queda por encima del valle previo. Se cae más hondo,
+     pero nunca se vuelve al punto de partida. */
   var DATA = [
-    [0.000, 0.03], [0.105, 0.28], [0.133, 0.21], [0.163, 0.34], [0.188, 0.26],
-    [0.213, 0.38], [0.236, 0.30], [0.300, 0.53], [0.331, 0.40], [0.356, 0.48],
-    [0.386, 0.42], [0.470, 0.64], [0.499, 0.56], [0.520, 0.67], [0.546, 0.59],
-    [0.640, 0.81], [0.674, 0.67], [0.700, 0.75], [0.721, 0.69], [0.800, 0.91],
-    [0.829, 0.81], [0.855, 0.96], [0.881, 0.87], [0.950, 1.00]
+    [0.000, 0.05], [0.030, 0.13], [0.054, 0.08], [0.082, 0.22], [0.106, 0.16],
+    [0.142, 0.34], [0.166, 0.28], [0.196, 0.44], [0.220, 0.33], [0.240, 0.38],
+    [0.268, 0.12], [0.298, 0.25], [0.320, 0.20], [0.356, 0.41], [0.382, 0.35],
+    [0.418, 0.56], [0.442, 0.49], [0.476, 0.67], [0.498, 0.61], [0.530, 0.74],
+    [0.556, 0.65], [0.576, 0.70], [0.612, 0.28], [0.642, 0.42], [0.664, 0.36],
+    [0.700, 0.58], [0.724, 0.52], [0.762, 0.73], [0.784, 0.67], [0.818, 0.87],
+    [0.842, 0.75], [0.862, 0.81], [0.886, 0.69], [0.912, 0.89], [0.934, 0.83],
+    [0.968, 1.00]
   ];
 
   function sstep(a, b, x) {
@@ -89,6 +98,30 @@
 
     /* ---------------- lienzo ---------------- */
     var W = 0, H = 0, DPR = 1, BX = 0, BY = 0, BW = 0, BH = 0;
+    /* Borde de un elemento del hero, en coordenadas del lienzo.
+       Para el titular no sirve su caja: con max-width:12ch la caja
+       llega bastante más a la derecha que la última letra, y usarla
+       nos comía ~100px de lienzo. Un Range devuelve el rectángulo de
+       cada renglón, ajustado al texto; nos quedamos con el más ancho. */
+    function edge(sel, side) {
+      var el = hero.querySelector(sel);
+      if (!el) return null;
+      var hr = hero.getBoundingClientRect(), er = el.getBoundingClientRect();
+      if (!er.width && !er.height) return null;
+      if (side === "bottom") return er.bottom - hr.top;
+
+      var right = er.right;
+      try {
+        var rg = document.createRange();
+        rg.selectNodeContents(el);
+        var ls = rg.getClientRects(), best = 0;
+        for (var k = 0; k < ls.length; k++) {
+          if (ls[k].width && ls[k].right > best) best = ls[k].right;
+        }
+        if (best) right = Math.min(right, best);
+      } catch (e) { /* sin Range, queda la caja */ }
+      return right - hr.left;
+    }
     var gFill = null, gLine = null;
     function layout() {
       var r = hero.getBoundingClientRect();
@@ -99,9 +132,29 @@
       canvas.height = Math.round(H * DPR);
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 
-      /* El gráfico vive donde no hay texto y se sale por la derecha */
-      if (small) { BX = -0.04 * W; BW = 1.08 * W; BY = 0.5 * H; BH = 0.34 * H; }
-      else { BX = 0.34 * W; BW = 0.68 * W; BY = 0.26 * H; BH = 0.5 * H; }
+      /* El encuadre no se adivina con fracciones: se mide contra el
+         texto que efectivamente hay en pantalla. Así el gráfico no se
+         cruza con el título en desktop ni con los botones en mobile,
+         sin importar el ancho, el tamaño de fuente o lo largo que
+         termine siendo el copy de Iñaki. */
+      var gap = Math.max(18, Math.min(52, W * 0.03));
+      var titleR = edge(".hero-title", "right");
+      var actsB = edge(".hero-actions", "bottom");
+
+      if (small) {
+        /* Vertical: la serie arranca debajo de los botones. */
+        BX = -0.05 * W; BW = (W * 0.94 - BX) / SX[N - 1];
+        BY = actsB != null ? actsB + gap : 0.58 * H;
+        BY = Math.min(BY, H * 0.72);
+        BH = Math.max(H * 0.18, H * 0.95 - BY);
+      } else {
+        /* Horizontal: la serie empieza donde termina el titular, y la
+           cumbre cae adentro del lienzo en vez de irse por el borde. */
+        BX = titleR != null ? titleR + gap : 0.52 * W;
+        BX = Math.min(BX, W * 0.60);
+        BW = (W * 0.965 - BX) / SX[N - 1];
+        BY = 0.21 * H; BH = 0.50 * H;
+      }
 
       gFill = ctx.createLinearGradient(0, BY, 0, BY + BH);
       gFill.addColorStop(0, "rgba(69,174,229,.38)");
@@ -277,6 +330,11 @@
     }
 
     layout();
+    /* El encuadre se mide contra el titular, y el titular cambia de
+       ancho cuando entra la tipografía real. Hay que volver a medir. */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { layout(); if (reduced) draw(0, 0.016); });
+    }
     if (reduced) { prog = 1; draw(0, 0.016); return true; }
 
     var running = true, raf = 0;
