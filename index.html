@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css?v=20261027">
+<link rel="stylesheet" href="styles.css?v=20261028">
 </head>
 <body>
 
@@ -231,9 +231,16 @@
 <!-- ============ SOBRE MÍ ============ -->
 <section class="about" id="sobre">
   <div class="shell about-top">
-    <figure class="about-photo reveal">
-      <img data-para-img src="assets/img/sobre-inaki.webp" alt="Iñaki Etchegaray" width="1000" height="1250" loading="lazy">
-    </figure>
+    <!-- Dos capas que se mueven en sentidos opuestos: el marco se
+         desplaza dentro del aire de la sección y la foto panea dentro
+         del marco. El efecto es la SUMA de los dos, así que se nota
+         mucho más que paneando solo la foto, y no hace falta agrandar
+         la imagen -que es lo que le cortaba la cabeza a Iñaki-. -->
+    <div class="about-frame" data-para-frame>
+      <figure class="about-photo reveal">
+        <img data-para-img src="assets/img/sobre-inaki.webp" alt="Iñaki Etchegaray" width="1000" height="1250" loading="lazy">
+      </figure>
+    </div>
     <div class="about-intro">
       <p class="kicker reveal">Sobre mí</p>
       <h2 class="about-title reveal" data-split="words">Crecí prácticamente en un vestuario.</h2>
@@ -460,9 +467,9 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261027"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261027"></script>
-<script defer src="hero.js?v=20261027"></script>
-<script defer src="main.js?v=20261027"></script>
+<script defer src="lib/gsap.min.js?v=20261028"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261028"></script>
+<script defer src="hero.js?v=20261028"></script>
+<script defer src="main.js?v=20261028"></script>
 </body>
 </html>

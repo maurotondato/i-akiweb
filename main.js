@@ -322,11 +322,29 @@
       gsap.to(el, { yPercent: d * 100, ease: "none",
         scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.6 } });
     });
-    /* Las fotos enmarcadas se mueven más lento que su marco: da
-       profundidad sin que nada se despegue del recorte. El recorrido
-       arranca en 0 y sube: la foto y su marco comparten aspecto (4/5),
-       así que el sobrante es poco y si la ventana se corre hacia
-       arriba le corta la cabeza. Ver la nota en .about-photo img. */
+    /* El parallax de las fotos enmarcadas son DOS capas opuestas:
+
+       1. el marco entero se desliza dentro del aire que le deja la
+          sección. Como es transform, no empuja nada y puede entrar en
+          los márgenes sin chocar con el texto ni con la sección de
+          abajo.
+       2. la foto panea dentro del marco, en sentido contrario.
+
+       Lo que se percibe es la suma, así que da un recorrido amplio sin
+       tener que agrandar la imagen. Agrandarla era lo que le cortaba
+       la cabeza a Iñaki: la foto y el marco comparten aspecto (4/5),
+       así que todo el sobrante salía de ampliar, y el recorte se le
+       comía la cara. Ver la nota en .about-photo img.
+
+       El paneo interno sigue acotado a lo que no toca la cabeza; el
+       grueso del movimiento lo pone el marco, que no recorta nada. */
+    document.querySelectorAll("[data-para-frame]").forEach(function (el) {
+      var d = window.innerWidth <= 980 ? 54 : 44;
+      gsap.fromTo(el, { y: d }, {
+        y: -d, ease: "none",
+        scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: 0.8 }
+      });
+    });
     document.querySelectorAll("[data-para-img]").forEach(function (img) {
       var frame = img.closest("figure") || img.parentNode;
       gsap.fromTo(img, { yPercent: 0 }, {

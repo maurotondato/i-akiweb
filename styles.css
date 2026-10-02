@@ -406,6 +406,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 /* ---------------- SOBRE MÍ ---------------- */
 .about{padding-block:clamp(70px,10vw,124px);display:flex;flex-direction:column;gap:clamp(54px,7vw,96px)}
 .about-top{display:grid;grid-template-columns:.78fr 1.22fr;gap:clamp(28px,5vw,74px);align-items:center}
+.about-frame{will-change:transform}
 .about-photo{margin:0;position:relative;border-radius:16px;overflow:hidden;
   aspect-ratio:4/5;box-shadow:0 34px 70px -34px rgba(3,29,64,.55)}
 .about-photo::after{content:"";position:absolute;inset:0;pointer-events:none;
@@ -453,7 +454,10 @@ ul,ol{margin:0;padding:0;list-style:none}
 .cv-note{font-size:14px;line-height:1.6;color:var(--mute);font-style:italic}
 @media (max-width:980px){
   .about-top{grid-template-columns:1fr;gap:28px}
-  .about-photo{max-width:420px}
+  /* width:100% es necesario: un margen inline auto en un item de
+     grilla cancela el stretch, y la figura solo tiene aspect-ratio
+     -sin ancho propio-, así que sin esto colapsa a cero. */
+  .about-frame{width:100%;max-width:420px;margin-inline:auto}
   .why-grid{grid-template-columns:1fr}
   .cv-wrap{grid-template-columns:1fr}
 }
