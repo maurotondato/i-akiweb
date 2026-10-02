@@ -63,6 +63,14 @@ ul,ol{margin:0;padding:0;list-style:none}
   transition:background .4s var(--ease-out),border-color .4s var(--ease-out),padding .4s var(--ease-out)}
 .nav.is-solid{background:rgba(255,255,255,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom-color:var(--hair);padding-block:10px}
+/* Se retira mientras bajás —así no tapa lo que estás leyendo— y
+   vuelve apenas subís. El hero reserva su alto igual, porque arriba
+   de todo siempre está presente. */
+.nav{transform:translateY(0);will-change:transform;
+  transition:background .4s var(--ease-out),border-color .4s var(--ease-out),
+             padding .4s var(--ease-out),transform .45s var(--ease-out)}
+.nav.is-away{transform:translateY(-104%)}
+@media (prefers-reduced-motion:reduce){.nav.is-away{transform:none}}
 .brand{display:block;line-height:0}
 .brand img{width:clamp(148px,15vw,186px);height:auto}
 .nav-links{display:flex;gap:30px}
@@ -98,7 +106,7 @@ ul,ol{margin:0;padding:0;list-style:none}
    animaciones CSS, no requestAnimationFrame: corren fuera del hilo
    principal y no pueden trabarse mientras la página carga. */
 .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
-  padding:148px 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
+  padding:calc(var(--nav-h, 123px) + 26px) 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
 /* El gráfico. Ocupa la derecha, donde no hay texto, y sale de cuadro.
    La máscara deja la columna del titular siempre limpia, pase lo que
    pase con la curva. */
@@ -142,7 +150,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .hero-chip span{font-family:var(--cond);font-size:12.5px;font-weight:600;letter-spacing:.14em;
   text-transform:uppercase;line-height:1.35}
 @media (max-width:980px){
-  .hero{min-height:auto;padding:128px 0 18px}
+  .hero{min-height:auto;padding:calc(var(--nav-h, 105px) + 24px) 0 18px}
   .hero-grid{grid-template-columns:1fr;gap:14px}
   .hero-media{height:min(36svh,300px)}
   .hero-cut{height:100%;width:auto;max-width:100%}
@@ -537,6 +545,43 @@ ul,ol{margin:0;padding:0;list-style:none}
 .final .btn-ghost{color:#fff;border-color:rgba(255,255,255,.4)}
 @media (hover:hover) and (pointer:fine){
   .final .btn-ghost:hover{background:#fff;color:var(--ink);border-color:#fff}}
+/* ---- Formulario de contacto (arma el mensaje de WhatsApp) ---- */
+.cform{width:100%;max-width:620px;margin-top:26px;display:flex;flex-direction:column;gap:16px;text-align:left}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.cf-field{display:flex;flex-direction:column;gap:8px;border:0;padding:0;margin:0;min-width:0}
+.cf-field > span{font-family:var(--cond);font-size:12.5px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:#9DB4CC}
+.cform input[type=text],.cform textarea{
+  width:100%;font:inherit;font-size:16px;color:#fff;background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:13px 15px;
+  transition:border-color .25s var(--ease-out),background .25s var(--ease-out)}
+.cform textarea{resize:vertical;min-height:96px;line-height:1.55}
+.cform input::placeholder,.cform textarea::placeholder{color:rgba(157,180,204,.65)}
+.cform input:focus,.cform textarea:focus{outline:none;border-color:var(--cel);background:rgba(255,255,255,.1)}
+.cf-field.is-bad input,.cf-field.is-bad textarea{border-color:#E8805F}
+
+.cf-chips{display:flex;gap:10px;flex-wrap:wrap}
+.cf-chips label{position:relative;cursor:pointer}
+.cf-chips input{position:absolute;opacity:0;width:0;height:0}
+.cf-chips span{display:inline-block;font-family:var(--cond);font-size:13.5px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:#9DB4CC;
+  border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:9px 17px;
+  transition:color .25s var(--ease-out),border-color .25s var(--ease-out),background .25s var(--ease-out)}
+.cf-chips label:hover span{color:#fff;border-color:rgba(255,255,255,.4)}
+.cf-chips input:checked + span{color:var(--ink);background:var(--cel);border-color:var(--cel)}
+.cf-chips input:focus-visible + span{outline:2px solid var(--cel);outline-offset:3px}
+
+.cf-send{display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:6px}
+.cf-send .btn{width:100%;justify-content:center}
+.cf-note{font-size:13.5px;color:#7D95AE;text-align:center;margin:0;
+  transition:color .25s var(--ease-out)}
+.cf-note.is-bad{color:#E8805F}
+.final .final-actions{margin-top:4px}
+
+@media (max-width:620px){
+  .cf-row{grid-template-columns:1fr}
+}
+
 .final-meta{display:flex;gap:28px;flex-wrap:wrap;justify-content:center;margin-top:46px;
   font-family:var(--cond);font-size:14.5px;font-weight:600;letter-spacing:.17em;text-transform:uppercase}
 .final-meta a{color:var(--cel);text-decoration:none;transition:color .25s var(--ease-out)}

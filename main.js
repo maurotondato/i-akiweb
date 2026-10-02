@@ -116,6 +116,25 @@
     }, 6000);
   }
 
+  /* ---------------- ALTO DEL NAV ----------------
+     El hero tiene que reservar exactamente lo que el nav ocupa. Un
+     número fijo en el CSS se desactualiza solo: basta con que entre
+     la tipografía, cambie el logo o el visitante tenga zoom para que
+     el titular se meta debajo. Se mide y se publica como variable. */
+  function initNavHeight() {
+    var nav = document.querySelector(".nav");
+    if (!nav) return;
+    function sync() {
+      var h = Math.round(nav.getBoundingClientRect().height);
+      if (h) document.documentElement.style.setProperty("--nav-h", h + "px");
+    }
+    sync();
+    window.addEventListener("resize", sync, { passive: true });
+    window.addEventListener("load", sync);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sync);
+    if (window.ResizeObserver) new ResizeObserver(sync).observe(nav);
+  }
+
   /* ---------------- CONTADORES ---------------- */
   function initCountUp() {
     document.querySelectorAll("[data-count-to]").forEach(function (el) {
@@ -162,6 +181,68 @@
     });
   }
 
+  /* ---------------- FORMULARIO -> WHATSAPP ----------------
+     No hay backend ni hay por qué tenerlo: el formulario arma el
+     mensaje y abre WhatsApp con la consulta ya escrita. Iñaki la
+     recibe con contexto —nombre, deporte, perfil y qué le pasa— en
+     vez de un "hola" suelto, y la conversación sigue donde él ya
+     trabaja. Sin servidor no hay datos de nadie guardados en ningún
+     lado, que para una consulta de este tipo es lo correcto.
+
+     El número vive en el href del propio formulario para que no haya
+     dos fuentes de verdad. */
+  var WA_NUM = "5491159236762";
+
+  function initWaForm() {
+    document.querySelectorAll("[data-wa-form]").forEach(function (form) {
+      var note = form.querySelector(".cf-note");
+      var noteBase = note ? note.textContent : "";
+
+      function fail(field, msg) {
+        field.classList.add("is-bad");
+        if (note) { note.textContent = msg; note.classList.add("is-bad"); }
+        var input = field.querySelector("input, textarea");
+        if (input) input.focus();
+      }
+      function clear() {
+        form.querySelectorAll(".is-bad").forEach(function (e) { e.classList.remove("is-bad"); });
+        if (note) note.textContent = noteBase;
+      }
+      form.addEventListener("input", clear);
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        clear();
+        var d = new FormData(form);
+        var nombre = (d.get("nombre") || "").toString().trim();
+        var deporte = (d.get("deporte") || "").toString().trim();
+        var perfil = (d.get("perfil") || "").toString().trim();
+        var mensaje = (d.get("mensaje") || "").toString().trim();
+
+        var campos = form.querySelectorAll(".cf-field");
+        if (!nombre) return fail(campos[0], "Me falta tu nombre para escribirle a Iñaki.");
+        if (!deporte) return fail(campos[1], "Contame de qué deporte se trata.");
+        if (!mensaje) return fail(form.querySelector("textarea").closest(".cf-field"),
+          "Escribí aunque sea una línea sobre tu momento.");
+
+        /* Se arma como lo escribiría una persona, no como un volcado
+           de campos: del otro lado se lee un mensaje, no un ticket. */
+        var texto =
+          "Hola Iñaki, soy " + nombre + ".\n\n" +
+          "Vengo del lado de " + deporte + " y la consulta es " +
+          (perfil === "Equipo" ? "para un equipo" :
+           perfil === "Staff" ? "para un cuerpo técnico" : "para mí") + ".\n\n" +
+          mensaje + "\n\n" +
+          "(Te escribo desde la web)";
+
+        var url = "https://wa.me/" + WA_NUM + "?text=" + encodeURIComponent(texto);
+        var win = window.open(url, "_blank", "noopener");
+        if (!win) window.location.href = url;   /* si el navegador bloquea la pestaña */
+        if (note) note.textContent = "Listo, abrimos WhatsApp con tu mensaje.";
+      });
+    });
+  }
+
   /* ---------------- MARQUEE ---------------- */
   function initMarquee() {
     if (!hasGSAP) return;
@@ -198,12 +279,23 @@
     var nav = document.querySelector("[data-nav]");
     var bar = document.querySelector("[data-progress]");
     var wa = document.querySelector("[data-wa]");
-    var t = false;
+    var t = false, prevY = window.scrollY || 0;
+    /* El nav es fijo y opaco, así que al bajar pasa por encima de lo
+       que estás leyendo: en "Sobre mí" le tapaba la cabeza a Iñaki.
+       Transparentarlo dejaría los links ilegibles sobre la foto, así
+       que se va mientras bajás y vuelve apenas subís un poco. */
     function up() {
       if (t) return; t = true;
       requestAnimationFrame(function () {
         var y = window.scrollY || window.pageYOffset;
-        if (nav) nav.classList.toggle("is-solid", y > 48);
+        if (nav) {
+          nav.classList.toggle("is-solid", y > 48);
+          var d = y - prevY;
+          if (y < 120) nav.classList.remove("is-away");
+          else if (d > 6) nav.classList.add("is-away");
+          else if (d < -6) nav.classList.remove("is-away");
+          if (Math.abs(d) > 2) prevY = y;
+        }
         if (wa) wa.classList.toggle("is-in", y > window.innerHeight * 0.55);
         if (bar) {
           var max = document.documentElement.scrollHeight - window.innerHeight;
@@ -362,9 +454,11 @@
     safe(initSplash, "splash");
     safe(initHero, "hero");
     safe(initChrome, "chrome");
+    safe(initNavHeight, "navHeight");
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
     safe(initCountUp, "countup");
+    safe(initWaForm, "waForm");
     safe(initMarquee, "marquee");
     safe(initMagnetic, "magnetic");
     safe(initProgGlow, "progGlow");
