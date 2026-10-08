@@ -47,7 +47,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 @keyframes splashWord{to{opacity:1}}
 
 /* GRANO + PROGRESO */
-.grain{position:fixed;inset:-120%;z-index:9998;pointer-events:none;opacity:.04;
+/* inset:-10% y no -120%: el desplazamiento máximo del grano es ±4%,
+   así que ese margen alcanza. Con -120% la capa medía 340% del
+   viewport por eje -13056x7344 px reales en Full HD- y el compositor
+   la rehacía cada vez que algo abajo repintaba. */
+.grain{position:fixed;inset:-10%;z-index:9998;pointer-events:none;opacity:.04;
   background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
   animation:grainShift 7s steps(6) infinite}
 @keyframes grainShift{0%{transform:translate(0,0)}20%{transform:translate(-4%,2%)}40%{transform:translate(3%,-3%)}
@@ -71,10 +75,21 @@ ul,ol{margin:0;padding:0;list-style:none}
              padding .4s var(--ease-out),transform .45s var(--ease-out)}
 .nav.is-away{transform:translateY(-104%)}
 @media (prefers-reduced-motion:reduce){.nav.is-away{transform:none}}
-.brand{display:block;line-height:0}
-.brand img{width:clamp(148px,15vw,186px);height:auto}
+.brand{display:block;line-height:0;position:relative}
+.brand img{width:clamp(148px,15vw,186px);height:auto;
+  transition:opacity .4s var(--ease-out)}
+.brand .brand-light{position:absolute;inset:0;width:100%;opacity:0}
+.nav.is-solid .brand-dark{opacity:0}
+.nav.is-solid .brand-light{opacity:1}
+
 .nav-links{display:flex;gap:30px}
-.nav-links a{font-size:13.5px;font-weight:600;text-decoration:none;position:relative;padding-block:4px}
+/* Sobre el hero oscuro los links van en claro; cuando el nav se
+   vuelve sólido, sobre blanco, recuperan la tinta. */
+.nav-links a{font-size:13.5px;font-weight:600;text-decoration:none;position:relative;padding-block:4px;
+  color:rgba(255,255,255,.88);transition:color .4s var(--ease-out)}
+.nav.is-solid .nav-links a{color:var(--ink)}
+.nav:not(.is-solid) .btn-sm{background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.34)}
 .nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--cel);
   transform:scaleX(0);transform-origin:right;transition:transform .35s var(--ease-out)}
 @media (hover:hover) and (pointer:fine){.nav-links a:hover::after{transform:scaleX(1);transform-origin:left}}
@@ -106,35 +121,69 @@ ul,ol{margin:0;padding:0;list-style:none}
    animaciones CSS, no requestAnimationFrame: corren fuera del hilo
    principal y no pueden trabarse mientras la página carga. */
 .hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;
-  padding:calc(var(--nav-h, 123px) + 26px) 0 34px;background:linear-gradient(180deg,#FFFFFF 0%,#F4F8FC 58%,#E6EFF8 100%)}
+  padding:calc(var(--nav-h, 123px) + 26px) 0 34px;
+  /* El hero pasa a oscuro porque el gráfico nuevo vive de su propio
+     brillo, y un halo sobre blanco no existe: lo que lo hace legible
+     es el contraste contra el fondo. El navy ya es de la marca -la
+     banda del lema, CIMA, el cierre y el pie son este mismo color-,
+     así que el hero deja de ser la excepción clara. */
+  background:
+    /* El resplandor va sobre el gráfico, no detrás de Iñaki: centrado
+       en él le armaba un halo que parecía un recorte mal hecho. */
+    radial-gradient(900px 620px at 88% 26%, rgba(69,174,229,.17), transparent 66%),
+    radial-gradient(700px 520px at 20% 88%, rgba(26,98,201,.14), transparent 70%),
+    linear-gradient(168deg,#02142C 0%,#031D40 48%,#06264A 100%)}
 /* El gráfico. Ocupa la derecha, donde no hay texto, y sale de cuadro.
    La máscara deja la columna del titular siempre limpia, pase lo que
    pase con la curva. */
+/* Sin mask-image: una máscara CSS sobre un canvas que repinta cada
+   cuadro obliga al compositor a reaplicar el degradado sobre toda la
+   capa, 60 veces por segundo. Medido en Full HD, costaba 12 fps. El
+   desvanecido ahora lo hace el propio canvas con un borrado en
+   destination-out, que es un fillRect. */
 .curve{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;
-  opacity:0;transition:opacity 1s var(--ease-out) .25s;
-  -webkit-mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.4) 14%,#000 30%);
-  mask-image:linear-gradient(90deg,transparent 0%,rgba(0,0,0,.4) 14%,#000 30%)}
+  opacity:0;transition:opacity 1s var(--ease-out) .25s}
 .is-ready .curve{opacity:1}
-@media (max-width:980px){
-  .curve{-webkit-mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.35) 24%,#000 44%);
-    mask-image:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.35) 24%,#000 44%)}
-}
+
 .hero-grid{position:relative;z-index:3;display:grid;grid-template-columns:1.06fr .94fr;
   gap:clamp(20px,3vw,48px);align-items:center;max-width:1320px;margin:0 auto;width:100%;padding-inline:var(--gut)}
 .hero-copy{display:flex;flex-direction:column;gap:clamp(18px,2.2vw,28px);align-items:flex-start;will-change:transform}
-.hero-kicker{color:var(--cel-dk)}
+/* ---- el hero, sobre oscuro ---- */
+.hero-kicker{color:var(--cel-lt)}
+.hero-title{color:#fff}
+.hero-title em{color:var(--cel)}
+.hero-sub{color:#BCCFE1}
+.hero .btn-ghost{color:#fff;border-color:rgba(255,255,255,.42);background:transparent}
+@media (hover:hover) and (pointer:fine){
+  .hero .btn-ghost:hover{border-color:var(--cel);color:var(--cel-lt)}}
+/* Sin backdrop-filter: encima de un canvas que repinta cada cuadro,
+   el desenfoque del fondo se recalcula 60 veces por segundo. Un navy
+   translúcido da el mismo efecto de vidrio y no cuesta nada. */
+.hero-chip{background:rgba(6,32,62,.82);border:1px solid rgba(143,217,250,.22);
+  box-shadow:0 24px 54px -22px rgba(0,0,0,.7)}
+/* El velo que aclaraba la columna del texto ya no hace falta: ahora
+   el fondo es el oscuro y el que tiene que destacarse es el texto. */
+.hero::after{display:none}
 .hero-title{font-size:clamp(44px,8vw,112px);line-height:.86;letter-spacing:-.05em;max-width:12ch}
 .hero-title em{font-style:normal;color:var(--cel-dk)}
 .hero-sub{font-size:clamp(16px,1.3vw,18.5px);line-height:1.6;color:var(--mute);max-width:42ch}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
 .hero-media{position:relative;will-change:transform;display:flex;justify-content:center;
   align-items:flex-end;height:min(70svh,660px);isolation:isolate}
-/* Halo que despega la figura de la sierra de fondo. Reemplaza al
+/* Lo que despega la figura del gráfico de fondo. Reemplaza al
    drop-shadow, que Chromium recorta a la caja de la imagen y deja
-   un rectángulo visible sobre el fondo. */
+   un rectángulo visible sobre el fondo.
+
+   Sobre el hero oscuro este halo era BLANCO y se leía como una
+   mancha alrededor de Iñaki, como si el recorte estuviera mal hecho.
+   Ahora hace lo contrario: oscurece la zona justo detrás de él para
+   apagar las líneas que le pasan por encima, y recién más afuera
+   deja un rastro celeste que funciona de luz de contorno. */
 .hero-media::before{content:"";position:absolute;z-index:-1;left:50%;bottom:-4%;
-  transform:translateX(-50%);width:128%;height:92%;pointer-events:none;
-  background:radial-gradient(ellipse at 50% 62%,rgba(255,255,255,.92),rgba(255,255,255,.5) 44%,rgba(255,255,255,0) 72%)}
+  transform:translateX(-50%);width:132%;height:96%;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% 60%,rgba(2,18,40,.92),rgba(2,18,40,.62) 40%,rgba(2,18,40,0) 70%),
+    radial-gradient(ellipse at 50% 58%,rgba(69,174,229,.16),rgba(69,174,229,0) 62%)}
 /* El recorte termina a media pierna: se disuelve en vez de cortarse en seco. */
 .hero-cut{height:100%;width:auto;max-width:100%;object-fit:contain;object-position:bottom center;
   opacity:0;transform:translateY(26px) scale(1.02);

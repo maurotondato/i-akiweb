@@ -132,12 +132,87 @@
       } catch (e) { /* sin Range, queda la caja */ }
       return right - hr.left;
     }
-    var gFill = null, gLine = null;
+    /* ---------------- paleta y utilería ----------------
+       El halo NO se hace con shadowBlur: recalcularlo en cada nodo y
+       en cada cuadro es lo que funde el frame budget. Se dibuja una
+       sola vez a un lienzo aparte y después se estampa escalado, que
+       es una operación de GPU. Con eso entran cientos de nodos sin
+       bajar de 60fps. */
+    var GLOW = (function () {
+      var g = document.createElement("canvas");
+      var R = 64; g.width = g.height = R * 2;
+      var c = g.getContext("2d");
+      var rg = c.createRadialGradient(R, R, 0, R, R, R);
+      rg.addColorStop(0.00, "rgba(190,236,255,1)");
+      rg.addColorStop(0.18, "rgba(105,205,245,.55)");
+      rg.addColorStop(0.45, "rgba(69,174,229,.18)");
+      rg.addColorStop(1.00, "rgba(69,174,229,0)");
+      c.fillStyle = rg; c.fillRect(0, 0, R * 2, R * 2);
+      return g;
+    })();
+    function glow(x, y, r, a) {
+      if (a <= 0.004) return;
+      ctx.globalAlpha = a;
+      ctx.drawImage(GLOW, x - r, y - r, r * 2, r * 2);
+      ctx.globalAlpha = 1;
+    }
+
+    /* Ruido suave y barato: suma de dos senos desfasados por índice.
+       No asigna memoria, no necesita tabla, y da un vagabundeo
+       orgánico en vez del temblor de un random por cuadro. */
+    function wob(i, t, a, b) {
+      return Math.sin(t * a + i * 1.7) * 0.6 + Math.sin(t * b + i * 0.9) * 0.4;
+    }
+
+    /* ---------------- las series de fondo ----------------
+       La serie del isotipo sigue siendo la protagonista. Detrás van
+       dos series más, densas y nerviosas, que son las que arman la
+       constelación: le dan al cuadro la lectura de "muchos datos
+       midiéndose a la vez" sin tapar la forma de la marca. */
+    function makeSerie(n, seed, lo, hi) {
+      var a = [];
+      for (var i = 0; i < n; i++) {
+        var u = i / (n - 1);
+        /* sube a lo largo del recorrido, como la principal */
+        var trend = lo + (hi - lo) * u;
+        a.push({
+          u: u,
+          base: trend + Math.sin(seed + i * 2.3) * 0.17,
+          amp: 0.07 + 0.08 * Math.abs(Math.sin(seed * 1.7 + i)),
+          s1: 0.5 + 0.5 * Math.abs(Math.sin(seed + i * 0.6)),
+          s2: 0.9 + 0.7 * Math.abs(Math.cos(seed + i * 0.4))
+        });
+      }
+      return a;
+    }
+    var SER = [makeSerie(46, 1.3, 0.14, 0.62), makeSerie(38, 4.1, 0.22, 0.78)];
+
+    /* ---------------- el cielo ----------------
+       Distribución fija por semilla y no aleatoria por carga: la web
+       tiene que verse igual cada vez que alguien entra. */
+    var STARS = (function () {
+      var a = [];
+      for (var i = 0; i < 130; i++) {
+        var h = Math.sin(i * 12.9898) * 43758.5453;
+        var h2 = Math.sin(i * 78.233) * 12345.6789;
+        a.push({
+          x: h - Math.floor(h), y: h2 - Math.floor(h2),
+          r: 0.5 + (h - Math.floor(h)) * 1.3,
+          ph: i * 0.7, sp: 0.5 + (h2 - Math.floor(h2))
+        });
+      }
+      return a;
+    })();
+
+    var gFill = null, gLine = null, gMask = null;
     function layout() {
       var r = hero.getBoundingClientRect();
       W = Math.max(320, Math.round(r.width));
       H = Math.max(320, Math.round(r.height));
-      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      /* Tope de 1.5 a propósito: esto son halos difusos, no tipografía.
+         A 2x se pagaba el doble de relleno por cuadro sin diferencia
+         visible, y era lo que hundía los fps en pantallas grandes. */
+      DPR = Math.min(window.devicePixelRatio || 1, 1.5);
       canvas.width = Math.round(W * DPR);
       canvas.height = Math.round(H * DPR);
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
@@ -176,15 +251,44 @@
         BY = 0.21 * H; BH = 0.50 * H;
       }
 
+      /* El desvanecido del borde, que antes era una mask CSS. En
+         destination-out el alfa del degradado BORRA, así que va al
+         revés que la máscara: opaco donde queremos que desaparezca. */
+      if (small) {
+        gMask = ctx.createLinearGradient(0, 0, 0, H * 0.45);
+        gMask.addColorStop(0.00, "rgba(0,0,0,1)");
+        gMask.addColorStop(0.53, "rgba(0,0,0,.65)");
+        gMask.addColorStop(0.98, "rgba(0,0,0,0)");
+      } else {
+        gMask = ctx.createLinearGradient(0, 0, W * 0.25, 0);
+        gMask.addColorStop(0.00, "rgba(0,0,0,1)");
+        gMask.addColorStop(0.40, "rgba(0,0,0,.55)");
+        gMask.addColorStop(0.96, "rgba(0,0,0,0)");
+      }
+
       gFill = ctx.createLinearGradient(0, BY, 0, BY + BH);
-      gFill.addColorStop(0, "rgba(69,174,229,.38)");
-      gFill.addColorStop(0.55, "rgba(69,174,229,.18)");
-      gFill.addColorStop(1, "rgba(69,174,229,.02)");
+      gFill.addColorStop(0, "rgba(69,174,229,.22)");
+      gFill.addColorStop(0.6, "rgba(69,174,229,.07)");
+      gFill.addColorStop(1, "rgba(69,174,229,0)");
       gLine = ctx.createLinearGradient(BX, 0, BX + BW, 0);
-      gLine.addColorStop(0, "rgba(26,98,201,.55)");
-      gLine.addColorStop(0.5, "#2E86D4");
-      gLine.addColorStop(1, "#45AEE5");
+      gLine.addColorStop(0, "rgba(46,134,212,.85)");
+      gLine.addColorStop(0.55, "#58C2EE");
+      gLine.addColorStop(1, "#AEE9FF");
     }
+
+    function px(i) { return BX + SX[i] * BW; }
+    function py(i) { return BY + BH - SY[i] * BH; }
+
+    /* ---------------- interacción ---------------- */
+    var mxT = -1, myT = 0, mx = -1, my = 0, hov = 0, hovT = 0;
+    if (fine) {
+      hero.addEventListener("pointermove", function (e) {
+        var r = hero.getBoundingClientRect();
+        mxT = e.clientX - r.left; myT = e.clientY - r.top; hovT = 1;
+      });
+      hero.addEventListener("pointerleave", function () { hovT = 0; });
+    }
+
 
     function px(i) { return BX + SX[i] * BW; }
     function py(i) { return BY + BH - SY[i] * BH; }
@@ -204,7 +308,7 @@
     function draw(t, dt) {
       /* Avance: marcha propia al entrar, y el scroll la empuja */
       var sc = Math.min(1, (window.scrollY || 0) / Math.max(1, window.innerHeight * 0.9));
-      progT = Math.min(1, t / 2.6 + sc * 0.5);
+      progT = Math.min(1, t / 2.8 + sc * 0.5);
       prog += (progT - prog) * Math.min(1, dt * 3.2);
       energy += (sc - energy) * Math.min(1, dt * 2);
       hov += (hovT - hov) * Math.min(1, dt * 5);
@@ -212,141 +316,233 @@
       else { mx += (mxT - mx) * Math.min(1, dt * 7); my += (myT - my) * Math.min(1, dt * 7); }
 
       ctx.clearRect(0, 0, W, H);
-      /* Paralaje mínima: el conjunto respira con el puntero */
-      var ox = fine && hovT ? (mx / W - 0.5) * -10 : 0;
-      var oy = fine && hovT ? (my / H - 0.5) * -6 : 0;
+
+      var ox = fine && hovT ? (mx / W - 0.5) * -14 : 0;
+      var oy = fine && hovT ? (my / H - 0.5) * -8 : 0;
+
+      /* ---- el cielo ----
+         Va con su propia paralaje, más corta que la del gráfico: eso
+         es lo que da la sensación de profundidad entre las dos capas. */
+      /* El cielo respeta la columna de texto. El mismo borde que ya
+         calcula layout() contra el titular y los botones sirve acá:
+         las estrellas se apagan antes de llegar y entran de a poco,
+         así no queda un corte recto donde terminan. */
+      var sop = Math.min(1, t / 1.1);
+      var lim = small ? BY : BX;
+      var feather = small ? H * 0.10 : W * 0.10;
+      ctx.fillStyle = "#CFE8FA";
+      for (var si = 0; si < STARS.length; si++) {
+        var st = STARS[si];
+        var sx = st.x * W + ox * 0.35, sy = st.y * H + oy * 0.35;
+        var room = (small ? sy : sx) - lim;
+        if (room < 0) continue;
+        var edge = Math.min(1, room / feather);
+        var tw = 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(t * st.sp + st.ph));
+        ctx.globalAlpha = tw * 0.55 * sop * edge;
+        var sr = st.r;
+        ctx.fillRect(sx - sr, sy - sr, sr * 2, sr * 2);
+      }
+      ctx.globalAlpha = 1;
+
       ctx.save();
       ctx.translate(ox, oy);
 
       var base = BY + BH;
       var cut = BX + BW * prog;
 
-      /* --- retícula y eje: la medida --- */
-      var gridA = 0.05 + 0.03 * energy;
+      /* ---- la retícula: el instrumento ----
+         Marcas de escala sin números. Un gráfico decorativo con cifras
+         en los ejes se lee como dato real, y acá no hay dato que
+         respaldar. */
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(3,29,64," + gridA.toFixed(3) + ")";
-      for (var g = 1; g <= 4; g++) {
-        var gy = BY + BH * (g / 5);
+      ctx.strokeStyle = "rgba(127,203,240," + (0.07 + 0.05 * energy).toFixed(3) + ")";
+      for (var g = 1; g <= 5; g++) {
+        var gy = BY + BH * (g / 6);
         ctx.beginPath(); ctx.moveTo(BX, gy); ctx.lineTo(BX + BW, gy); ctx.stroke();
       }
-      ctx.strokeStyle = "rgba(3,29,64,.16)";
+      for (var v = 1; v < 14; v++) {
+        var gx = BX + BW * (v / 14);
+        ctx.beginPath(); ctx.moveTo(gx, BY); ctx.lineTo(gx, base); ctx.stroke();
+      }
+      ctx.strokeStyle = "rgba(127,203,240,.26)";
       ctx.beginPath(); ctx.moveTo(BX, base); ctx.lineTo(BX + BW, base); ctx.stroke();
-
-      /* --- la recta de lo esperado: la curva la cruza y la deja atrás --- */
-      ctx.save();
-      ctx.setLineDash([3, 6]);
-      ctx.strokeStyle = "rgba(3,29,64,.2)";
-      ctx.beginPath();
-      ctx.moveTo(px(0), py(0));
-      ctx.lineTo(px(N - 1), py(N - 1));
-      ctx.stroke();
-      ctx.restore();
+      ctx.beginPath(); ctx.moveTo(BX, BY); ctx.lineTo(BX, base); ctx.stroke();
+      ctx.strokeStyle = "rgba(127,203,240,.34)";
+      for (var tk = 0; tk <= 14; tk++) {
+        var tx2 = BX + BW * (tk / 14);
+        ctx.beginPath(); ctx.moveTo(tx2, base); ctx.lineTo(tx2, base + 5); ctx.stroke();
+      }
+      for (var tk2 = 0; tk2 <= 6; tk2++) {
+        var ty2 = BY + BH * (tk2 / 6);
+        ctx.beginPath(); ctx.moveTo(BX - 5, ty2); ctx.lineTo(BX, ty2); ctx.stroke();
+      }
 
       /* Todo lo trazado se revela de izquierda a derecha */
       ctx.save();
       ctx.beginPath();
-      ctx.rect(BX - 2, BY - BH * 0.3, Math.max(0, cut - BX + 2), BH * 1.6);
+      ctx.rect(BX - 3, BY - BH * 0.45, Math.max(0, cut - BX + 3), BH * 1.9);
       ctx.clip();
 
-      /* --- área bajo la curva: el macizo --- */
+      /* ---- las series de fondo ----
+         Vagabundean con ruido suave: nunca se quedan quietas, que es
+         lo que mantiene el cuadro vivo cuando ya terminó de entrar. */
+      for (var k = 0; k < SER.length; k++) {
+        var S = SER[k], n = S.length;
+        var dim = k === 0 ? 0.36 : 0.24;
+        ctx.beginPath();
+        for (var i = 0; i < n; i++) {
+          var p = S[i];
+          var yv = p.base + p.amp * wob(i, t, p.s1, p.s2);
+          var X = BX + p.u * BW, Y = BY + BH - yv * BH;
+          i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+        }
+        ctx.strokeStyle = k === 0 ? "rgba(88,194,238," + dim + ")" : "rgba(46,134,212," + dim + ")";
+        ctx.lineWidth = 1.1;
+        ctx.lineJoin = "miter"; ctx.miterLimit = 4;
+        ctx.stroke();
+
+        /* nodos de las secundarias: chicos, apenas encendidos */
+        for (var i2 = 0; i2 < n; i2 += 2) {
+          var p2 = S[i2];
+          var yv2 = p2.base + p2.amp * wob(i2, t, p2.s1, p2.s2);
+          var X2 = BX + p2.u * BW, Y2 = BY + BH - yv2 * BH;
+          var tw2 = 0.5 + 0.5 * Math.sin(t * 1.6 + i2 * 0.8 + k * 2);
+          glow(X2, Y2, 6 + 3 * tw2, (0.09 + 0.12 * tw2) * dim * 2);
+          ctx.globalAlpha = (0.5 + 0.3 * tw2) * dim;
+          ctx.beginPath(); ctx.arc(X2, Y2, 1.5, 0, 6.2832);
+          ctx.fillStyle = "#BEE9FF"; ctx.fill();
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      /* ---- el macizo bajo la serie del isotipo ---- */
       ctx.beginPath();
       ctx.moveTo(px(0), base);
-      for (var i = 0; i < N; i++) ctx.lineTo(px(i), py(i));
+      for (var a1 = 0; a1 < N; a1++) ctx.lineTo(px(a1), py(a1));
       ctx.lineTo(px(N - 1), base);
       ctx.closePath();
       ctx.fillStyle = gFill;
-      ctx.globalAlpha = 0.72 + 0.28 * energy;
+      ctx.globalAlpha = 0.8 + 0.2 * energy;
       ctx.fill();
       ctx.globalAlpha = 1;
 
-      /* --- el trazo ---
-         Ancho constante y uniones en punta. La cinta de ancho
-         variable que había antes desplazaba cada borde según la
-         pendiente, y eso redondeaba justo las esquinas que tienen
-         que verse. */
+      /* ---- el trazo de la marca ----
+         Va dos veces: un pase ancho y translúcido que hace de halo, y
+         encima el trazo nítido. Es el mismo truco del sprite: dos
+         rellenos baratos en lugar de un blur caro. */
       ctx.beginPath();
       ctx.moveTo(px(0), py(0));
       for (var j = 1; j < N; j++) ctx.lineTo(px(j), py(j));
+      ctx.lineJoin = "miter"; ctx.miterLimit = 6; ctx.lineCap = "round";
+      ctx.strokeStyle = "rgba(110,208,246,.22)";
+      ctx.lineWidth = 11; ctx.stroke();
       ctx.strokeStyle = gLine;
-      ctx.lineWidth = 2.4;
-      ctx.lineJoin = "miter";
-      ctx.miterLimit = 6;
-      ctx.lineCap = "butt";
-      ctx.stroke();
+      ctx.lineWidth = 3; ctx.lineCap = "butt"; ctx.stroke();
       ctx.restore();
 
-      /* --- marcadores: cada caída remontada --- */
-      for (var k = 0; k < MARKS.length; k++) {
-        var mi = MARKS[k];
-        var a = sstep(0, 0.04, prog - SX[mi]);
-        if (a <= 0) continue;
-        ctx.globalAlpha = a;
-        ctx.beginPath();
-        ctx.arc(px(mi), py(mi), 3.6, 0, 6.2832);
-        ctx.fillStyle = "#fff"; ctx.fill();
-        ctx.lineWidth = 1.8; ctx.strokeStyle = "rgba(46,134,212,.85)"; ctx.stroke();
+      /* ---- los nodos de la serie principal ----
+         Encienden al pasar el trazado y después laten. El que está
+         bajo el cursor se agranda: la constelación responde. */
+      for (var m = 0; m < N; m++) {
+        var ap = sstep(0, 0.035, prog - SX[m]);
+        if (ap <= 0) continue;
+        var nx = px(m), ny = py(m);
+        var beat = 0.5 + 0.5 * Math.sin(t * 1.9 + m * 0.55);
+        var near = 0;
+        if (hov > 0.01) {
+          var d = Math.abs(nx - (mx - ox)) + Math.abs(ny - (my - oy)) * 0.6;
+          near = hov * Math.max(0, 1 - d / 150);
+        }
+        glow(nx, ny, (9 + 5 * beat + 16 * near), ap * (0.3 + 0.2 * beat + 0.5 * near));
+        ctx.globalAlpha = ap;
+        ctx.beginPath(); ctx.arc(nx, ny, 2 + 0.5 * beat + 1.6 * near, 0, 6.2832);
+        ctx.fillStyle = "#EAF8FF"; ctx.fill();
         ctx.globalAlpha = 1;
       }
 
-      /* --- la cumbre --- */
+      /* ---- el barrido ----
+         Un pulso recorre la serie cada tantos segundos y va
+         encendiendo los nodos a su paso. Es lo que le da dirección al
+         movimiento: sin él, el latido es ruido parejo. */
+      if (prog > 0.985) {
+        var sw = (t * 0.26) % 1.6;
+        if (sw < 1) {
+          var su = sw, sy = 0, found = false;
+          for (var q = 0; q < N - 1; q++) {
+            if (SX[q] <= su && su <= SX[q + 1]) {
+              var ft2 = (su - SX[q]) / (SX[q + 1] - SX[q]);
+              sy = py(q) + (py(q + 1) - py(q)) * ft2; found = true; break;
+            }
+          }
+          if (found) {
+            var sx2 = BX + su * BW;
+            var fade = Math.sin(su * 3.1416);
+            glow(sx2, sy, 34, 0.5 * fade);
+            ctx.globalAlpha = 0.9 * fade;
+            ctx.beginPath(); ctx.arc(sx2, sy, 3, 0, 6.2832);
+            ctx.fillStyle = "#fff"; ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+
+      /* ---- la cumbre ---- */
       var ta = sstep(0, 0.05, prog - SX[TOP]);
       if (ta > 0) {
         var tx = px(TOP), ty = py(TOP);
-        var pulse = 1 + Math.sin(t * 1.5) * 0.12;
-        ctx.globalAlpha = ta * 0.3;
-        ctx.beginPath(); ctx.arc(tx, ty, 13 * pulse, 0, 6.2832);
-        ctx.strokeStyle = "#45AEE5"; ctx.lineWidth = 1.4; ctx.stroke();
+        var pulse = 1 + Math.sin(t * 1.5) * 0.14;
+        glow(tx, ty, 30 * pulse, ta * 0.55);
+        ctx.globalAlpha = ta * 0.4;
+        ctx.beginPath(); ctx.arc(tx, ty, 14 * pulse, 0, 6.2832);
+        ctx.strokeStyle = "#8FD9FA"; ctx.lineWidth = 1.3; ctx.stroke();
         ctx.globalAlpha = ta;
-        ctx.beginPath(); ctx.arc(tx, ty, 5.6, 0, 6.2832);
+        ctx.beginPath(); ctx.arc(tx, ty, 4.4, 0, 6.2832);
         ctx.fillStyle = "#fff"; ctx.fill();
-        ctx.lineWidth = 2.6; ctx.strokeStyle = "#45AEE5"; ctx.stroke();
         ctx.globalAlpha = 1;
       }
 
-      /* --- la cabeza del trazo mientras avanza --- */
+      /* ---- la cabeza del trazo mientras avanza ---- */
       if (prog < 0.999) {
         var hi = Math.max(0, Math.min(N - 1, Math.round(prog * (N - 1))));
-        var hx = px(hi), hy = py(hi);
-        var rg = ctx.createRadialGradient(hx, hy, 0, hx, hy, 26);
-        rg.addColorStop(0, "rgba(69,174,229,.5)");
-        rg.addColorStop(1, "rgba(69,174,229,0)");
-        ctx.fillStyle = rg;
-        ctx.beginPath(); ctx.arc(hx, hy, 26, 0, 6.2832); ctx.fill();
-        ctx.beginPath(); ctx.arc(hx, hy, 3.4, 0, 6.2832);
+        glow(px(hi), py(hi), 30, 0.75);
+        ctx.beginPath(); ctx.arc(px(hi), py(hi), 3, 0, 6.2832);
         ctx.fillStyle = "#fff"; ctx.fill();
-        ctx.lineWidth = 2; ctx.strokeStyle = "#45AEE5"; ctx.stroke();
       }
 
-      /* --- lectura bajo el cursor ---
-         El punto se desliza SOBRE la línea: se busca el tramo donde
-         cae el cursor y se interpola dentro de él. Engancharlo al
-         vértice más cercano lo hacía saltar de dato en dato. */
+      /* ---- lectura bajo el cursor ---- */
       if (hov > 0.01 && prog > 0.2) {
-        var u = (mx - ox - BX) / BW;
-        if (u > SX[0] && u < Math.min(prog, SX[N - 1])) {
-          var si = 0;
-          while (si < N - 2 && SX[si + 1] < u) si++;
-          var seg = SX[si + 1] - SX[si];
-          var ft = seg > 0 ? (u - SX[si]) / seg : 0;
-          var cx = px(si) + (px(si + 1) - px(si)) * ft;
-          var cy = py(si) + (py(si + 1) - py(si)) * ft;
-          ctx.globalAlpha = hov * 0.55;
+        var u2 = (mx - ox - BX) / BW;
+        if (u2 > SX[0] && u2 < Math.min(prog, SX[N - 1])) {
+          var ci = 0;
+          while (ci < N - 2 && SX[ci + 1] < u2) ci++;
+          var sg = SX[ci + 1] - SX[ci];
+          var fr = sg > 0 ? (u2 - SX[ci]) / sg : 0;
+          var cx = px(ci) + (px(ci + 1) - px(ci)) * fr;
+          var cy = py(ci) + (py(ci + 1) - py(ci)) * fr;
+          ctx.globalAlpha = hov * 0.5;
           ctx.save();
           ctx.setLineDash([2, 5]);
-          ctx.strokeStyle = "rgba(3,29,64,.45)";
-          ctx.lineWidth = 1;
+          ctx.strokeStyle = "rgba(143,217,250,.6)"; ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(cx, base); ctx.lineTo(cx, cy); ctx.stroke();
           ctx.restore();
+          glow(cx, cy, 26, hov * 0.6);
           ctx.globalAlpha = hov;
-          ctx.beginPath(); ctx.arc(cx, cy, 4.6, 0, 6.2832);
-          ctx.fillStyle = "#031D40"; ctx.fill();
-          ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 6.2832);
-          ctx.strokeStyle = "rgba(69,174,229,.7)"; ctx.lineWidth = 1.4; ctx.stroke();
+          ctx.beginPath(); ctx.arc(cx, cy, 4.2, 0, 6.2832);
+          ctx.fillStyle = "#fff"; ctx.fill();
           ctx.globalAlpha = 1;
         }
       }
 
       ctx.restore();
+
+      /* El borrado va SOLO sobre la franja que se desvanece. Pintarlo
+         sobre todo el lienzo costaba lo mismo que la máscara CSS que
+         vinimos a sacar: el ahorro está en el área, no en la técnica. */
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = gMask;
+      if (small) ctx.fillRect(0, 0, W, H * 0.45);
+      else ctx.fillRect(0, 0, W * 0.25, H);
+      ctx.globalCompositeOperation = "source-over";
     }
 
     layout();

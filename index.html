@@ -36,10 +36,15 @@
 <meta name="twitter:image" content="https://maurotondato.github.io/i-akiweb/assets/brand/og-cover.jpg?v=1">
 
 <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
+<!-- iOS ignora el favicon SVG: usa este cuando alguien guarda la web
+     en la pantalla de inicio. Va con fondo opaco a propósito, porque
+     iOS rellena de negro cualquier transparencia. -->
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Iñaki Etchegaray">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css?v=20261032">
+<link rel="stylesheet" href="styles.css?v=20261039">
 </head>
 <body>
 
@@ -58,7 +63,11 @@
 
 <nav class="nav" data-nav>
   <a class="brand" href="#top" aria-label="Iñaki Etchegaray, inicio">
-    <img src="assets/brand/logo-celeste.webp" alt="Iñaki Etchegaray — Coach deportivo" width="1200" height="583">
+    <!-- Dos versiones del logo: la blanca mientras el nav está sobre
+         el hero oscuro, la de color cuando el nav se vuelve sólido.
+         Se cruzan con opacidad, así no hay parpadeo de carga. -->
+    <img class="brand-dark" src="assets/brand/logo-blanco.webp" alt="Iñaki Etchegaray — Coach deportivo" width="1200" height="583">
+    <img class="brand-light" src="assets/brand/logo-celeste.webp" alt="" aria-hidden="true" width="1200" height="583">
   </a>
   <div class="nav-links">
     <a href="#metodo">Método</a>
@@ -498,9 +507,9 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261032"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261032"></script>
-<script defer src="hero.js?v=20261032"></script>
-<script defer src="main.js?v=20261032"></script>
+<script defer src="lib/gsap.min.js?v=20261039"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261039"></script>
+<script defer src="hero.js?v=20261039"></script>
+<script defer src="main.js?v=20261039"></script>
 </body>
 </html>
