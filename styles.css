@@ -148,14 +148,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .hero-grid{position:relative;z-index:3;display:grid;grid-template-columns:1.06fr .94fr;
   gap:clamp(20px,3vw,48px);align-items:center;max-width:1320px;margin:0 auto;width:100%;padding-inline:var(--gut)}
 .hero-copy{display:flex;flex-direction:column;gap:clamp(18px,2.2vw,28px);align-items:flex-start;will-change:transform}
-/* ---- el hero, sobre oscuro ---- */
 .hero-kicker{color:var(--cel-lt)}
-.hero-title{color:#fff}
-.hero-title em{color:var(--cel)}
-.hero-sub{color:#BCCFE1}
-.hero .btn-ghost{color:#fff;border-color:rgba(255,255,255,.42);background:transparent}
-@media (hover:hover) and (pointer:fine){
-  .hero .btn-ghost:hover{border-color:var(--cel);color:var(--cel-lt)}}
 /* Sin backdrop-filter: encima de un canvas que repinta cada cuadro,
    el desenfoque del fondo se recalcula 60 veces por segundo. Un navy
    translúcido da el mismo efecto de vidrio y no cuesta nada. */
@@ -168,6 +161,20 @@ ul,ol{margin:0;padding:0;list-style:none}
 .hero-title em{font-style:normal;color:var(--cel-dk)}
 .hero-sub{font-size:clamp(16px,1.3vw,18.5px);line-height:1.6;color:var(--mute);max-width:42ch}
 .hero-actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+
+/* ---- el hero, sobre oscuro ----
+   Va DESPUÉS de las reglas base a propósito. Cuando este bloque
+   estaba antes, la base .hero-sub{color:var(--mute)} lo pisaba por
+   orden -misma especificidad, gana la última- y la bajada se seguía
+   pintando en gris oscuro: 2.18:1 de contraste sobre el navy, por
+   debajo del 4.5 que pide WCAG. El mismo tono que el cuerpo de CIMA
+   mide 7:1 sobre este fondo. */
+.hero-title{color:#fff}
+.hero-title em{color:var(--cel)}
+.hero-sub{color:#A7BCD2}
+.hero .btn-ghost{color:#fff;border-color:rgba(255,255,255,.42);background:transparent}
+@media (hover:hover) and (pointer:fine){
+  .hero .btn-ghost:hover{border-color:var(--cel);color:var(--cel-lt)}}
 .hero-media{position:relative;will-change:transform;display:flex;justify-content:center;
   align-items:flex-end;height:min(70svh,660px);isolation:isolate}
 /* Lo que despega la figura del gráfico de fondo. Reemplaza al
@@ -223,14 +230,17 @@ ul,ol{margin:0;padding:0;list-style:none}
    aparece dos veces, uno encima del otro. */
 /* El gap va también en el contenedor: entre la pista y su clon no
    había separación y el primer club quedaba pegado al rombo. */
+/* En blanco a propósito: separa el hero oscuro de la sección CIMA,
+   que también es navy. Sin este corte el arranque de la página era
+   una sola tirada azul. */
 .marquee{position:relative;overflow:hidden;display:flex;flex-wrap:nowrap;gap:30px;
-  background:var(--ink);color:#fff;padding:17px 0}
+  background:#fff;color:var(--ink);padding:18px 0}
 .marquee::before,.marquee::after{content:"";position:absolute;top:0;bottom:0;width:90px;z-index:2;pointer-events:none}
-.marquee::before{left:0;background:linear-gradient(90deg,var(--ink),transparent)}
-.marquee::after{right:0;background:linear-gradient(270deg,var(--ink),transparent)}
+.marquee::before{left:0;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}
+.marquee::after{right:0;background:linear-gradient(270deg,#fff,rgba(255,255,255,0))}
 .marquee-track{display:inline-flex;flex:none;gap:30px;white-space:nowrap;will-change:transform;align-items:center}
 .marquee-track span{font-family:var(--cond);font-size:15px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
-.marquee-track i{color:var(--cel);font-size:9px;font-style:normal}
+.marquee-track i{color:var(--cel-dk);font-size:9px;font-style:normal}
 
 /* ---------------- MÉTODO CIMA ----------------
    Índice C·I·M·A siempre visible arriba + montaña que se llena.
