@@ -579,6 +579,12 @@ ul,ol{margin:0;padding:0;list-style:none}
 .ci-k{fill:none;stroke:var(--ico-bg);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
 .ci-k2{stroke-width:2.6}
 .ci-kf{fill:var(--ico-bg);stroke:none}
+/* La pelota de fútbol va al revés que las otras: los gajos oscuros
+   sobre el fondo, como es de verdad. El aro y las costuras comparten
+   grosor para que el dibujo se lea como una sola pieza. */
+.ci-o{fill:none;stroke:url(#gIco);stroke-width:2.8;stroke-linejoin:round}
+/* Encordado: una malla fina calada sobre el marco macizo. */
+.ci-cu{fill:none;stroke:var(--ico-bg);stroke-width:1.3}
 
 /* Entran subiendo, como la montaña de CIMA cuando se llena. El estado
    final del keyframe recorta por fuera de la caja para no comerse el
