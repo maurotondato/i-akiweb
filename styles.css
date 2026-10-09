@@ -258,6 +258,11 @@ ul,ol{margin:0;padding:0;list-style:none}
   color:rgba(255,255,255,.3);transition:color .5s var(--ease-out)}
 .cima-index span{font-family:var(--cond);font-size:clamp(12px,1.1vw,14px);font-weight:600;letter-spacing:.2em;
   text-transform:uppercase;color:rgba(255,255,255,.34);transition:color .5s var(--ease-out)}
+.cima-index li{cursor:pointer;user-select:none}
+.cima-index li:focus-visible{outline:2px solid var(--cel);outline-offset:3px}
+@media (hover:hover) and (pointer:fine){
+  .cima-index li:hover{border-color:rgba(69,174,229,.55);transform:translateY(-2px)}
+  .cima-index li:hover b,.cima-index li:hover span{color:#fff}}
 .cima-index li.is-on{background:rgba(69,174,229,.14);border-color:var(--cel);transform:translateY(-2px)}
 .cima-index li.is-on b{color:var(--cel)}
 .cima-index li.is-on span{color:#fff}
@@ -571,6 +576,41 @@ ul,ol{margin:0;padding:0;list-style:none}
 
    Son animaciones CSS y no rAF: corren fuera del hilo principal, así
    que no pueden trabarse mientras la página sigue cargando. */
+/* ---- "¿Para quiénes?" en teléfono ----
+   Apiladas en vertical, las tres tarjetas pedían 2,2 pantallas: nunca
+   se veían juntas, y la idea de la sección es justamente que se
+   entienda de un vistazo que hay TRES formas de entrar.
+
+   Pasan a fila: ícono a la izquierda, título y texto a la derecha, y
+   el texto plegado a dos líneas. Se toca y se abre. Así las tres
+   entran juntas y el detalle sigue estando para quien lo quiera. */
+@media (max-width:620px){
+  .aud{padding-block:clamp(44px,9vw,64px)}
+  .aud-lead{font-size:15px;line-height:1.5}
+  .aud-grid{gap:10px}
+  .aud-card{display:grid;grid-template-columns:46px 1fr;gap:0 14px;
+    align-items:start;padding:14px 15px}
+  .aud-n{grid-column:2;font-size:11px;letter-spacing:.24em;margin-bottom:1px}
+  .aud-ico{grid-column:1;grid-row:1 / span 3;width:46px;height:46px;margin:2px 0 0}
+  .aud-card h3{grid-column:2;font-size:19px;margin-bottom:3px}
+  .aud-card p{grid-column:2;font-size:14px;line-height:1.5;
+    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+  .aud-card.is-open p{-webkit-line-clamp:unset;overflow:visible}
+
+  /* La flecha avisa que hay más abajo; gira al abrir. */
+  .aud-more{position:absolute;right:12px;bottom:10px;width:20px;height:20px;
+    border:0;background:none;padding:0;color:var(--cel-dk);
+    display:grid;place-items:center;cursor:pointer;
+    transition:transform .32s var(--ease-out)}
+  .aud-more svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;
+    stroke-linecap:round;stroke-linejoin:round}
+  .aud-card.is-open .aud-more{transform:rotate(180deg)}
+  .aud-card{position:relative;padding-bottom:26px}
+}
+/* En pantallas donde las tres ya entran, la tarjeta es la de siempre
+   y el texto va completo. */
+@media (min-width:621px){ .aud-more{display:none} }
+
 @media (max-width:980px){
   .why-n{display:block;overflow:hidden;line-height:1}
   .why-n i{display:block}
@@ -634,7 +674,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .voice footer{display:flex;align-items:center;gap:13px;padding-top:18px;border-top:1px solid var(--hair)}
 .voice-ini{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;
   background:var(--ink);color:var(--cel);font-family:var(--display);font-size:14px;letter-spacing:-.02em}
-.voice-name{font-family:var(--cond);font-size:16px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.voice-who{display:flex;flex-direction:column;gap:3px;min-width:0}
+.voice-name{font-family:var(--cond);font-size:16px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  line-height:1.1}
+.voice-sport{font-size:13px;line-height:1.3;color:var(--mute);letter-spacing:.01em}
+
 @media (max-width:900px){.voices-grid{grid-template-columns:1fr}}
 
 /* PROGRAMAS */

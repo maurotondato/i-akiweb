@@ -292,6 +292,24 @@
     });
   }
 
+  /* ---------------- "¿PARA QUIÉNES?": PLEGAR EN TELÉFONO ----------------
+     En teléfono el texto de cada tarjeta va plegado a dos líneas para
+     que las tres entren juntas. Esto lo abre. El plegado lo hace el
+     CSS, así que si este script no corre el texto se ve igual: no hay
+     forma de que quede contenido inaccesible. */
+  function initAudMore() {
+    document.querySelectorAll(".aud-card").forEach(function (card) {
+      var btn = card.querySelector(".aud-more");
+      if (!btn) return;
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var abierto = card.classList.toggle("is-open");
+        btn.setAttribute("aria-expanded", abierto ? "true" : "false");
+        btn.setAttribute("aria-label", abierto ? "Ver menos" : "Ver más");
+      });
+    });
+  }
+
   /* ---------------- MARQUEE ---------------- */
   function initMarquee() {
     if (!hasGSAP) return;
@@ -450,7 +468,21 @@
     }
 
     render(0);
-    ScrollTrigger.create({
+
+    /* El índice, como atajo SIN mover el scroll.
+       La sección se recorre scrolleando, pero son cuatro pantallas:
+       quien no quiere recorrerlas tiene que poder ver cada paso.
+
+       La primera versión saltaba el scroll al punto del tramo. No
+       sirve: saltar dentro de un rango pinneado deja a ScrollTrigger
+       con el spacer a medio acomodar y el rango inválido -medido,
+       [959,4019] quedaba en [-1588,1472]- y la sección se trababa en
+       el último paso. Acá el click no mueve la página: fija el paso y
+       lo dibuja. El scroll recupera el mando apenas el visitante se
+       mueve, así que las dos formas de recorrer conviven. */
+    var fijado = null;
+
+    var st = ScrollTrigger.create({
       trigger: sec,
       start: "top top",
       end: function () { return "+=" + window.innerHeight * 3.4; },
@@ -458,9 +490,39 @@
       scrub: 0.6,
       anticipatePin: 1,
       invalidateOnRefresh: true,
-      onUpdate: function (self) { render(self.progress); },
-      onRefresh: function (self) { render(self.progress); }
+      onUpdate: function (self) { if (fijado === null) render(self.progress); },
+      onRefresh: function (self) { if (fijado === null) render(self.progress); }
     });
+
+    function soltar() {
+      if (fijado === null) return;
+      fijado = null;
+      render(st.progress);
+    }
+    window.addEventListener("wheel", soltar, { passive: true });
+    window.addEventListener("touchmove", soltar, { passive: true });
+    window.addEventListener("keydown", function (e) {
+      if (/^(Arrow|Page|Home|End| )/.test(e.key)) soltar();
+    });
+
+    steps.forEach(function (el, i) {
+      el.setAttribute("role", "button");
+      el.setAttribute("tabindex", "0");
+      el.setAttribute("aria-label", "Ver el paso " + (i + 1) + ": " +
+        (el.querySelector("span") ? el.querySelector("span").textContent : ""));
+      function ver(e) {
+        e.preventDefault();
+        fijado = i;
+        render((i + 0.5) / 4);
+      }
+      el.addEventListener("click", ver);
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") ver(e);
+      });
+    });
+
+    var ol = sec.querySelector(".cima-index");
+    if (ol) ol.removeAttribute("aria-hidden");
   }
 
   /* ---------------- PROGRAMAS: brillo que sigue al mouse ---------------- */
@@ -525,6 +587,7 @@
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
     safe(initCountUp, "countup");
+    safe(initAudMore, "audMore");
     safe(initWhyScroll, "whyScroll");
     safe(initWaForm, "waForm");
     safe(initMarquee, "marquee");
