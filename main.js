@@ -538,10 +538,9 @@
     var items = document.querySelectorAll("[data-gal]");
     if (!items.length) return;
 
-    if (!hasGSAP || reduced) {
-      items.forEach(function (it) { it.classList.add("is-in"); });
-      return;
-    }
+    /* Sin GSAP o con el movimiento reducido no hay nada que hacer: el
+       telón ya nace apagado en el CSS y las fotos se ven tal cual. */
+    if (!hasGSAP || reduced) return;
 
     var fino = matchMedia("(hover:hover) and (pointer:fine)").matches;
 
@@ -554,10 +553,7 @@
       gsap.set(telon, { scaleY: 1, transformOrigin: "bottom center" });
       gsap.set(img, { scale: 1.18, transformOrigin: "50% 50%" });
 
-      gsap.timeline({
-        scrollTrigger: { trigger: it, start: "top 88%", once: true },
-        onStart: function () { it.classList.add("is-in"); }
-      })
+      gsap.timeline({ scrollTrigger: { trigger: it, start: "top 88%", once: true } })
         .to(telon, { scaleY: 0, duration: .95, ease: "power3.inOut" })
         .to(img, { scale: 1, duration: 1.5, ease: "power3.out" }, .12)
         .set(telon, { display: "none" });

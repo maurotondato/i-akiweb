@@ -565,24 +565,36 @@ ul,ol{margin:0;padding:0;list-style:none}
 .cv-list b{font-size:16px;font-weight:700;letter-spacing:-.012em;line-height:1.35}
 .cv-list span{font-size:14.5px;line-height:1.55;color:var(--mute)}
 .cv-clubs b{font-family:var(--cond);font-size:14px;font-weight:600;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--cel-dk);display:flex;align-items:center;gap:9px}
-/* Íconos propios, en el mismo lenguaje de línea que los de
-   "¿Para quiénes?": trazo redondeado, sin relleno y en celeste, que
-   heredan con currentColor del rótulo. Se dibujan solos cuando la
-   columna entra en pantalla, como el resto de los íconos del sitio. */
-.cv-ico{width:26px;height:26px;flex:none;display:block;overflow:visible}
-.ci-l{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;
-  stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
-.ci-b{stroke-width:1.5}
-.cv-col.is-in .ci-l{animation:ciDraw .85s var(--ease-out) forwards}
-.cv-col.is-in li:nth-child(1) .ci-l{animation-delay:.10s}
-.cv-col.is-in li:nth-child(2) .ci-l{animation-delay:.20s}
-.cv-col.is-in li:nth-child(3) .ci-l{animation-delay:.30s}
-.cv-col.is-in li:nth-child(4) .ci-l{animation-delay:.40s}
-.cv-col.is-in li:nth-child(5) .ci-l{animation-delay:.50s}
-@keyframes ciDraw{to{stroke-dashoffset:0}}
+  text-transform:uppercase;color:var(--cel-dk);display:flex;align-items:center;gap:11px}
+/* Íconos de deporte: marcas sólidas con el mismo degradado que la
+   montaña de CIMA -#0B3A66 abajo, celeste arriba- y el detalle calado
+   en el color del fondo. A 34px una línea de 1,7 se pierde; el relleno
+   aguanta. El degradado está definido una sola vez en .ico-defs. */
+.ico-defs{position:absolute;width:0;height:0;overflow:hidden}
+.cv-clubs{--ico-bg:var(--paper)}
+.cv-ico{width:34px;height:34px;flex:none;display:block;overflow:visible}
+.ci-f{fill:url(#gIco);stroke:none}
+.ci-s{fill:none;stroke:url(#gIco);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.ci-gr{stroke-width:5.8}
+.ci-k{fill:none;stroke:var(--ico-bg);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
+.ci-k2{stroke-width:2.6}
+.ci-kf{fill:var(--ico-bg);stroke:none}
+
+/* Entran subiendo, como la montaña de CIMA cuando se llena. El estado
+   final del keyframe recorta por fuera de la caja para no comerse el
+   antialias, y el fill backwards deja el ícono intacto al terminar. */
+.cv-col.is-in .cv-ico{animation:icoSube .72s var(--ease-out) backwards}
+.cv-col.is-in li:nth-child(1) .cv-ico{animation-delay:.10s}
+.cv-col.is-in li:nth-child(2) .cv-ico{animation-delay:.19s}
+.cv-col.is-in li:nth-child(3) .cv-ico{animation-delay:.28s}
+.cv-col.is-in li:nth-child(4) .cv-ico{animation-delay:.37s}
+.cv-col.is-in li:nth-child(5) .cv-ico{animation-delay:.46s}
+@keyframes icoSube{
+  from{clip-path:inset(100% 0 0 0);opacity:0;transform:translateY(6px)}
+  to{clip-path:inset(-25% -25% -25% -25%);opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){
-  .ci-l{stroke-dashoffset:0;animation:none}
+  .cv-col.is-in .cv-ico{animation:none}
+}
 }
 .cv-note{font-size:14px;line-height:1.6;color:var(--mute);font-style:italic}
 /* ---- "¿Por qué elegirme?" en mobile ----
@@ -690,13 +702,7 @@ ul,ol{margin:0;padding:0;list-style:none}
    script no corre, las fotos se ven en vez de quedar tapadas. */
 .gal-telon{display:none;position:absolute;inset:0;z-index:3;background:var(--cel);
   pointer-events:none}
-.gal-item figcaption{position:absolute;left:0;right:0;bottom:0;z-index:2;
-  padding:42px 16px 14px;font-family:var(--cond);font-size:12.5px;font-weight:600;
-  letter-spacing:.16em;text-transform:uppercase;color:#fff;
-  background:linear-gradient(0deg,rgba(2,18,40,.86),rgba(2,18,40,.34) 52%,rgba(2,18,40,0));
-  opacity:0;transform:translateY(12px);
-  transition:opacity .6s var(--ease-out) .25s,transform .6s var(--ease-out) .25s}
-.gal-item.is-in figcaption{opacity:1;transform:none}
+
 /* Filo celeste al pasar el mouse. Va en ::after para no tocar el
    transform de la imagen, que lo maneja GSAP. */
 @media (hover:hover) and (pointer:fine){
@@ -712,13 +718,9 @@ ul,ol{margin:0;padding:0;list-style:none}
      comía una pantalla de tablet casi completa. */
   .gal-feat{aspect-ratio:3/2}
   .gal-item{border-radius:11px}
-  .gal-item figcaption{padding:32px 12px 11px;font-size:11px;letter-spacing:.13em}
 }
 @media (max-width:560px){
   .gal-feat{aspect-ratio:4/3}
-}
-@media (max-width:420px){
-  .gal-item figcaption{font-size:10px;padding:26px 10px 9px}
 }
 
 /* ---------------- UN PROCESO (sin foto) ---------------- */
