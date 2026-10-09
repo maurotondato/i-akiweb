@@ -240,6 +240,10 @@ ul,ol{margin:0;padding:0;list-style:none}
 .marquee::after{right:0;background:linear-gradient(270deg,#fff,rgba(255,255,255,0))}
 .marquee-track{display:inline-flex;flex:none;gap:30px;white-space:nowrap;will-change:transform;align-items:center}
 .marquee-track span{font-family:var(--cond);font-size:15px;font-weight:600;letter-spacing:.24em;text-transform:uppercase}
+.mq-club{display:inline-flex;align-items:center;gap:11px}
+/* Alto fijo y ancho libre: cada escudo tiene su proporción y lo que
+   tiene que coincidir entre todos es cuánto pesan en la fila. */
+.mq-crest{height:30px;width:auto;flex:none;display:block}
 .marquee-track i{color:var(--cel-dk);font-size:9px;font-style:normal}
 
 /* ---------------- MÉTODO CIMA ----------------
