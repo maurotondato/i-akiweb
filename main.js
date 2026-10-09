@@ -526,6 +526,61 @@
   }
 
   /* ---------------- PROGRAMAS: brillo que sigue al mouse ---------------- */
+  /* ---------------- GALERÍA ----------------
+     Cada tile entra con un TELÓN celeste que se repliega hacia abajo
+     mientras la foto, que arranca ampliada, se asienta. Después queda
+     paneando con el scroll dentro del marco.
+
+     El telón nace display:none en el CSS y lo prende el JS: si el
+     script no corre -o el navegador no trae GSAP- las fotos se ven
+     igual en vez de quedar tapadas por cinco rectángulos celestes. */
+  function initGaleria() {
+    var items = document.querySelectorAll("[data-gal]");
+    if (!items.length) return;
+
+    if (!hasGSAP || reduced) {
+      items.forEach(function (it) { it.classList.add("is-in"); });
+      return;
+    }
+
+    var fino = matchMedia("(hover:hover) and (pointer:fine)").matches;
+
+    items.forEach(function (it) {
+      var img = it.querySelector("[data-gal-img]");
+      var telon = it.querySelector(".gal-telon");
+      if (!img || !telon) return;
+
+      telon.style.display = "block";
+      gsap.set(telon, { scaleY: 1, transformOrigin: "bottom center" });
+      gsap.set(img, { scale: 1.18, transformOrigin: "50% 50%" });
+
+      gsap.timeline({
+        scrollTrigger: { trigger: it, start: "top 88%", once: true },
+        onStart: function () { it.classList.add("is-in"); }
+      })
+        .to(telon, { scaleY: 0, duration: .95, ease: "power3.inOut" })
+        .to(img, { scale: 1, duration: 1.5, ease: "power3.out" }, .12)
+        .set(telon, { display: "none" });
+
+      /* El paneo: la imagen mide 116% del marco, así que ±4% de su
+         propio alto son 4,6% del marco y sobra aire a los dos lados. */
+      gsap.fromTo(img, { yPercent: -4 }, {
+        yPercent: 4, ease: "none",
+        scrollTrigger: { trigger: it, start: "top bottom", end: "bottom top", scrub: .8 }
+      });
+
+      /* scale y yPercent son propiedades distintas: los dos tweens
+         conviven sobre la misma imagen sin pisarse. */
+      if (!fino) return;
+      it.addEventListener("mouseenter", function () {
+        gsap.to(img, { scale: 1.055, duration: .7, ease: "power3.out", overwrite: "auto" });
+      });
+      it.addEventListener("mouseleave", function () {
+        gsap.to(img, { scale: 1, duration: .85, ease: "power3.out", overwrite: "auto" });
+      });
+    });
+  }
+
   function initProgGlow() {
     if (!fine) return;
     document.querySelectorAll("[data-prog]").forEach(function (card) {
@@ -593,6 +648,7 @@
     safe(initMarquee, "marquee");
     safe(initMagnetic, "magnetic");
     safe(initProgGlow, "progGlow");
+    safe(initGaleria, "galeria");
     safe(initParallax, "parallax");
     safe(initCima, "cima");
     safe(initAnchors, "anchors");

@@ -565,7 +565,25 @@ ul,ol{margin:0;padding:0;list-style:none}
 .cv-list b{font-size:16px;font-weight:700;letter-spacing:-.012em;line-height:1.35}
 .cv-list span{font-size:14.5px;line-height:1.55;color:var(--mute)}
 .cv-clubs b{font-family:var(--cond);font-size:14px;font-weight:600;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--cel-dk)}
+  text-transform:uppercase;color:var(--cel-dk);display:flex;align-items:center;gap:9px}
+/* Íconos propios, en el mismo lenguaje de línea que los de
+   "¿Para quiénes?": trazo redondeado, sin relleno y en celeste, que
+   heredan con currentColor del rótulo. Se dibujan solos cuando la
+   columna entra en pantalla, como el resto de los íconos del sitio. */
+.cv-ico{width:26px;height:26px;flex:none;display:block;overflow:visible}
+.ci-l{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;
+  stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1}
+.ci-b{stroke-width:1.5}
+.cv-col.is-in .ci-l{animation:ciDraw .85s var(--ease-out) forwards}
+.cv-col.is-in li:nth-child(1) .ci-l{animation-delay:.10s}
+.cv-col.is-in li:nth-child(2) .ci-l{animation-delay:.20s}
+.cv-col.is-in li:nth-child(3) .ci-l{animation-delay:.30s}
+.cv-col.is-in li:nth-child(4) .ci-l{animation-delay:.40s}
+.cv-col.is-in li:nth-child(5) .ci-l{animation-delay:.50s}
+@keyframes ciDraw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){
+  .ci-l{stroke-dashoffset:0;animation:none}
+}
 .cv-note{font-size:14px;line-height:1.6;color:var(--mute);font-style:italic}
 /* ---- "¿Por qué elegirme?" en mobile ----
    En desktop cada tarjeta se presenta al pasarle el mouse por encima:
@@ -638,6 +656,69 @@ ul,ol{margin:0;padding:0;list-style:none}
   .about-frame{width:100%;max-width:420px;margin-inline:auto}
   .why-grid{grid-template-columns:1fr}
   .cv-wrap{grid-template-columns:1fr}
+}
+
+/* ============ GALERÍA ============
+   Franja oscura entre "Sobre mí" y "Un proceso": corta la tirada de
+   secciones claras y hace que las fotos salten hacia adelante.
+
+   Cada tile es un marco que recorta. Adentro hay dos cosas animadas:
+   la imagen, que panea con el scroll, y un TELÓN celeste que se
+   levanta cuando el tile entra en pantalla. El telón es un <span> y
+   no un ::after porque GSAP necesita un nodo para animarlo. */
+.gal{background:var(--ink);color:#fff;padding-block:clamp(70px,10vw,124px);overflow:hidden}
+.gal-head{display:flex;flex-direction:column;gap:14px;margin-bottom:clamp(30px,4vw,54px)}
+.gal-title{font-family:var(--display);font-size:clamp(32px,5vw,64px);line-height:1.02;
+  letter-spacing:-.045em;max-width:18ch}
+
+.gal-grid{display:grid;grid-template-columns:repeat(4,1fr);align-items:start;
+  gap:clamp(10px,1.3vw,18px)}
+.gal-item{position:relative;overflow:hidden;margin:0;border-radius:14px;isolation:isolate;
+  background:var(--ink-2);aspect-ratio:3/4}
+.gal-feat{grid-column:1 / -1;aspect-ratio:2/1}
+/* El escalonado: dos de los cuatro verticales bajan. Va con
+   margin-top y no con transform para que la fila crezca con ellos y
+   no se derramen sobre la sección de abajo. */
+.gal-baja{margin-top:clamp(16px,2.8vw,46px)}
+
+/* La imagen es más alta que el marco: ese sobrante es el recorrido
+   del paneo. yPercent ±4 sobre 116% son 4,6% del marco, con 8% de
+   aire a cada lado. Nunca asoma el borde. */
+.gal-item img{position:absolute;left:0;top:-8%;width:100%;height:116%;
+  object-fit:cover;display:block;will-change:transform}
+/* Nace apagado: lo prende el JS justo antes de animarlo. Si el
+   script no corre, las fotos se ven en vez de quedar tapadas. */
+.gal-telon{display:none;position:absolute;inset:0;z-index:3;background:var(--cel);
+  pointer-events:none}
+.gal-item figcaption{position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:42px 16px 14px;font-family:var(--cond);font-size:12.5px;font-weight:600;
+  letter-spacing:.16em;text-transform:uppercase;color:#fff;
+  background:linear-gradient(0deg,rgba(2,18,40,.86),rgba(2,18,40,.34) 52%,rgba(2,18,40,0));
+  opacity:0;transform:translateY(12px);
+  transition:opacity .6s var(--ease-out) .25s,transform .6s var(--ease-out) .25s}
+.gal-item.is-in figcaption{opacity:1;transform:none}
+/* Filo celeste al pasar el mouse. Va en ::after para no tocar el
+   transform de la imagen, que lo maneja GSAP. */
+@media (hover:hover) and (pointer:fine){
+  .gal-item::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;
+    border-radius:14px;border:1px solid rgba(69,174,229,0);
+    transition:border-color .45s var(--ease-out)}
+  .gal-item:hover::after{border-color:rgba(69,174,229,.6)}
+}
+
+@media (max-width:860px){
+  .gal-grid{grid-template-columns:repeat(2,1fr)}
+  /* A dos columnas la destacada ocupa el ancho entero: en 4/3 se
+     comía una pantalla de tablet casi completa. */
+  .gal-feat{aspect-ratio:3/2}
+  .gal-item{border-radius:11px}
+  .gal-item figcaption{padding:32px 12px 11px;font-size:11px;letter-spacing:.13em}
+}
+@media (max-width:560px){
+  .gal-feat{aspect-ratio:4/3}
+}
+@media (max-width:420px){
+  .gal-item figcaption{font-size:10px;padding:26px 10px 9px}
 }
 
 /* ---------------- UN PROCESO (sin foto) ---------------- */
