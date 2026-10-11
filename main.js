@@ -6,7 +6,14 @@
      =========================================================== */
 
   var hasGSAP = !!(window.gsap && window.ScrollTrigger);
-  if (hasGSAP) gsap.registerPlugin(ScrollTrigger);
+  if (hasGSAP) {
+    gsap.registerPlugin(ScrollTrigger);
+    /* En celular, esconder y mostrar la barra de direcciones dispara
+       un resize. Sin esto, cada uno de esos resize hace un refresh de
+       ScrollTrigger y, con la sección CIMA pineada, el scroll se va
+       de lugar: era buena parte del "se vuelve para arriba solo". */
+    ScrollTrigger.config({ ignoreMobileResize: true });
+  }
   var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
@@ -551,38 +558,50 @@
     var tarjetas = Array.prototype.slice.call(rail.querySelectorAll("[data-gal]"));
     if (!tarjetas.length) return;
     var fotos = tarjetas.map(function (t) { return t.querySelector("img"); });
-    var elI = sec.querySelector("[data-gal-i]");
-    var elT = sec.querySelector("[data-gal-t]");
-    var elP = sec.querySelector("[data-gal-prog]");
     var flechas = Array.prototype.slice.call(sec.querySelectorAll("[data-gal-ir]"));
-    var dos = function (n) { return ("0" + n).slice(-2); };
-    if (elT) elT.textContent = dos(tarjetas.length);
-
+    var cajaIx = sec.querySelector("[data-gal-ix]");
     sec.classList.add("gal-viva");
-    var pendiente = false, actual = 0;
+
+    function irA(i) {
+      i = Math.max(0, Math.min(tarjetas.length - 1, i));
+      var ref = via.getBoundingClientRect().left + 2;
+      via.scrollTo({
+        left: via.scrollLeft + (tarjetas[i].getBoundingClientRect().left - ref),
+        behavior: reduced ? "auto" : "smooth"
+      });
+    }
+
+    /* Un tramo por foto. Sin JS no se dibujan: un control muerto es
+       peor que no tenerlo. */
+    var tramos = tarjetas.map(function (t, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "gal-s";
+      b.setAttribute("aria-label", "Ir a la foto " + (i + 1) + " de " + tarjetas.length);
+      b.appendChild(document.createElement("i"));
+      b.addEventListener("click", function () { irA(i); });
+      if (cajaIx) cajaIx.appendChild(b);
+      return b;
+    });
+
+    var pendiente = false;
     function pintar() {
       pendiente = false;
       var max = via.scrollWidth - via.clientWidth;
-      var p = max > 0 ? Math.min(1, Math.max(0, via.scrollLeft / max)) : 0;
-      if (elP) elP.style.setProperty("--p", p.toFixed(4));
-
-      /* La "actual" es la que tiene el borde izquierdo más cerca de
-         donde engancha el carrusel, no la más centrada: con tarjetas
-         de anchos distintos, el centro da saltos. */
-      var ref = via.getBoundingClientRect().left + 2;
-      var cerca = 0, mejor = Infinity, i, r, d, ancho = window.innerWidth;
+      var vr = via.getBoundingClientRect();
+      var ancho = window.innerWidth, i, r, visible;
       for (i = 0; i < tarjetas.length; i++) {
         r = tarjetas[i].getBoundingClientRect();
-        d = Math.abs(r.left - ref);
-        if (d < mejor) { mejor = d; cerca = i; }
+        /* Lo que enciende el tramo es la fracción de esa foto que
+           entra en la ventana, no una posición inventada. */
+        visible = Math.max(0, Math.min(r.right, vr.right) - Math.max(r.left, vr.left));
+        tramos[i].firstChild.style.setProperty("--on",
+          (r.width ? Math.min(1, visible / r.width) : 0).toFixed(3));
         /* Paneo: ±3.5% sobre un ancho de 112% son 3.9% del marco,
            dentro del 6% de aire que tiene a cada lado. */
-        var c = (r.left + r.width / 2 - ancho / 2) / ancho;
         if (fotos[i]) fotos[i].style.setProperty("--px",
-          (Math.max(-1, Math.min(1, c)) * -3.5).toFixed(2));
+          (Math.max(-1, Math.min(1, (r.left + r.width / 2 - ancho / 2) / ancho)) * -3.5).toFixed(2));
       }
-      actual = cerca;
-      if (elI) elI.textContent = dos(cerca + 1);
       flechas.forEach(function (b) {
         var dir = +b.dataset.galIr;
         b.disabled = dir < 0 ? via.scrollLeft < 4 : via.scrollLeft > max - 4;
@@ -594,15 +613,20 @@
     window.addEventListener("resize", pedir);
     pintar();
 
+    /* Las flechas avanzan de a una foto. Probé que saltaran a la
+       primera que no se ve entera -suena más útil- y era peor: en
+       desktop entran dos y media, así que el primer clic se comía
+       todo el recorrido y el carrusel terminaba de una. */
+    function indiceActual() {
+      var ref = via.getBoundingClientRect().left + 2, mejor = 0, min = Infinity, i, d;
+      for (i = 0; i < tarjetas.length; i++) {
+        d = Math.abs(tarjetas[i].getBoundingClientRect().left - ref);
+        if (d < min) { min = d; mejor = i; }
+      }
+      return mejor;
+    }
     flechas.forEach(function (b) {
-      b.addEventListener("click", function () {
-        var i = Math.max(0, Math.min(tarjetas.length - 1, actual + (+b.dataset.galIr)));
-        var ref = via.getBoundingClientRect().left + 2;
-        via.scrollTo({
-          left: via.scrollLeft + (tarjetas[i].getBoundingClientRect().left - ref),
-          behavior: reduced ? "auto" : "smooth"
-        });
-      });
+      b.addEventListener("click", function () { irA(indiceActual() + (+b.dataset.galIr)); });
     });
 
     /* Arrastre con el mouse. El enganche se apaga mientras se
@@ -752,10 +776,28 @@
       var resort = function () { ScrollTrigger.sort(); ScrollTrigger.refresh(); };
       resort();
       window.addEventListener("load", resort);
-      /* Las fotos de más abajo son lazy: cuando entran cambian el
-         alto del documento y hay que volver a medir. */
+
+      /* Antes, CADA foto lazy que terminaba de cargar disparaba un
+         refresh. Con la sección CIMA pineada, un refresh recalcula el
+         alto del documento y te corre el scroll: scrolleabas en
+         celular, entraba una foto, y la página se iba sola para
+         arriba. Y son más de una docena de imágenes lazy.
+
+         Todas tienen width y height declarados, así que cargar no les
+         cambia el lugar a nadie. Entonces: una sola pasada demorada, y
+         solo si el documento realmente cambió de alto. */
+      var alto = document.documentElement.scrollHeight, demora = 0;
+      var remedir = function () {
+        clearTimeout(demora);
+        demora = setTimeout(function () {
+          var h = document.documentElement.scrollHeight;
+          if (h === alto) return;
+          alto = h;
+          resort();
+        }, 240);
+      };
       document.querySelectorAll("img[loading=lazy]").forEach(function (im) {
-        if (!im.complete) im.addEventListener("load", resort, { once: true });
+        if (!im.complete) im.addEventListener("load", remedir, { once: true });
       });
     }
   }

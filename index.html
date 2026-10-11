@@ -41,10 +41,12 @@
      iOS rellena de negro cualquier transparencia. -->
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Iñaki Etchegaray">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css?v=20261055">
+<!-- Las tres caras que se ven apenas carga. El resto las pide el
+     navegador cuando las necesita. -->
+<link rel="preload" href="assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/barlow-cond-600-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css?v=20261057">
 </head>
 <body>
 
@@ -389,16 +391,20 @@
     </ul>
   </div>
 
+  <!-- Un tramo por foto, encendido según cuánto de esa foto se ve.
+       No hay contador "N de 5": con fotos de este tamaño entran dos y
+       media en pantalla, así que nunca habría cinco posiciones y el
+       número se quedaba clavado en 02. Los tramos dicen la verdad y
+       además llevan a su foto. Los arma el JS, como las flechas. -->
   <div class="shell gal-pie">
-    <span class="gal-n" aria-hidden="true"><b data-gal-i>01</b>/<i data-gal-t>05</i></span>
     <span class="gal-flechas">
-      <button class="gal-fl" type="button" data-gal-ir="-1" aria-label="Foto anterior">
+      <button class="gal-fl" type="button" data-gal-ir="-1" aria-label="Fotos anteriores">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 7.5 12l7 7"/></svg></button>
-      <button class="gal-fl" type="button" data-gal-ir="1" aria-label="Foto siguiente">
+      <button class="gal-fl" type="button" data-gal-ir="1" aria-label="Fotos siguientes">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5l7 7-7 7"/></svg></button>
     </span>
     <span class="gal-hint" aria-hidden="true" data-gal-hint>Deslizá</span>
-    <span class="gal-prog" aria-hidden="true"><b data-gal-prog></b></span>
+    <span class="gal-ix" data-gal-ix></span>
   </div>
 </section>
 
@@ -573,9 +579,9 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261055"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261055"></script>
-<script defer src="hero.js?v=20261055"></script>
-<script defer src="main.js?v=20261055"></script>
+<script defer src="lib/gsap.min.js?v=20261057"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261057"></script>
+<script defer src="hero.js?v=20261057"></script>
+<script defer src="main.js?v=20261057"></script>
 </body>
 </html>
