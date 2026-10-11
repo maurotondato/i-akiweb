@@ -870,20 +870,21 @@ ul,ol{margin:0;padding:0;list-style:none}
    del recorte entero: con fondos tan distintos, la media global mide
    el fondo y no la cara.
 
-   El tamaño lo manda la foto más chica que hay (Mateo, 130px de
-   origen): 64px es el techo para que siga nítida al doble de
-   densidad. Con fotos más grandes se puede duplicar.
+   El tamaño lo manda la foto más chica. Era la de Mateo, recortada
+   de WhatsApp, con la cabeza en 75px; con la foto completa del
+   equipo pasó a 195px. Ahora el techo lo pone Bautista, que viene de
+   una foto de partido: 170px de origen para 72px en pantalla.
    Las iniciales quedan detrás como respaldo: si la foto no carga,
    la tarjeta sigue teniendo su chapa. */
-.voice-foto{position:relative;width:64px;height:64px;flex:none}
+.voice-foto{position:relative;width:72px;height:72px;flex:none}
 .voice-ini{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;
-  background:var(--ink);color:var(--cel);font-family:var(--display);font-size:16px;letter-spacing:-.02em}
+  background:var(--ink);color:var(--cel);font-family:var(--display);font-size:18px;letter-spacing:-.02em}
 .voice-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   border-radius:50%;display:block}
 /* El aro se dibuja cuando la tarjeta entra, igual que los íconos de
    "¿Para quiénes?". Es lo que hace que un retrato chico se lea como
    una pieza y no como una miniatura pegada. */
-.voice-aro{position:absolute;left:-5px;top:-5px;width:74px;height:74px;overflow:visible}
+.voice-aro{position:absolute;left:-6px;top:-6px;width:84px;height:84px;overflow:visible}
 .voice-aro circle{fill:none;stroke:var(--cel);stroke-width:1.6;stroke-linecap:round;
   stroke-dasharray:1;stroke-dashoffset:1;transform:rotate(-90deg);transform-origin:center}
 .voice.is-in .voice-aro circle{animation:aroVoz 1s var(--ease-out) .45s forwards}
