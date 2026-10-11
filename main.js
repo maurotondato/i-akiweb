@@ -527,54 +527,154 @@
 
   /* ---------------- PROGRAMAS: brillo que sigue al mouse ---------------- */
   /* ---------------- GALERÍA ----------------
-     Cada tile entra con un TELÓN celeste que se repliega hacia abajo
-     mientras la foto, que arranca ampliada, se asienta. Después queda
-     paneando con el scroll dentro del marco.
+     Carrusel de verdad: el recorrido lo maneja el lector. Dedo y
+     trackpad ya los da overflow-x con enganche; acá se suman el
+     arrastre con el mouse -con inercia- y las flechas, que es lo que
+     le falta a un carrusel nativo en desktop.
 
-     El telón nace display:none en el CSS y lo prende el JS: si el
-     script no corre -o el navegador no trae GSAP- las fotos se ven
-     igual en vez de quedar tapadas por cinco rectángulos celestes. */
+     La primera versión la movía el scroll de la página y tenía un
+     defecto de fondo: para cuando la sección terminaba de entrar, la
+     primera foto ya se había ido por la izquierda.
+
+     El paneo interno escribe --px y el zoom del mouse escribe --z;
+     los dos los compone el CSS en un solo transform, así no hay dos
+     motores peleándose por la misma propiedad.
+
+     El telón nace display:none en el CSS: si el script no corre, las
+     fotos se ven igual en vez de quedar tapadas. */
   function initGaleria() {
-    var items = document.querySelectorAll("[data-gal]");
-    if (!items.length) return;
+    var sec = document.querySelector(".gal");
+    var via = document.querySelector("[data-gal-via]");
+    var rail = document.querySelector("[data-gal-rail]");
+    if (!sec || !via || !rail) return;
 
-    /* Sin GSAP o con el movimiento reducido no hay nada que hacer: el
-       telón ya nace apagado en el CSS y las fotos se ven tal cual. */
-    if (!hasGSAP || reduced) return;
+    var tarjetas = Array.prototype.slice.call(rail.querySelectorAll("[data-gal]"));
+    if (!tarjetas.length) return;
+    var fotos = tarjetas.map(function (t) { return t.querySelector("img"); });
+    var elI = sec.querySelector("[data-gal-i]");
+    var elT = sec.querySelector("[data-gal-t]");
+    var elP = sec.querySelector("[data-gal-prog]");
+    var flechas = Array.prototype.slice.call(sec.querySelectorAll("[data-gal-ir]"));
+    var dos = function (n) { return ("0" + n).slice(-2); };
+    if (elT) elT.textContent = dos(tarjetas.length);
 
-    var fino = matchMedia("(hover:hover) and (pointer:fine)").matches;
+    sec.classList.add("gal-viva");
+    var pendiente = false, actual = 0;
+    function pintar() {
+      pendiente = false;
+      var max = via.scrollWidth - via.clientWidth;
+      var p = max > 0 ? Math.min(1, Math.max(0, via.scrollLeft / max)) : 0;
+      if (elP) elP.style.setProperty("--p", p.toFixed(4));
 
-    items.forEach(function (it) {
-      var img = it.querySelector("[data-gal-img]");
-      var telon = it.querySelector(".gal-telon");
-      if (!img || !telon) return;
-
-      telon.style.display = "block";
-      gsap.set(telon, { scaleY: 1, transformOrigin: "bottom center" });
-      gsap.set(img, { scale: 1.18, transformOrigin: "50% 50%" });
-
-      gsap.timeline({ scrollTrigger: { trigger: it, start: "top 88%", once: true } })
-        .to(telon, { scaleY: 0, duration: .95, ease: "power3.inOut" })
-        .to(img, { scale: 1, duration: 1.5, ease: "power3.out" }, .12)
-        .set(telon, { display: "none" });
-
-      /* El paneo: la imagen mide 116% del marco, así que ±4% de su
-         propio alto son 4,6% del marco y sobra aire a los dos lados. */
-      gsap.fromTo(img, { yPercent: -4 }, {
-        yPercent: 4, ease: "none",
-        scrollTrigger: { trigger: it, start: "top bottom", end: "bottom top", scrub: .8 }
+      /* La "actual" es la que tiene el borde izquierdo más cerca de
+         donde engancha el carrusel, no la más centrada: con tarjetas
+         de anchos distintos, el centro da saltos. */
+      var ref = via.getBoundingClientRect().left + 2;
+      var cerca = 0, mejor = Infinity, i, r, d, ancho = window.innerWidth;
+      for (i = 0; i < tarjetas.length; i++) {
+        r = tarjetas[i].getBoundingClientRect();
+        d = Math.abs(r.left - ref);
+        if (d < mejor) { mejor = d; cerca = i; }
+        /* Paneo: ±3.5% sobre un ancho de 112% son 3.9% del marco,
+           dentro del 6% de aire que tiene a cada lado. */
+        var c = (r.left + r.width / 2 - ancho / 2) / ancho;
+        if (fotos[i]) fotos[i].style.setProperty("--px",
+          (Math.max(-1, Math.min(1, c)) * -3.5).toFixed(2));
+      }
+      actual = cerca;
+      if (elI) elI.textContent = dos(cerca + 1);
+      flechas.forEach(function (b) {
+        var dir = +b.dataset.galIr;
+        b.disabled = dir < 0 ? via.scrollLeft < 4 : via.scrollLeft > max - 4;
       });
+    }
+    function pedir() { if (!pendiente) { pendiente = true; requestAnimationFrame(pintar); } }
 
-      /* scale y yPercent son propiedades distintas: los dos tweens
-         conviven sobre la misma imagen sin pisarse. */
-      if (!fino) return;
-      it.addEventListener("mouseenter", function () {
-        gsap.to(img, { scale: 1.055, duration: .7, ease: "power3.out", overwrite: "auto" });
-      });
-      it.addEventListener("mouseleave", function () {
-        gsap.to(img, { scale: 1, duration: .85, ease: "power3.out", overwrite: "auto" });
+    via.addEventListener("scroll", pedir, { passive: true });
+    window.addEventListener("resize", pedir);
+    pintar();
+
+    flechas.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var i = Math.max(0, Math.min(tarjetas.length - 1, actual + (+b.dataset.galIr)));
+        var ref = via.getBoundingClientRect().left + 2;
+        via.scrollTo({
+          left: via.scrollLeft + (tarjetas[i].getBoundingClientRect().left - ref),
+          behavior: reduced ? "auto" : "smooth"
+        });
       });
     });
+
+    /* Arrastre con el mouse. El enganche se apaga mientras se
+       arrastra y vuelve al soltar, si no pelea con cada movimiento. */
+    if (matchMedia("(hover:hover) and (pointer:fine)").matches) {
+      var abajo = false, x0 = 0, sl0 = 0, vel = 0, raf = 0, movido = 0;
+      via.addEventListener("pointerdown", function (e) {
+        if (e.pointerType !== "mouse" || e.button !== 0) return;
+        abajo = true; movido = 0; x0 = e.clientX; sl0 = via.scrollLeft; vel = 0;
+        cancelAnimationFrame(raf);
+        via.classList.add("arrastrando");
+        via.style.scrollSnapType = "none";
+      });
+      via.addEventListener("pointermove", function (e) {
+        if (!abajo) return;
+        var d = e.clientX - x0;
+        movido = Math.max(movido, Math.abs(d));
+        var nuevo = sl0 - d;
+        vel = nuevo - via.scrollLeft;
+        via.scrollLeft = nuevo;
+      });
+      /* Al reactivar scroll-snap el navegador no reengancha hasta el
+         próximo scroll: queda a mitad de camino entre dos fotos. Se
+         lo lleva a mano a la más cercana. */
+      var asentar = function () {
+        via.style.scrollSnapType = "";
+        var ref = via.getBoundingClientRect().left + 2, mejor = null, min = Infinity, i, d;
+        for (i = 0; i < tarjetas.length; i++) {
+          d = tarjetas[i].getBoundingClientRect().left - ref;
+          if (Math.abs(d) < min) { min = Math.abs(d); mejor = d; }
+        }
+        if (mejor !== null && Math.abs(mejor) > 1) {
+          via.scrollTo({ left: via.scrollLeft + mejor, behavior: reduced ? "auto" : "smooth" });
+        }
+      };
+      var soltar = function () {
+        if (!abajo) return;
+        abajo = false;
+        via.classList.remove("arrastrando");
+        (function inercia() {
+          if (Math.abs(vel) < 0.5) { asentar(); return; }
+          via.scrollLeft += vel; vel *= 0.93;
+          raf = requestAnimationFrame(inercia);
+        })();
+      };
+      via.addEventListener("pointerup", soltar);
+      via.addEventListener("pointercancel", soltar);
+      via.addEventListener("pointerleave", soltar);
+      /* Un arrastre no es un clic: si no, se dispara el hover/zoom. */
+      via.addEventListener("click", function (e) {
+        if (movido > 6) { e.preventDefault(); e.stopPropagation(); }
+      }, true);
+    }
+
+    if (!hasGSAP || reduced) return;
+
+    /* El telón: entra en cascada cuando la sección aparece. */
+    var telones = rail.querySelectorAll(".gal-telon");
+    telones.forEach(function (t) { t.style.display = "block"; });
+    gsap.set(telones, { scaleY: 1, transformOrigin: "bottom center" });
+    gsap.timeline({ scrollTrigger: { trigger: sec, start: "top 78%", once: true } })
+      .to(telones, { scaleY: 0, duration: .9, ease: "power3.inOut", stagger: .085 })
+      .set(telones, { display: "none" });
+
+    if (matchMedia("(hover:hover) and (pointer:fine)").matches) {
+      tarjetas.forEach(function (t) {
+        var im = t.querySelector("img");
+        if (!im) return;
+        t.addEventListener("mouseenter", function () { im.style.setProperty("--z", "1.05"); });
+        t.addEventListener("mouseleave", function () { im.style.setProperty("--z", "1"); });
+      });
+    }
   }
 
   function initProgGlow() {

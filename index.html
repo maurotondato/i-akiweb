@@ -44,7 +44,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=Barlow+Condensed:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="styles.css?v=20261054">
+<link rel="stylesheet" href="styles.css?v=20261055">
 </head>
 <body>
 
@@ -344,46 +344,61 @@
   </div>
 </section>
 
-<!-- ============ GALERÍA ============ -->
+<!-- ============ GALERÍA ============
+     Una tira horizontal que avanza con el scroll vertical: la misma
+     gramática que el resto de la página, donde scrollear es avanzar.
+     Las fotos entran a tamaño grande en vez de quedar en miniaturas
+     de grilla, y adentro de cada marco la imagen panea en sentido
+     contrario, que es lo que le da profundidad.
+
+     En celular no hay recorrido con scroll: es un carrusel que se
+     desliza con el dedo y engancha foto por foto. -->
 <section class="gal" id="galeria" aria-labelledby="gal-h">
   <div class="shell gal-head">
     <p class="kicker kicker-light reveal"><i aria-hidden="true"></i>En la cancha</p>
     <h2 class="gal-title reveal" id="gal-h" data-split="words">El trabajo, donde pasa.</h2>
   </div>
 
-  <!-- Cada figura es: marco que recorta + imagen que panea con el scroll
-       + telón que se corre al entrar. El telón vive en el HTML y no en un
-       ::after para poder animarlo con GSAP sin tocar el pintado del texto. -->
-  <div class="shell gal-grid">
-    <figure class="gal-item gal-feat" data-gal>
-      <span class="gal-telon" aria-hidden="true"></span>
-      <img src="assets/img/galeria/gal-1028.webp" alt="Iñaki conversando con un jugador al costado de la cancha"
-           width="1600" height="1067" loading="lazy" decoding="async" data-gal-img>
-    </figure>
+  <div class="gal-via" data-gal-via role="region" aria-label="Fotos de Iñaki trabajando" tabindex="0">
+    <ul class="gal-rail" data-gal-rail>
+        <li class="gal-item gw" data-gal>
+          <span class="gal-telon" aria-hidden="true"></span>
+          <img src="assets/img/galeria/gal-1028.webp" alt="Iñaki conversando con un jugador al costado de la cancha"
+               width="1600" height="1067" loading="lazy" decoding="async" data-gal-img>
+        </li>
+        <li class="gal-item gt" data-gal>
+          <span class="gal-telon" aria-hidden="true"></span>
+          <img src="assets/img/galeria/gal-1018.webp" alt="Iñaki mirando un entrenamiento desde el borde del campo"
+               width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
+        </li>
+        <li class="gal-item gm" data-gal>
+          <span class="gal-telon" aria-hidden="true"></span>
+          <img src="assets/img/galeria/gal-0932.webp" alt="Iñaki tomando notas en un cuaderno"
+               width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
+        </li>
+        <li class="gal-item gt" data-gal>
+          <span class="gal-telon" aria-hidden="true"></span>
+          <img src="assets/img/galeria/gal-5708.webp" alt="Iñaki caminando por el campo de juego"
+               width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
+        </li>
+        <li class="gal-item gm" data-gal>
+          <span class="gal-telon" aria-hidden="true"></span>
+          <img src="assets/img/galeria/gal-5099.webp" alt="Retrato de Iñaki Etchegaray"
+               width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
+        </li>
+    </ul>
+  </div>
 
-    <figure class="gal-item" data-gal>
-      <span class="gal-telon" aria-hidden="true"></span>
-      <img src="assets/img/galeria/gal-1018.webp" alt="Iñaki mirando un entrenamiento desde el borde del campo"
-           width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
-    </figure>
-
-    <figure class="gal-item gal-baja" data-gal>
-      <span class="gal-telon" aria-hidden="true"></span>
-      <img src="assets/img/galeria/gal-5708.webp" alt="Iñaki caminando por el campo de juego"
-           width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
-    </figure>
-
-    <figure class="gal-item" data-gal>
-      <span class="gal-telon" aria-hidden="true"></span>
-      <img src="assets/img/galeria/gal-0932.webp" alt="Iñaki tomando notas en un cuaderno"
-           width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
-    </figure>
-
-    <figure class="gal-item gal-baja" data-gal>
-      <span class="gal-telon" aria-hidden="true"></span>
-      <img src="assets/img/galeria/gal-5099.webp" alt="Retrato de Iñaki Etchegaray"
-           width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
-    </figure>
+  <div class="shell gal-pie">
+    <span class="gal-n" aria-hidden="true"><b data-gal-i>01</b>/<i data-gal-t>05</i></span>
+    <span class="gal-flechas">
+      <button class="gal-fl" type="button" data-gal-ir="-1" aria-label="Foto anterior">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 7.5 12l7 7"/></svg></button>
+      <button class="gal-fl" type="button" data-gal-ir="1" aria-label="Foto siguiente">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5l7 7-7 7"/></svg></button>
+    </span>
+    <span class="gal-hint" aria-hidden="true" data-gal-hint>Deslizá</span>
+    <span class="gal-prog" aria-hidden="true"><b data-gal-prog></b></span>
   </div>
 </section>
 
@@ -558,9 +573,9 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261054"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261054"></script>
-<script defer src="hero.js?v=20261054"></script>
-<script defer src="main.js?v=20261054"></script>
+<script defer src="lib/gsap.min.js?v=20261055"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261055"></script>
+<script defer src="hero.js?v=20261055"></script>
+<script defer src="main.js?v=20261055"></script>
 </body>
 </html>

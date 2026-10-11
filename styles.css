@@ -684,53 +684,98 @@ ul,ol{margin:0;padding:0;list-style:none}
    Franja oscura entre "Sobre mí" y "Un proceso": corta la tirada de
    secciones claras y hace que las fotos salten hacia adelante.
 
-   Cada tile es un marco que recorta. Adentro hay dos cosas animadas:
-   la imagen, que panea con el scroll, y un TELÓN celeste que se
-   levanta cuando el tile entra en pantalla. El telón es un <span> y
-   no un ::after porque GSAP necesita un nodo para animarlo. */
+   Es un carrusel de verdad, no una grilla ni un secuestro del scroll.
+   La primera versión la movía el scroll de la página y tenía un
+   defecto de fondo: para cuando la sección terminaba de entrar, la
+   primera foto ya se había ido por la izquierda. Acá el recorrido lo
+   maneja el lector -dedo, trackpad, arrastre con el mouse, flechas o
+   teclado- y ninguna foto se pierde.
+
+   El alto es fijo y el ancho de cada tarjeta sale de su proporción:
+   eso da el ritmo -una apaisada grande, después verticales- sin
+   inventar una grilla.
+
+   Las transformaciones de la imagen se componen en el CSS con dos
+   variables: --px lo escribe el JS con el paneo y --z es el zoom del
+   mouse. Así no hay dos motores peleándose por el mismo transform. */
 .gal{background:var(--ink);color:#fff;padding-block:clamp(70px,10vw,124px);overflow:hidden}
-.gal-head{display:flex;flex-direction:column;gap:14px;margin-bottom:clamp(30px,4vw,54px)}
+.gal-head{display:flex;flex-direction:column;gap:14px;margin-bottom:clamp(28px,3.6vw,48px)}
 .gal-title{font-family:var(--display);font-size:clamp(32px,5vw,64px);line-height:1.02;
   letter-spacing:-.045em;max-width:18ch}
 
-.gal-grid{display:grid;grid-template-columns:repeat(4,1fr);align-items:start;
-  gap:clamp(10px,1.3vw,18px)}
-.gal-item{position:relative;overflow:hidden;margin:0;border-radius:14px;isolation:isolate;
-  background:var(--ink-2);aspect-ratio:3/4}
-.gal-feat{grid-column:1 / -1;aspect-ratio:2/1}
-/* El escalonado: dos de los cuatro verticales bajan. Va con
-   margin-top y no con transform para que la fila crezca con ellos y
-   no se derramen sobre la sección de abajo. */
-.gal-baja{margin-top:clamp(16px,2.8vw,46px)}
+.gal-via{position:relative;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scroll-padding-inline-start:var(--gut);
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  outline-offset:-3px}
+.gal-via::-webkit-scrollbar{display:none}
+.gal-via:focus-visible{outline:2px solid var(--cel)}
+.gal-rail{display:flex;flex-wrap:nowrap;gap:clamp(12px,1.5vw,22px);margin:0;list-style:none;
+  padding:0 var(--gut);width:max-content}
+.gal-item{position:relative;flex:none;overflow:hidden;border-radius:16px;isolation:isolate;
+  background:var(--ink-2);height:clamp(340px,54vh,560px);scroll-snap-align:start}
+.gw{aspect-ratio:3/2}
+.gt{aspect-ratio:3/4}
+.gm{aspect-ratio:4/5}
 
-/* La imagen es más alta que el marco: ese sobrante es el recorrido
-   del paneo. yPercent ±4 sobre 116% son 4,6% del marco, con 8% de
-   aire a cada lado. Nunca asoma el borde. */
-.gal-item img{position:absolute;left:0;top:-8%;width:100%;height:116%;
-  object-fit:cover;display:block;will-change:transform}
-/* Nace apagado: lo prende el JS justo antes de animarlo. Si el
-   script no corre, las fotos se ven en vez de quedar tapadas. */
+/* La imagen es más ancha que el marco: ese sobrante es el recorrido
+   del paneo. --px llega hasta ±3.5 sobre un 112%, o sea 3.9% del
+   marco, con 6% de aire a cada lado. Nunca asoma el borde. */
+.gal-item img{position:absolute;top:0;left:-6%;width:112%;height:100%;
+  object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;
+  transform:translate3d(calc(var(--px,0) * 1%),0,0) scale(var(--z,1));
+  transition:transform .5s var(--ease-out)}
+.arrastrando .gal-item img{transition:none}
+/* Nace apagado: lo prende el JS justo antes de animarlo. Si el script
+   no corre, las fotos se ven en vez de quedar tapadas. */
 .gal-telon{display:none;position:absolute;inset:0;z-index:3;background:var(--cel);
   pointer-events:none}
 
-/* Filo celeste al pasar el mouse. Va en ::after para no tocar el
-   transform de la imagen, que lo maneja GSAP. */
 @media (hover:hover) and (pointer:fine){
+  .gal-via{cursor:grab}
+  .gal-via.arrastrando{cursor:grabbing}
   .gal-item::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;
-    border-radius:14px;border:1px solid rgba(69,174,229,0);
+    border-radius:16px;border:1px solid rgba(69,174,229,0);
     transition:border-color .45s var(--ease-out)}
   .gal-item:hover::after{border-color:rgba(69,174,229,.6)}
 }
 
-@media (max-width:860px){
-  .gal-grid{grid-template-columns:repeat(2,1fr)}
-  /* A dos columnas la destacada ocupa el ancho entero: en 4/3 se
-     comía una pantalla de tablet casi completa. */
-  .gal-feat{aspect-ratio:3/2}
-  .gal-item{border-radius:11px}
+/* Pie: dónde estoy del recorrido y cómo moverme. */
+/* Orden: contador, flechas y recién después la barra, que se estira
+   hasta el margen. Con las flechas a la derecha caían justo debajo
+   del botón flotante de WhatsApp. */
+.gal-pie{display:flex;align-items:center;gap:clamp(14px,2vw,26px);
+  margin-top:clamp(22px,2.8vw,38px)}
+.gal-n{font-family:var(--cond);font-size:12.5px;font-weight:600;letter-spacing:.18em;
+  color:rgba(255,255,255,.42);font-variant-numeric:tabular-nums;flex:none}
+.gal-n b{color:var(--cel-lt);font-weight:600}
+.gal-n i{font-style:normal}
+.gal-prog{position:relative;flex:1;height:2px;background:rgba(255,255,255,.14);overflow:hidden}
+.gal-prog b{position:absolute;inset:0;background:var(--cel);transform:scaleX(var(--p,0));
+  transform-origin:left center;transition:transform .25s linear}
+.gal-hint{font-family:var(--cond);font-size:11.5px;font-weight:600;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(255,255,255,.42);flex:none}
+/* Las prende el JS: sin script no harían nada. */
+.gal-flechas{display:none;gap:9px;flex:none}
+.gal-fl{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:transparent;border:1px solid rgba(255,255,255,.22);color:#fff;cursor:pointer;
+  transition:background .3s var(--ease-out),border-color .3s var(--ease-out),
+             color .3s var(--ease-out),opacity .3s var(--ease-out)}
+.gal-fl svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.gal-fl[disabled]{opacity:.28;cursor:default}
+@media (hover:hover) and (pointer:fine){
+  .gal-viva .gal-flechas{display:flex}
+  .gal-viva .gal-hint{display:none}
+  .gal-fl:not([disabled]):hover{background:var(--cel);border-color:var(--cel);color:var(--ink)}
 }
-@media (max-width:560px){
-  .gal-feat{aspect-ratio:4/3}
+
+@media (max-width:860px){
+  .gal-rail{gap:12px}
+  .gal-item{height:clamp(300px,48vh,440px);border-radius:12px;scroll-snap-align:center}
+  .gal-item img{left:0;width:100%;transform:none}
+}
+@media (max-width:420px){
+  .gal-item{height:clamp(280px,44vh,380px)}
 }
 
 /* ---------------- UN PROCESO (sin foto) ---------------- */
