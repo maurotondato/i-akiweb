@@ -860,11 +860,37 @@ ul,ol{margin:0;padding:0;list-style:none}
   .voice:hover{transform:translateY(-7px);background:var(--paper);border-color:transparent;
     box-shadow:0 28px 60px -30px rgba(3,29,64,.55)}
   .voice:hover::after{transform:scaleX(1)}}
-.quote-mark{width:34px;height:26px;fill:var(--cel);opacity:.5}
-.voice p{font-size:17.5px;line-height:1.55;letter-spacing:-.012em}
-.voice footer{display:flex;align-items:center;gap:13px;padding-top:18px;border-top:1px solid var(--hair)}
-.voice-ini{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none;
-  background:var(--ink);color:var(--cel);font-family:var(--display);font-size:14px;letter-spacing:-.02em}
+.quote-mark{width:38px;height:29px;fill:var(--cel);opacity:.58;position:relative;z-index:1}
+.voice p,.voice footer{position:relative;z-index:1}
+.voice p{font-size:18.5px;line-height:1.52;letter-spacing:-.014em}
+.voice footer{display:flex;align-items:center;gap:15px;padding-top:18px;border-top:1px solid var(--hair)}
+/* El retrato del deportista. Tres fotos de orígenes muy distintos
+   -un posado al sol, una de partido y un retrato chico y oscuro-,
+   así que se normalizó la luminancia de la PIEL de cada una, no la
+   del recorte entero: con fondos tan distintos, la media global mide
+   el fondo y no la cara.
+
+   El tamaño lo manda la foto más chica que hay (Mateo, 130px de
+   origen): 64px es el techo para que siga nítida al doble de
+   densidad. Con fotos más grandes se puede duplicar.
+   Las iniciales quedan detrás como respaldo: si la foto no carga,
+   la tarjeta sigue teniendo su chapa. */
+.voice-foto{position:relative;width:64px;height:64px;flex:none}
+.voice-ini{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;
+  background:var(--ink);color:var(--cel);font-family:var(--display);font-size:16px;letter-spacing:-.02em}
+.voice-foto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  border-radius:50%;display:block}
+/* El aro se dibuja cuando la tarjeta entra, igual que los íconos de
+   "¿Para quiénes?". Es lo que hace que un retrato chico se lea como
+   una pieza y no como una miniatura pegada. */
+.voice-aro{position:absolute;left:-5px;top:-5px;width:74px;height:74px;overflow:visible}
+.voice-aro circle{fill:none;stroke:var(--cel);stroke-width:1.6;stroke-linecap:round;
+  stroke-dasharray:1;stroke-dashoffset:1;transform:rotate(-90deg);transform-origin:center}
+.voice.is-in .voice-aro circle{animation:aroVoz 1s var(--ease-out) .45s forwards}
+@keyframes aroVoz{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){
+  .voice-aro circle{stroke-dashoffset:0;animation:none}
+}
 .voice-who{display:flex;flex-direction:column;gap:3px;min-width:0}
 .voice-name{font-family:var(--cond);font-size:16px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
   line-height:1.1}
