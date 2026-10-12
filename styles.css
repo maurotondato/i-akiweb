@@ -614,7 +614,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .cv-ico{width:34px;height:34px;flex:none;display:block;overflow:visible}
 .ci-f{fill:url(#gIco);stroke:none}
 .ci-s{fill:none;stroke:url(#gIco);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
-.ci-gr{stroke-width:5.8}
+/* La cabeza del palo, apenas más gruesa que el mango. Lo que lo
+   hacía parecer un bastón de Navidad no era el grosor sino el largo:
+   el gancho era casi medio círculo. Ahora da un cuarto de vuelta y
+   la puntera es corta, que es la proporción de un palo de césped. */
+.ci-gr{stroke-width:4.8}
 .ci-k{fill:none;stroke:var(--ico-bg);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
 .ci-k2{stroke-width:2.6}
 .ci-kf{fill:var(--ico-bg);stroke:none}
@@ -624,6 +628,7 @@ ul,ol{margin:0;padding:0;list-style:none}
    caen donde caen en una pelota y no en un dibujo simétrico. Se
    proyecta un poco más grande que el aro y se recorta contra él para
    que las caras del borde lleguen al filo. */
+/* Aro: lo usan la pelota de fútbol y la marca de persona. */
 .ci-o{fill:none;stroke:url(#gIco);stroke-width:2.2;stroke-linejoin:round}
 .ci-red{fill:none;stroke:url(#gIco);stroke-width:.8;stroke-linejoin:round;stroke-linecap:round}
 /* Encordado: una malla fina calada sobre el marco macizo. */
