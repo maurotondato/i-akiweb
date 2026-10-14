@@ -46,7 +46,7 @@
 <link rel="preload" href="assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/barlow-cond-600-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261062">
+<link rel="stylesheet" href="styles.css?v=20261063">
 </head>
 <body>
 
@@ -519,7 +519,18 @@
   </svg>
   <div class="shell final-inner">
     <p class="kicker kicker-light reveal">Primer paso</p>
-    <h2 class="final-title reveal" data-split="chars">¿Qué querés lograr con el proceso?</h2>
+    <!-- El saque inicial: el círculo central y la mitad de cancha
+         detrás de la pregunta. Es el primer paso, literalmente. -->
+    <div class="final-head">
+      <h2 class="final-title reveal" data-split="chars">¿Qué querés lograr con el proceso?</h2>
+      <svg class="final-cancha" viewBox="-1000 -100 2000 200" aria-hidden="true">
+        <defs><linearGradient id="gMitad" gradientUnits="userSpaceOnUse" x1="-1000" y1="0" x2="1000" y2="0"><stop offset="0" stop-color="#8FD9FA" stop-opacity="0"/><stop offset=".38" stop-color="#8FD9FA" stop-opacity=".2"/><stop offset=".62" stop-color="#8FD9FA" stop-opacity=".2"/><stop offset="1" stop-color="#8FD9FA" stop-opacity="0"/></linearGradient></defs>
+        <path class="fc-l fc-mitad" pathLength="1" d="M0 0H-1000"/>
+        <path class="fc-l fc-mitad" pathLength="1" d="M0 0H1000"/>
+        <circle class="fc-l fc-circ" pathLength="1" r="91.5" transform="rotate(180)"/>
+        <circle class="fc-p" r="1.3"/>
+      </svg>
+    </div>
     <p class="final-text reveal">Empezamos con una entrevista para ver dónde estás, qué necesitás y qué proceso tiene sentido para tu momento. Sin compromiso.</p>
     <!-- El formulario no manda nada a ningún servidor: arma el mensaje
          y abre WhatsApp con la consulta ya escrita. Iñaki recibe el
@@ -580,10 +591,10 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261062"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261062"></script>
-<script defer src="hero.js?v=20261062"></script>
-<script defer src="estadio.js?v=20261062"></script>
-<script defer src="main.js?v=20261062"></script>
+<script defer src="lib/gsap.min.js?v=20261063"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261063"></script>
+<script defer src="hero.js?v=20261063"></script>
+<script defer src="estadio.js?v=20261063"></script>
+<script defer src="main.js?v=20261063"></script>
 </body>
 </html>
