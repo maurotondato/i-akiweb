@@ -95,6 +95,9 @@
   function initHero() {
     var cv = document.querySelector("[data-curve]");
     if (cv && window.HERO_mount) window.HERO_mount(cv);
+    /* Detrás del gráfico, la cancha de noche (estadio.js). */
+    var est = document.querySelector("[data-estadio]");
+    if (est && window.ESTADIO_mount) window.ESTADIO_mount(est);
   }
 
   /* ---------------- REVEAL ---------------- */

@@ -180,6 +180,10 @@ ul,ol{margin:0;padding:0;list-style:none}
    capa, 60 veces por segundo. Medido en Full HD, costaba 12 fps. El
    desvanecido ahora lo hace el propio canvas con un borrado en
    destination-out, que es un fillRect. */
+/* La cancha de noche va debajo de todo: el gráfico se dibuja encima
+   y la figura de Iñaki encima de los dos. Es un lienzo propio y no
+   una capa más del gráfico porque se pinta una vez y queda quieto. */
+.estadio{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .curve{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;
   opacity:0;transition:opacity 1s var(--ease-out) .25s}
 .is-ready .curve{opacity:1}
