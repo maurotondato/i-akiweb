@@ -917,7 +917,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .case-title{font-size:clamp(30px,4.6vw,62px);line-height:1.02;letter-spacing:-.045em;max-width:22ch}
 /* El estadio del sueño, de noche: un panel como las fotos de la
    galería, entre el título y la historia. */
-.case-estadio{align-self:stretch;position:relative;height:clamp(250px,33vw,460px);border-radius:16px;
+.case-estadio{align-self:stretch;position:relative;height:clamp(230px,30vw,400px);border-radius:16px;
   overflow:hidden;background:#021428;margin-block:12px 18px;box-shadow:0 34px 70px -40px rgba(3,29,64,.65)}
 .case-tribuna{position:absolute;inset:0;width:100%;height:100%;display:block}
 .case-body{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,72px);
@@ -930,6 +930,26 @@ ul,ol{margin:0;padding:0;list-style:none}
   color:var(--signal);font-variant-numeric:tabular-nums}
 .stat span{font-family:var(--cond);font-size:13.5px;font-weight:600;letter-spacing:.18em;
   text-transform:uppercase;color:var(--mute);line-height:1.35}
+/* El trofeo de los torneos y las medallas de oro. Es lo único dorado
+   de la página: son medallas de oro. Las medallas aparecen una por una
+   a la par del contador; el trofeo se levanta con un brillo cuando el
+   contador de torneos termina. */
+.stat-trofeo,.stat-medallas{display:flex;align-items:flex-end;height:52px;margin-top:6px}
+.stat-trofeo svg{width:46px;height:52px;overflow:visible;filter:drop-shadow(0 6px 10px rgba(169,120,29,.28))}
+.medalla{width:27px;height:36px;flex:none;margin-right:-5px;overflow:visible;
+  filter:drop-shadow(0 3px 5px rgba(3,29,64,.22))}
+.medalla:nth-child(even){transform:translateY(-3px)}
+.stat-anim .medalla{opacity:0;transform:translateY(10px) scale(.4);
+  transition:opacity .25s var(--ease-out),transform .45s cubic-bezier(.3,1.7,.5,1)}
+.stat-anim .medalla.is-on{opacity:1;transform:none}
+.stat-anim .medalla.is-on:nth-child(even){transform:translateY(-3px)}
+.stat-anim .stat-trofeo svg{opacity:.18;transform:translateY(8px) scale(.85);transform-origin:50% 100%;
+  transition:opacity .4s var(--ease-out),transform .6s cubic-bezier(.3,1.6,.5,1)}
+.stat-anim.is-won .stat-trofeo svg{opacity:1;transform:none}
+.stat-brillo{transform:skewX(-18deg) translateX(0)}
+.stat-anim.is-won .stat-brillo{animation:copaBrillo 1.1s .35s var(--ease-out) forwards}
+@keyframes copaBrillo{from{transform:skewX(-18deg) translateX(0)}to{transform:skewX(-18deg) translateX(46px)}}
+@media (max-width:520px){.stat-trofeo,.stat-medallas{height:42px}.medalla{width:20px;height:27px;margin-right:-7px}.stat-trofeo svg{width:36px;height:41px}}
 .case-note{border-left:3px solid var(--cel);padding-left:19px;font-size:15.5px;line-height:1.6;font-weight:500}
 @media (max-width:980px){.case-body{grid-template-columns:1fr}}
 
