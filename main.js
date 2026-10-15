@@ -104,6 +104,9 @@
     /* El estadio que se llena en el caso (tribuna.js). */
     var tri = document.querySelector("[data-tribuna]");
     if (tri && window.TRIBUNA_mount) window.TRIBUNA_mount(tri);
+    /* Los palos del cierre (palos.js). */
+    var pal = document.querySelector("[data-palos]");
+    if (pal && window.PALOS_mount) window.PALOS_mount(pal);
   }
 
   /* ---------------- REVEAL ---------------- */

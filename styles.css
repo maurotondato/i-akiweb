@@ -958,6 +958,8 @@ ul,ol{margin:0;padding:0;list-style:none}
 .final{position:relative;background:var(--ink);color:#fff;overflow:hidden;padding-block:clamp(84px,12vw,150px)}
 .final-range{position:absolute;left:0;right:0;bottom:0;width:100%;height:60%;pointer-events:none}
 .final-silueta{fill:rgba(69,174,229,.07)}
+/* La H del cierre, vista desde el pateador (palos.js). */
+.final-palos{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .final-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px}
 .final-title{font-size:clamp(40px,7.4vw,96px);letter-spacing:-.05em;max-width:15ch}
 .final-text{font-size:17px;color:#9DB4CC;max-width:48ch;line-height:1.65}
