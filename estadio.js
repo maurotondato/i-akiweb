@@ -6,24 +6,20 @@
 
      El pedido: que desde que se abre la web se lea DEPORTE. Sin
      fotos de stock y sin íconos sueltos: una cancha de rugby de
-     noche, vista desde el campo hacia los palos, con un foco que se
-     enciende como se encienden los de un estadio.
+     noche, vista desde el campo hacia los palos.
 
      Es rugby y no fútbol a propósito: Iñaki creció en el rugby y la
      mayoría de sus clubes son de rugby. La H se reconoce en un golpe
-     de vista, y la pelota en el tee frente a los palos es LA imagen
-     de la concentración —la rutina del pateador antes de la patada—,
-     que es exactamente su trabajo.
+     de vista.
 
      La cancha no se dibuja a ojo: hay una cámara real (altura,
      inclinación, giro, distancia focal) y cada línea es una recta del
      reglamento proyectada. Todo se escala con la figura de Iñaki, así
      que en un teléfono es la misma escena más chica.
 
-     Es una ENTRADA, no un fondo en bucle: el foco titila y prende, la
-     luz baja al pasto, las líneas se trazan, los palos se levantan y
-     aparece la pelota. Después el lienzo queda quieto y no repinta
-     más hasta un cambio de tamaño.
+     Es una ENTRADA, no un fondo en bucle: aparece el pasto, las
+     líneas se trazan y los palos se levantan. Después el lienzo queda
+     quieto y no repinta más hasta un cambio de tamaño.
      =========================================================== */
 
   /* La escena, en metros. X a lo largo de la cancha (try en -50),
@@ -44,21 +40,6 @@
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
   function ease(t) { t = clamp(t, 0, 1); return 1 - Math.pow(1 - t, 3); }
 
-  /* El encendido de un foco de estadio: no sube en rampa, titila
-     dos veces y se queda. Tiempo en segundos desde que arranca. */
-  function titileo(t) {
-    var K = [[0, 0], [0.06, 0], [0.11, 0.85], [0.17, 0.12], [0.27, 0.95],
-             [0.34, 0.45], [0.46, 1]];
-    if (t >= 0.46) return 1;
-    for (var i = 1; i < K.length; i++) {
-      if (t <= K[i][0]) {
-        var a = K[i - 1], b = K[i];
-        return a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]);
-      }
-    }
-    return 1;
-  }
-
   window.ESTADIO_mount = function (canvas) {
     if (!canvas) return false;
     var hero = canvas.closest(".hero");
@@ -68,10 +49,6 @@
 
     var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var root = document.documentElement;
-
-    var pelota = new Image();
-    pelota.decoding = "async";
-    pelota.src = canvas.getAttribute("data-pelota") || "assets/img/pelota-rugby.webp";
 
     var W = 0, H = 0, DPR = 1, small = false;
     var f, cy0, ox, camX, camZ, camH, sY, cYw, sP, cP;
@@ -139,19 +116,6 @@
                            borde(".hero-actions", "r") || 0);
       S.copyR = copyR || W * 0.5;
       S.actsB = borde(".hero-actions", "b") || c.t;
-      /* El foco va en el hueco entre el copete y el gráfico. */
-      var lw = Math.max(34, ch * 0.072), tTop = borde(".hero-title", "t");
-      var ly = Math.min(c.t - ch * 0.10, (tTop || c.t) - lw * 1.9);
-      /* el mástil baja hasta donde empieza el titular, nunca encima */
-      S.lamp = [W * 0.475, ly, lw, Math.max(0, Math.min(lw * 3, (tTop || H) - ly - 14))];
-      if (small) {
-        /* apilado, el foco va a la izquierda de la figura, debajo de
-           los botones, con el haz cruzando hacia los palos */
-        lw = Math.max(24, ch * 0.085);
-        S.lamp = [Math.max(lw * 1.2, cl - cw * 0.32), Math.max((S.actsB || 0) + lw * 2.1, c.t + ch * 0.1), lw, lw * 1.6];
-      }
-      /* La pelota en el tee, delante de los palos. */
-      S.ball = [spotX, spotY + ch * 0.075, ch * 0.13];
       return true;
     }
 
@@ -190,7 +154,7 @@
     function draw(t) {
       ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
       ctx.clearRect(0, 0, W, H);
-      var luz = titileo(t);
+      var luz = reduced ? 1 : ease(t / 0.6);
       if (luz <= 0) return;
 
       /* ---- el pasto, iluminado ---- */
@@ -269,95 +233,6 @@
         ctx.fillStyle = gm; ctx.fillRect(0, 0, x2, H);
       }
       ctx.globalCompositeOperation = "source-over";
-
-      /* ---- el foco ---- */
-      if (S.lamp) foco(S.lamp[0], S.lamp[1], S.lamp[2], S.lamp[3], luz, P3(TRY, 0, MZ));
-
-      /* ---- la pelota en el tee ---- */
-      var pa = reduced ? 1 : ease((t - 1.35) / 0.5);
-      if (pa > 0 && pelota.complete && pelota.naturalWidth) {
-        var bh = S.ball[2], bw = bh * pelota.naturalWidth / pelota.naturalHeight;
-        var bx = S.ball[0], by = S.ball[1] - (1 - pa) * bh * 0.08;
-        /* sombra de contacto: el tee apoya en el pasto */
-        ctx.save(); ctx.translate(S.ball[0], S.ball[1] + bh * 0.5); ctx.scale(1, 0.24);
-        var gs = ctx.createRadialGradient(0, 0, 0, 0, 0, bw * 0.9);
-        gs.addColorStop(0, "rgba(1,10,24," + (0.55 * pa) + ")"); gs.addColorStop(1, "rgba(1,10,24,0)");
-        ctx.fillStyle = gs; ctx.fillRect(-bw, -bw, bw * 2, bw * 2);
-        ctx.restore();
-        ctx.globalAlpha = pa;
-        ctx.drawImage(pelota, bx - bw / 2, by - bh / 2, bw, bh);
-        ctx.globalAlpha = 1;
-      }
-    }
-
-    /* Un foco de estadio: el cabezal es una grilla de lámparas sobre
-       una placa oscura, con su resplandor y un haz que baja hasta los
-       palos. Todo en 'lighter', que suma luz como suma la luz. */
-    function foco(x, y, w, mast, a, dest) {
-      if (a <= 0) return;
-      var cols = 6, rows = 3, cw = w / cols, h = cw * rows;
-      ctx.globalCompositeOperation = "lighter";
-      /* el haz: varios conos superpuestos dan un borde blando */
-      var dx = dest[0] - x, dy = dest[1] - y, dl = Math.hypot(dx, dy);
-      var nx = -dy / dl, ny = dx / dl;
-      for (var c = 0; c < 4; c++) {
-        var sp = w * (0.8 + c * 0.8);
-        var gb = ctx.createLinearGradient(x, y, dest[0], dest[1]);
-        gb.addColorStop(0, "rgba(160,220,255," + (0.028 * a) + ")");
-        gb.addColorStop(0.75, "rgba(160,220,255," + (0.010 * a) + ")");
-        gb.addColorStop(1, "rgba(160,220,255,0)");
-        ctx.fillStyle = gb;
-        ctx.beginPath();
-        ctx.moveTo(x - nx * w * 0.35, y - ny * w * 0.35); ctx.lineTo(x + nx * w * 0.35, y + ny * w * 0.35);
-        ctx.lineTo(dest[0] + nx * sp, dest[1] + ny * sp); ctx.lineTo(dest[0] - nx * sp, dest[1] - ny * sp);
-        ctx.closePath(); ctx.fill();
-      }
-      /* resplandor */
-      var R = w * 1.9;
-      var g = ctx.createRadialGradient(x, y, 0, x, y, R);
-      g.addColorStop(0, "rgba(205,238,255," + (0.34 * a) + ")");
-      g.addColorStop(0.22, "rgba(140,210,250," + (0.12 * a) + ")");
-      g.addColorStop(1, "rgba(69,174,229,0)");
-      ctx.fillStyle = g; ctx.fillRect(x - R, y - R, R * 2, R * 2);
-      /* destello horizontal, el de la lente */
-      var fw = w * 2.6;
-      var fl = ctx.createLinearGradient(x - fw, 0, x + fw, 0);
-      fl.addColorStop(0, "rgba(150,215,255,0)");
-      fl.addColorStop(0.5, "rgba(205,238,255," + (0.3 * a) + ")");
-      fl.addColorStop(1, "rgba(150,215,255,0)");
-      ctx.fillStyle = fl; ctx.fillRect(x - fw, y - 0.6, fw * 2, 1.2);
-
-      /* el mástil: apenas se insinúa y se pierde en la noche */
-      ctx.globalCompositeOperation = "source-over";
-      if (mast > 4) {
-        var gmx = ctx.createLinearGradient(0, y, 0, y + mast);
-        gmx.addColorStop(0, "rgba(120,170,215," + (0.32 * Math.min(1, a * 2)) + ")");
-        gmx.addColorStop(1, "rgba(120,170,215,0)");
-        ctx.fillStyle = gmx; ctx.fillRect(x - 0.75, y, 1.5, mast);
-      }
-
-      /* el cabezal, inclinado hacia la cancha: placa con marco y una
-         grilla de lámparas redondas, cada una con su núcleo */
-      ctx.save();
-      ctx.translate(x, y); ctx.rotate(-0.1);
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "rgba(5,22,44," + Math.min(1, a * 2) * 0.95 + ")";
-      ctx.strokeStyle = "rgba(140,200,240," + (0.35 * Math.min(1, a * 2)) + ")";
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.rect(-w / 2 - 2, -h / 2 - 2, w + 4, h + 4); ctx.fill(); ctx.stroke();
-      ctx.globalCompositeOperation = "lighter";
-      var lr = cw * 0.36;
-      for (var i = 0; i < cols; i++) for (var j = 0; j < rows; j++) {
-        var lx = -w / 2 + cw * (i + 0.5), ly = -h / 2 + cw * (j + 0.5);
-        var gl = ctx.createRadialGradient(lx, ly, 0, lx, ly, lr * 1.9);
-        gl.addColorStop(0, "rgba(250,254,255," + a + ")");
-        gl.addColorStop(0.45, "rgba(196,236,255," + (0.8 * a) + ")");
-        gl.addColorStop(0.62, "rgba(120,200,250," + (0.25 * a) + ")");
-        gl.addColorStop(1, "rgba(120,200,250,0)");
-        ctx.fillStyle = gl; ctx.fillRect(lx - lr * 1.9, ly - lr * 1.9, lr * 3.8, lr * 3.8);
-      }
-      ctx.restore();
-      ctx.globalCompositeOperation = "source-over";
     }
 
     /* ---------------- la entrada ---------------- */
@@ -375,8 +250,6 @@
       t0 = performance.now();
       raf = requestAnimationFrame(frame);
     }
-    /* Si la pelota llega después de la entrada, se repinta una vez. */
-    pelota.addEventListener("load", function () { if (listo && !raf) draw(1e3); });
 
     if (root.classList.contains("is-ready")) arrancar();
     else {
