@@ -364,6 +364,8 @@
   function initChrome() {
     var nav = document.querySelector("[data-nav]");
     var bar = document.querySelector("[data-progress]");
+    var ball = document.querySelector("[data-progress-ball]");
+    var quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var wa = document.querySelector("[data-wa]");
     var t = false, prevY = window.scrollY || 0;
     /* El nav es fijo y opaco, así que al bajar pasa por encima de lo
@@ -385,7 +387,16 @@
         if (wa) wa.classList.toggle("is-in", y > window.innerHeight * 0.55);
         if (bar) {
           var max = document.documentElement.scrollHeight - window.innerHeight;
-          bar.style.transform = "scaleX(" + (max > 0 ? Math.min(y / max, 1) : 0).toFixed(4) + ")";
+          var p = max > 0 ? Math.min(y / max, 1) : 0;
+          bar.style.transform = "scaleX(" + p.toFixed(4) + ")";
+          /* la pelota va en la punta de la línea y gira según lo que
+             recorrió: una vuelta cada ~60 px, como si rodara */
+          if (ball) {
+            var bx = p * (window.innerWidth - 22);
+            var giro = quieto ? -12 : bx * 6;
+            ball.style.transform = "translateX(" + bx.toFixed(1) + "px) rotate(" + giro.toFixed(1) + "deg)";
+            ball.style.opacity = y > 40 ? "1" : "0";
+          }
         }
         t = false;
       });
