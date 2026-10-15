@@ -98,6 +98,9 @@
     /* Detrás del gráfico, la cancha de noche (estadio.js). */
     var est = document.querySelector("[data-estadio]");
     if (est && window.ESTADIO_mount) window.ESTADIO_mount(est);
+    /* La jugada al lado del lema (pizarra.js). */
+    var piz = document.querySelector("[data-pizarra]");
+    if (piz && window.PIZARRA_mount) window.PIZARRA_mount(piz);
   }
 
   /* ---------------- REVEAL ---------------- */

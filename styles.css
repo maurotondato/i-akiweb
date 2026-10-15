@@ -396,7 +396,13 @@ ul,ol{margin:0;padding:0;list-style:none}
   .cima-index li{padding:7px 14px}
 }
 
-.motto-band{background:var(--ink);color:#fff;padding-block:clamp(50px,8vw,96px)}
+.motto-band{background:var(--ink);color:#fff;padding-block:clamp(50px,8vw,96px);position:relative;overflow:hidden}
+/* La jugada: a la derecha de la frase en escritorio, debajo en el
+   teléfono. Es un lienzo que cubre la franja entera y se encuadra solo
+   en el espacio libre (pizarra.js). */
+.motto-cancha{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.motto-band .shell{position:relative;z-index:1}
+@media (max-width:760px){.motto-band{padding-bottom:calc(min(74vw,330px) + 40px)}}
 .cima-motto{font-family:var(--display);font-size:clamp(24px,3.6vw,46px);line-height:1.18;
   letter-spacing:-.035em;max-width:24ch;display:flex;flex-direction:column;gap:.18em}
 .motto-a{color:#9DB4CC}
@@ -949,23 +955,6 @@ ul,ol{margin:0;padding:0;list-style:none}
 .final-silueta{fill:rgba(69,174,229,.07)}
 .final-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px}
 .final-title{font-size:clamp(40px,7.4vw,96px);letter-spacing:-.05em;max-width:15ch}
-/* La cancha detrás de la pregunta: el círculo central con la línea de
-   mitad cruzando la sección de lado a lado. Se dibuja cuando entra el
-   titular, desde el punto del saque hacia afuera. */
-.final-head{position:relative;display:flex;justify-content:center;--d:clamp(300px,54vw,740px)}
-.final-cancha{position:absolute;left:50%;top:50%;z-index:-1;pointer-events:none;overflow:visible;
-  width:calc(var(--d) * 10.93);height:calc(var(--d) * 1.093);transform:translate(-50%,-50%);
-  /* la mitad de abajo del círculo se apaga antes de llegar al formulario */
-  -webkit-mask-image:linear-gradient(180deg,#000 56%,transparent 80%);mask-image:linear-gradient(180deg,#000 56%,transparent 80%)}
-.fc-l{fill:none;stroke:rgba(143,217,250,.2);stroke-width:1.5;vector-effect:non-scaling-stroke;
-  stroke-dasharray:1;stroke-dashoffset:1}
-.fc-mitad{stroke:url(#gMitad)}
-.fc-p{fill:rgba(143,217,250,.4);opacity:0;transition:opacity .6s var(--ease-out) .2s}
-.final-title.is-in ~ .final-cancha .fc-p{opacity:1}
-.final-title.is-in ~ .final-cancha .fc-circ{animation:fcTraza 1.8s var(--ease-out) .25s forwards}
-.final-title.is-in ~ .final-cancha .fc-mitad{animation:fcTraza 2.2s var(--ease-out) .1s forwards}
-@keyframes fcTraza{to{stroke-dashoffset:0}}
-@media (prefers-reduced-motion:reduce){.fc-l{stroke-dashoffset:0}.fc-p{opacity:1}}
 .final-text{font-size:17px;color:#9DB4CC;max-width:48ch;line-height:1.65}
 .final-actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:10px}
 .final .btn-ghost{color:#fff;border-color:rgba(255,255,255,.4)}
