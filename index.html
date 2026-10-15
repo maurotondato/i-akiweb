@@ -46,7 +46,7 @@
 <link rel="preload" href="assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/barlow-cond-600-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261067">
+<link rel="stylesheet" href="styles.css?v=20261069">
 </head>
 <body>
 
@@ -415,6 +415,9 @@
   <div class="shell case-inner">
     <p class="kicker reveal">Un proceso real</p>
     <h2 class="case-title reveal" data-split="words">Llegó con 21 años y un sueño: jugar con el estadio lleno.</h2>
+    <!-- El estadio del sueño: se va llenando a medida que se baja por
+         la historia (tribuna.js). -->
+    <div class="case-estadio" aria-hidden="true"><canvas class="case-tribuna" data-tribuna></canvas></div>
     <div class="case-body">
       <div class="case-col">
         <p class="case-text reveal">Era apertura de la primera de su club. Sabía lo que quería, pero necesitaba transformar ese deseo en compromiso y acciones concretas.</p>
@@ -581,11 +584,12 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261067"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261067"></script>
-<script defer src="hero.js?v=20261067"></script>
-<script defer src="estadio.js?v=20261067"></script>
-<script defer src="pizarra.js?v=20261067"></script>
-<script defer src="main.js?v=20261067"></script>
+<script defer src="lib/gsap.min.js?v=20261069"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261069"></script>
+<script defer src="hero.js?v=20261069"></script>
+<script defer src="estadio.js?v=20261069"></script>
+<script defer src="pizarra.js?v=20261069"></script>
+<script defer src="tribuna.js?v=20261069"></script>
+<script defer src="main.js?v=20261069"></script>
 </body>
 </html>

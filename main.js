@@ -101,6 +101,9 @@
     /* La jugada al lado del lema (pizarra.js). */
     var piz = document.querySelector("[data-pizarra]");
     if (piz && window.PIZARRA_mount) window.PIZARRA_mount(piz);
+    /* El estadio que se llena en el caso (tribuna.js). */
+    var tri = document.querySelector("[data-tribuna]");
+    if (tri && window.TRIBUNA_mount) window.TRIBUNA_mount(tri);
   }
 
   /* ---------------- REVEAL ---------------- */

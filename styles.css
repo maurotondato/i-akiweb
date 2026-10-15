@@ -846,6 +846,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .case{background:var(--bone);padding-block:clamp(70px,10vw,124px)}
 .case-inner{display:flex;flex-direction:column;gap:20px;align-items:flex-start}
 .case-title{font-size:clamp(30px,4.6vw,62px);line-height:1.02;letter-spacing:-.045em;max-width:22ch}
+/* El estadio del sueño, de noche: un panel como las fotos de la
+   galería, entre el título y la historia. */
+.case-estadio{align-self:stretch;position:relative;height:clamp(230px,30vw,400px);border-radius:16px;
+  overflow:hidden;background:#021428;margin-block:12px 18px;box-shadow:0 34px 70px -40px rgba(3,29,64,.65)}
+.case-tribuna{position:absolute;inset:0;width:100%;height:100%;display:block}
 .case-body{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,72px);
   margin-top:18px;width:100%;align-items:start}
 .case-col{display:flex;flex-direction:column;gap:18px}
