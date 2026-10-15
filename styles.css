@@ -105,12 +105,22 @@ ul,ol{margin:0;padding:0;list-style:none}
 .progress i{position:absolute;left:0;right:0;top:8px;display:block;height:2px;width:100%;
   background:linear-gradient(90deg,var(--signal),var(--cel));
   transform:scaleX(0);transform-origin:left;will-change:transform}
-.progress-pelota{position:absolute;left:0;top:2px;width:22px;height:14px;opacity:0;
+/* La pelota cambia de deporte a medida que se avanza: rugby, tenis,
+   básquet, golf y fútbol. Todas en el mismo dibujo: blanca, con el
+   contorno navy y sus costuras en celeste; cada cambio entra con un
+   pequeño rebote. */
+.progress-pelota{position:absolute;left:0;top:-2px;width:22px;height:22px;opacity:0;
   transition:opacity .35s var(--ease-out);will-change:transform}
 .progress-pelota svg{display:block;width:100%;height:100%;overflow:visible;
   filter:drop-shadow(0 1px 2px rgba(3,29,64,.35))}
-.progress-pelota ellipse{fill:#fff;stroke:#0B3A66;stroke-width:1.1}
-.progress-pelota path{fill:none;stroke:var(--cel);stroke-width:1.2;stroke-linecap:round}
+.progress-pelota ellipse,.progress-pelota circle{fill:#fff;stroke:#0B3A66;stroke-width:1.1}
+.progress-pelota path{fill:none;stroke:var(--cel);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
+.progress-pelota .pp-pent{fill:#0B3A66;stroke:#0B3A66;stroke-width:.6}
+.progress-pelota .pp-hoyuelos circle{fill:rgba(69,174,229,.55);stroke:none}
+.pp-b{opacity:0;transform:scale(.35);transform-box:fill-box;transform-origin:center;
+  transition:opacity .2s var(--ease-out),transform .42s cubic-bezier(.3,1.7,.5,1)}
+.pp-b.is-on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.pp-b{transition:opacity .2s linear;transform:none}}
 
 /* NAV */
 .nav{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;align-items:center;

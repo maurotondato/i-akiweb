@@ -365,6 +365,7 @@
     var nav = document.querySelector("[data-nav]");
     var bar = document.querySelector("[data-progress]");
     var ball = document.querySelector("[data-progress-ball]");
+    var pelotas = ball ? ball.querySelectorAll(".pp-b") : [], cual = 0;
     var quieto = matchMedia("(prefers-reduced-motion: reduce)").matches;
     var wa = document.querySelector("[data-wa]");
     var t = false, prevY = window.scrollY || 0;
@@ -396,6 +397,13 @@
             var giro = quieto ? -12 : bx * 6;
             ball.style.transform = "translateX(" + bx.toFixed(1) + "px) rotate(" + giro.toFixed(1) + "deg)";
             ball.style.opacity = y > 40 ? "1" : "0";
+            /* cada tramo de la página, otro deporte */
+            var k = Math.min(pelotas.length - 1, Math.floor(p * pelotas.length));
+            if (k !== cual && pelotas[k]) {
+              pelotas[cual].classList.remove("is-on");
+              pelotas[k].classList.add("is-on");
+              cual = k;
+            }
           }
         }
         t = false;
