@@ -360,6 +360,41 @@
     });
   }
 
+  /* ---------------- PASARELA DE DEPORTES ----------------
+     Cada fila se duplica las veces que haga falta para cubrir dos
+     anchos de pantalla, y corre en loop: la de arriba hacia la
+     izquierda, la de abajo hacia la derecha. Acelera con el scroll,
+     igual que la de clubes. Con movimiento reducido quedan quietas. */
+  function initDeportes() {
+    var tracks = document.querySelectorAll("[data-dep-track]");
+    if (!tracks.length || !hasGSAP || reduced) return;
+    var tls = [];
+    tracks.forEach(function (track) {
+      var d = track.scrollWidth;
+      if (!d) return;
+      var fila = track.parentNode, total = d, copias = [track];
+      while (total < window.innerWidth * 2 + d) {
+        var c = track.cloneNode(true);
+        c.removeAttribute("data-dep-track");
+        c.setAttribute("aria-hidden", "true");
+        fila.appendChild(c); copias.push(c); total += d;
+      }
+      var vel = parseFloat(track.dataset.depVel || "40");
+      var rev = track.hasAttribute("data-dep-rev");
+      tls.push(gsap.fromTo(copias, { x: rev ? -d : 0 }, { x: rev ? 0 : -d, duration: d / vel, ease: "none", repeat: -1 }));
+    });
+    var v = 0;
+    ScrollTrigger.create({
+      trigger: document.body, start: "top top", end: "bottom bottom",
+      onUpdate: function (self) { v = self.getVelocity(); }
+    });
+    gsap.ticker.add(function () {
+      var want = 1 + Math.min(Math.abs(v) / 1400, 2.4);
+      tls.forEach(function (tl) { tl.timeScale(tl.timeScale() + (want - tl.timeScale()) * 0.07); });
+      v *= 0.92;
+    });
+  }
+
   /* ---------------- NAV, PROGRESO Y WHATSAPP ---------------- */
   function initChrome() {
     var nav = document.querySelector("[data-nav]");
@@ -797,6 +832,7 @@
     safe(initWhyScroll, "whyScroll");
     safe(initWaForm, "waForm");
     safe(initMarquee, "marquee");
+    safe(initDeportes, "deportes");
     safe(initMagnetic, "magnetic");
     safe(initProgGlow, "progGlow");
     safe(initGaleria, "galeria");

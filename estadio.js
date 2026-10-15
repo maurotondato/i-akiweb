@@ -8,9 +8,10 @@
      fotos de stock y sin íconos sueltos: una cancha de noche, vista
      desde el campo hacia el arco, a la derecha de Iñaki.
 
-     Y no una sola: la cancha va cambiando de deporte —rugby, fútbol,
+     Y no una sola: la cancha va cambiando de deporte —fútbol, rugby,
      hockey y golf— porque el método es el mismo en cualquier
-     disciplina. Arranca con rugby, que es de donde viene él. (El
+     disciplina. Arranca con fútbol: Iñaki pidió que el rugby, que es
+     de donde viene él, no se lleve todo el peso. (El
      tenis se probó: con esta cámara baja la cancha queda chata y
      escondida detrás de Iñaki, y no se lee.)
 
@@ -52,16 +53,6 @@
   var PI = Math.PI;
   var a9 = Math.acos(5.5 / 9.15);
   var DEPORTES = [
-    { id: "rugby", esc: 1,
-      lineas: [
-        L(recta(0, 0, 0, -35), 0), L(recta(0, 0, 0, 35), 0),                       // try
-        L(recta(-8, 0, -8, -35), 0.1), L(recta(-8, 0, -8, 35), 0.1),               // pelota muerta
-        L(recta(-8, -35, 108, -35, 48), 0.18), L(recta(-8, 35, 108, 35, 48), 0.18),// laterales
-        L(recta(5, -35, 5, 35), 0.26, [1.2, 6]),                                   // 5 m
-        L(recta(22, -35, 22, 35), 0.34),                                           // 22
-        L(recta(40, -35, 40, 35), 0.42, [2, 3]),                                   // 10 m
-        L(recta(50, -35, 50, 35), 0.48)                                            // mitad
-      ] },
     { id: "fútbol", esc: 1.25,
       lineas: [
         L(recta(0, 0, 0, -34), 0), L(recta(0, 0, 0, 34), 0),                       // fondo
@@ -73,6 +64,16 @@
         L(arco(52.5, 0, 9.15, 0, 2 * PI, 48), 0.46)
       ]),
       puntos: [[11, 0]] },
+    { id: "rugby", esc: 1,
+      lineas: [
+        L(recta(0, 0, 0, -35), 0), L(recta(0, 0, 0, 35), 0),                       // try
+        L(recta(-8, 0, -8, -35), 0.1), L(recta(-8, 0, -8, 35), 0.1),               // pelota muerta
+        L(recta(-8, -35, 108, -35, 48), 0.18), L(recta(-8, 35, 108, 35, 48), 0.18),// laterales
+        L(recta(5, -35, 5, 35), 0.26, [1.2, 6]),                                   // 5 m
+        L(recta(22, -35, 22, 35), 0.34),                                           // 22
+        L(recta(40, -35, 40, 35), 0.42, [2, 3]),                                   // 10 m
+        L(recta(50, -35, 50, 35), 0.48)                                            // mitad
+      ] },
     { id: "hockey", esc: 1.45,
       lineas: [
         L(recta(0, 0, 0, -27.45), 0), L(recta(0, 0, 0, 27.45), 0),                 // fondo
