@@ -6,10 +6,10 @@
 
      El caso real de la página cuenta de un apertura de 21 años cuyo
      sueño era jugar con el estadio lleno. Debajo del título va ese
-     estadio, de noche y vacío; a medida que se baja por la historia
-     se va llenando: se encienden las linternas de los celulares, saltan
-     los flashes y, cuando está lleno, se prenden los carteles LED de
-     la cancha con la frase de la marca.
+     estadio, de noche y vacío, con él corriendo en la cancha; a
+     medida que se baja por la historia se va llenando: se encienden
+     las linternas de los celulares, saltan los flashes y, cuando está
+     lleno, se prenden los carteles LED con la frase de la marca.
 
      El llenado depende del scroll, no del tiempo: si se vuelve para
      arriba, el estadio se vacía. Encima de eso, con el estadio a
@@ -154,6 +154,13 @@
       ctx.fillRect(x - r * 0.9, y - 0.5, r * 1.8, 1); ctx.fillRect(x - 0.5, y - r * 0.9, 1, r * 1.8);
     }
 
+    /* el protagonista del caso, recortado y pasado a la luz de la
+       noche (más frío, con luz de contorno desde los focos) */
+    var jugador = new Image();
+    jugador.decoding = "async";
+    jugador.src = canvas.getAttribute("data-jugador") || "assets/img/caso-jugador.webp";
+    jugador.addEventListener("load", function () { if (W) { lleno = -1; pedir(); } });
+
     /* el brillo de una linterna, dibujado una vez */
     var BRILLO = (function () {
       var b = document.createElement("canvas"), R = 32; b.width = b.height = R * 2;
@@ -241,6 +248,32 @@
         var fl = flashes[j], e = (now - fl.t) / 380;
         if (e >= 1) { flashes.splice(j, 1); continue; }
         flash(fl.x, fl.y, (1 - e) * (1 - e), fl.s);
+      }
+
+      /* el jugador: en la cancha, delante de la tribuna. Corre hacia
+         la izquierda, así que va a la derecha del centro y el lugar
+         libre queda delante de él. A medida que el estadio se llena
+         avanza un poco, como si entrara corriendo. */
+      if (jugador.complete && jugador.naturalWidth) {
+        var jh = H * 0.9, jw = jh * jugador.naturalWidth / jugador.naturalHeight;
+        var pie = H * 0.985, jx = W * (W < 600 ? 0.6 : 0.64) - jw / 2 - f * W * 0.035;
+        var sc = 1 + f * 0.035;
+        /* la sombra en el pasto, bajo el pie de apoyo */
+        ctx.save(); ctx.translate(jx + jw * 0.78, pie - jh * 0.02); ctx.scale(1, 0.16);
+        var gs = ctx.createRadialGradient(0, 0, 0, 0, 0, jw * 0.6);
+        gs.addColorStop(0, "rgba(1,8,20,.55)"); gs.addColorStop(1, "rgba(1,8,20,0)");
+        ctx.fillStyle = gs; ctx.fillRect(-jw, -jw, jw * 2, jw * 2);
+        ctx.restore();
+        /* un halo detrás que lo despega de la tribuna */
+        ctx.globalCompositeOperation = "lighter";
+        var cx = jx + jw * 0.5, cy = pie - jh * 0.55;
+        var gh = ctx.createRadialGradient(cx, cy, 0, cx, cy, jh * 0.6);
+        gh.addColorStop(0, "rgba(69,174,229," + (0.1 + 0.08 * f) + ")"); gh.addColorStop(1, "rgba(69,174,229,0)");
+        ctx.fillStyle = gh; ctx.fillRect(cx - jh * 0.6, cy - jh * 0.6, jh * 1.2, jh * 1.2);
+        ctx.globalCompositeOperation = "source-over";
+        ctx.save(); ctx.translate(jx + jw / 2, pie); ctx.scale(sc, sc);
+        ctx.drawImage(jugador, -jw / 2, -jh, jw, jh);
+        ctx.restore();
       }
     }
 
