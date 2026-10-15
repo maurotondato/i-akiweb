@@ -98,25 +98,34 @@ ul,ol{margin:0;padding:0;list-style:none}
 /* La barra de progreso es una línea de cancha: la lateral fina, con
    las marcas de cada diez por ciento, y una pelota de rugby que la
    recorre girando a medida que se baja. */
-.progress{position:fixed;top:0;left:0;right:0;height:16px;z-index:95;pointer-events:none}
-.progress::before{content:"";position:absolute;left:0;right:0;top:7px;height:5px;
+.progress{position:fixed;top:0;left:0;right:0;height:24px;z-index:95;pointer-events:none}
+.progress::before{content:"";position:absolute;left:0;right:0;top:10px;height:5px;
   background:linear-gradient(rgba(69,174,229,.2),rgba(69,174,229,.2)) 0 2px/100% 1px no-repeat,
     linear-gradient(90deg,transparent calc(100% - 1px),rgba(69,174,229,.38) 0) 0 0/10% 100% repeat-x}
-.progress i{position:absolute;left:0;right:0;top:8px;display:block;height:2px;width:100%;
+.progress i{position:absolute;left:0;right:0;top:11px;display:block;height:2px;width:100%;
   background:linear-gradient(90deg,var(--signal),var(--cel));
   transform:scaleX(0);transform-origin:left;will-change:transform}
 /* La pelota cambia de deporte a medida que se avanza: rugby, tenis,
-   básquet, golf y fútbol. Todas en el mismo dibujo: blanca, con el
-   contorno navy y sus costuras en celeste; cada cambio entra con un
-   pequeño rebote. */
-.progress-pelota{position:absolute;left:0;top:-2px;width:22px;height:22px;opacity:0;
+   básquet, vóley y fútbol. Mismo contorno navy para todas; cada
+   cambio entra con un pequeño rebote. */
+.progress-pelota{position:absolute;left:0;top:-2px;width:28px;height:28px;opacity:0;
   transition:opacity .35s var(--ease-out);will-change:transform}
+@media (max-width:760px){.progress-pelota{top:0;width:24px;height:24px}}
 .progress-pelota svg{display:block;width:100%;height:100%;overflow:visible;
   filter:drop-shadow(0 1px 2px rgba(3,29,64,.35))}
 .progress-pelota ellipse,.progress-pelota circle{fill:#fff;stroke:#0B3A66;stroke-width:1.1}
 .progress-pelota path{fill:none;stroke:var(--cel);stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round}
-.progress-pelota .pp-pent{fill:#0B3A66;stroke:#0B3A66;stroke-width:.6}
-.progress-pelota .pp-hoyuelos circle{fill:rgba(69,174,229,.55);stroke:none}
+/* a este tamaño, lo que hace reconocible a cada pelota es su color:
+   la de tenis amarilla con costura blanca, la de básquet naranja */
+.pp-tenis circle{fill:#D6EA3F}
+.pp-tenis path{stroke:#fff;stroke-width:1.5}
+.pp-basquet circle{fill:#E8843A}
+.pp-basquet path{stroke:#0B3A66;stroke-width:1.1}
+.pp-voley .pp-franja{fill:var(--cel);stroke:none}
+.pp-voley path{stroke:#0B3A66;stroke-width:.9}
+.pp-futbol circle{stroke-width:2.2}
+.pp-futbol .pp-gajos{fill:#0B3A66;stroke:none}
+.pp-futbol path{stroke:#0B3A66;stroke-width:.9}
 .pp-b{opacity:0;transform:scale(.35);transform-box:fill-box;transform-origin:center;
   transition:opacity .2s var(--ease-out),transform .42s cubic-bezier(.3,1.7,.5,1)}
 .pp-b.is-on{opacity:1;transform:none}

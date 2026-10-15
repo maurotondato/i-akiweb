@@ -393,7 +393,7 @@
           /* la pelota va en la punta de la línea y gira según lo que
              recorrió: una vuelta cada ~60 px, como si rodara */
           if (ball) {
-            var bx = p * (window.innerWidth - 22);
+            var bx = p * (window.innerWidth - ball.offsetWidth);
             var giro = quieto ? -12 : bx * 6;
             ball.style.transform = "translateX(" + bx.toFixed(1) + "px) rotate(" + giro.toFixed(1) + "deg)";
             ball.style.opacity = y > 40 ? "1" : "0";
