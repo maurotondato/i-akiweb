@@ -158,24 +158,20 @@
   function initCountUp() {
     document.querySelectorAll("[data-count-to]").forEach(function (el) {
       var target = parseFloat(el.dataset.countTo), done = false;
-      /* Las medallas y el trofeo del caso acompañan al contador: cada
-         medalla aparece cuando el número llega a ella, y el trofeo se
-         levanta cuando termina. Se esconden recién acá, con JS, para
-         que sin JS se vean igual. */
+      /* El trofeo y la medalla del caso acompañan al contador: entran
+         cuando arranca y, al terminar, la medalla se balancea y la copa
+         brilla. Se esconden recién acá, con JS, para que sin JS se vean. */
       var stat = el.closest(".stat");
-      var medallas = stat ? stat.querySelectorAll(".medalla") : [];
-      var anim = stat && (medallas.length || stat.querySelector(".stat-trofeo")) && hasGSAP && !reduced;
+      var anim = stat && stat.querySelector(".stat-ico") && hasGSAP && !reduced;
       if (anim) stat.classList.add("stat-anim");
-      function marcar(v) {
-        for (var i = 0; i < medallas.length; i++) medallas[i].classList.toggle("is-on", i < v);
-      }
       function run() {
         if (done) return; done = true;
         if (hasGSAP && !reduced) {
+          if (anim) stat.classList.add("is-run");
           var o = { v: 0 };
           gsap.to(o, { v: target, duration: 1.5, ease: "power2.out",
-            onUpdate: function () { var r = Math.round(o.v); el.textContent = r; marcar(r); },
-            onComplete: function () { if (stat) stat.classList.add("is-won"); } });
+            onUpdate: function () { el.textContent = Math.round(o.v); },
+            onComplete: function () { if (anim) stat.classList.add("is-won"); } });
         } else el.textContent = target;
       }
       /* El conteo tiene que pasar DELANTE del visitante. Antes había un
