@@ -158,6 +158,15 @@ section[tabindex="-1"]:focus,header[tabindex="-1"]:focus{outline:none}
 h2,h3,h4{text-wrap:balance}
 p,li{text-wrap:pretty}
 
+/* ALTOS ESTABLES EN EL TELÉFONO
+   En los navegadores de Instagram y WhatsApp (y en algunos de Android)
+   la unidad vh cambia cada vez que la barra de direcciones se esconde
+   o aparece. Todo lo que mide el alto de la página con vh crecía y se
+   achicaba mientras se scrolleaba, y eso movía el contenido y
+   disparaba re-mediciones: era el "salta solo a otra sección". Los
+   altos de layout usan svh —el alto con la barra visible, que no
+   cambia nunca—, con vh de respaldo para navegadores viejos. */
+
 /* NAV */
 .nav{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;align-items:center;
   justify-content:space-between;gap:20px;padding:16px var(--gut);background:transparent;
@@ -445,9 +454,10 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
    Un paso por vez: entra completo incluso en 13". */
 .cima{background:var(--ink);color:#fff;position:relative}
 .cima-pin{min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-  gap:clamp(20px,3.4vh,40px);padding-block:clamp(84px,11vh,112px) clamp(40px,6vh,64px)}
+  gap:clamp(20px,3.4vh,40px);padding-block:clamp(84px,11vh,112px) clamp(40px,6vh,64px);
+  gap:clamp(20px,3.4svh,40px);padding-block:clamp(84px,11svh,112px) clamp(40px,6svh,64px)}
 .cima-head{max-width:1320px;margin:0 auto;width:100%;padding-inline:var(--gut);
-  display:flex;flex-direction:column;gap:clamp(14px,2vh,22px)}
+  display:flex;flex-direction:column;gap:clamp(14px,2vh,22px);gap:clamp(14px,2svh,22px)}
 .cima-index{display:flex;flex-wrap:wrap;gap:clamp(10px,1.6vw,22px)}
 .cima-index li{display:flex;align-items:baseline;gap:9px;padding:7px 15px 7px 13px;border-radius:999px;
   border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.02);
@@ -483,7 +493,7 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   transition:opacity .45s var(--ease-out),transform .45s var(--ease-out)}
 .peak.is-on{opacity:1;transform:scale(1);filter:drop-shadow(0 0 10px rgba(69,174,229,.95))}
 
-.cima-right{position:relative;min-height:clamp(300px,38vh,370px)}
+.cima-right{position:relative;min-height:clamp(300px,38vh,370px);min-height:clamp(300px,38svh,370px)}
 .plano{position:absolute;inset:0;display:flex;flex-direction:column;gap:10px;justify-content:center;
   opacity:0;transform:translateY(26px);pointer-events:none;
   transition:opacity .55s var(--ease-out),transform .55s var(--ease-out)}
@@ -958,7 +968,7 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
    fotos más chicas entraban tres enteras en un portátil de 13" y el
    carrusel se terminaba en un solo clic. */
 .gal-item{position:relative;flex:none;overflow:hidden;border-radius:16px;isolation:isolate;
-  background:var(--ink-2);height:clamp(350px,58vh,580px);scroll-snap-align:start}
+  background:var(--ink-2);height:clamp(350px,58vh,580px);height:clamp(350px,58svh,580px);scroll-snap-align:start}
 .gw{aspect-ratio:3/2}
 .gt{aspect-ratio:3/4}
 .gm{aspect-ratio:4/5}
@@ -1023,11 +1033,11 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 
 @media (max-width:860px){
   .gal-rail{gap:12px}
-  .gal-item{height:clamp(300px,48vh,440px);border-radius:12px;scroll-snap-align:center}
+  .gal-item{height:clamp(300px,48vh,440px);height:clamp(300px,48svh,440px);border-radius:12px;scroll-snap-align:center}
   .gal-item img{left:0;width:100%;transform:none}
 }
 @media (max-width:420px){
-  .gal-item{height:clamp(280px,44vh,380px)}
+  .gal-item{height:clamp(280px,44vh,380px);height:clamp(280px,44svh,380px)}
 }
 
 /* ---------------- UN PROCESO (sin foto) ---------------- */

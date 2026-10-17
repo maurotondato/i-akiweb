@@ -12,7 +12,46 @@
        un resize. Sin esto, cada uno de esos resize hace un refresh de
        ScrollTrigger y, con la sección CIMA pineada, el scroll se va
        de lugar: era buena parte del "se vuelve para arriba solo". */
-    ScrollTrigger.config({ ignoreMobileResize: true });
+    /* "load" sale de los refresh automáticos: la página termina de
+       cargar cuando el visitante ya puede estar scrolleando, y un
+       refresh en pleno gesto lleva el scroll a 0 y lo devuelve —en
+       el teléfono eso se siente como un salto—. El de "load" lo
+       hacemos nosotros, esperando a que el dedo se quede quieto. */
+    ScrollTrigger.config({ ignoreMobileResize: true,
+      autoRefreshEvents: "visibilitychange,DOMContentLoaded,resize" });
+  }
+
+  /* El alto de pantalla "estable": el de la barra de direcciones
+     visible (svh). window.innerHeight cambia cada vez que la barra se
+     esconde; usarlo para medir el tramo pineado de CIMA hacía que su
+     largo dependiera de en qué momento caía el refresh. Se mide una
+     vez y solo se vuelve a medir si cambia el ancho (giro de pantalla). */
+  var altoEstable = (function () {
+    var v = 0, w = 0;
+    return function () {
+      if (v && w === window.innerWidth) return v;
+      var probe = document.createElement("div");
+      probe.style.cssText = "position:absolute;top:0;left:0;width:1px;visibility:hidden;pointer-events:none;height:100vh;height:100svh";
+      document.body.appendChild(probe);
+      v = probe.offsetHeight || window.innerHeight;
+      probe.remove();
+      w = window.innerWidth;
+      return v;
+    };
+  })();
+
+  /* Un refresh nunca durante un scroll: espera a que pasen 450 ms sin
+     que la página se mueva y sin el dedo apoyado. */
+  var ultimoMovimiento = 0, dedoApoyado = false;
+  addEventListener("scroll", function () { ultimoMovimiento = Date.now(); }, { passive: true });
+  addEventListener("touchstart", function () { dedoApoyado = true; ultimoMovimiento = Date.now(); }, { passive: true });
+  addEventListener("touchend", function () { dedoApoyado = false; ultimoMovimiento = Date.now(); }, { passive: true });
+  addEventListener("touchcancel", function () { dedoApoyado = false; }, { passive: true });
+  function cuandoQuieto(fn) {
+    (function esperar() {
+      if (dedoApoyado || Date.now() - ultimoMovimiento < 450) setTimeout(esperar, 200);
+      else fn();
+    })();
   }
   var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   var fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
@@ -647,7 +686,7 @@
     var st = ScrollTrigger.create({
       trigger: sec,
       start: "top top",
-      end: function () { return "+=" + window.innerHeight * 3.4; },
+      end: function () { return "+=" + altoEstable() * 3.4; },
       pin: ".cima-pin",
       scrub: 0.6,
       anticipatePin: 1,
@@ -967,7 +1006,7 @@
     if (hasGSAP) {
       var resort = function () { ScrollTrigger.sort(); ScrollTrigger.refresh(); };
       resort();
-      window.addEventListener("load", resort);
+      window.addEventListener("load", function () { cuandoQuieto(resort); });
 
       /* Antes, CADA foto lazy que terminaba de cargar disparaba un
          refresh. Con la sección CIMA pineada, un refresh recalcula el
@@ -982,10 +1021,12 @@
       var remedir = function () {
         clearTimeout(demora);
         demora = setTimeout(function () {
-          var h = document.documentElement.scrollHeight;
-          if (h === alto) return;
-          alto = h;
-          resort();
+          cuandoQuieto(function () {
+            var h = document.documentElement.scrollHeight;
+            if (h === alto) return;
+            alto = h;
+            resort();
+          });
         }, 240);
       };
       document.querySelectorAll("img[loading=lazy]").forEach(function (im) {
