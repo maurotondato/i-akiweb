@@ -71,11 +71,18 @@ ul,ol{margin:0;padding:0;list-style:none}
 .skip{position:absolute;left:-9999px;top:0;z-index:10001;background:var(--ink);color:#fff;padding:12px 18px}
 .skip:focus{left:0}
 :focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:3px}
+/* Sobre los fondos navy el azul del foco casi no se ve: ahí va celeste. */
+:is(.hero,.cima,.motto-band,.dep,.gal,.final,.site-foot,.menu-movil,.nav:not(.is-solid)) :focus-visible{outline-color:var(--cel-lt)}
+/* En el teléfono el feedback del toque lo dan los estados :active,
+   no el recuadro gris del navegador; y sin la espera del doble toque. */
+a,button,label,summary,[role="button"]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+::selection{background:var(--cel);color:var(--ink)}
 
 /* SPLASH */
 .splash{position:fixed;inset:0;z-index:10000;background:var(--ink);display:grid;place-items:center;
   transition:opacity .9s var(--ease-out),clip-path 1.1s var(--ease-out);animation:splashSafety .01s 4.5s forwards}
 .splash.is-out{opacity:0;pointer-events:none;clip-path:inset(0 0 100% 0)}
+.sin-splash .splash{display:none}
 @keyframes splashSafety{to{opacity:0;pointer-events:none;clip-path:inset(0 0 100% 0)}}
 .splash-inner{display:flex;flex-direction:column;align-items:center;gap:24px}
 .splash-mark{width:clamp(150px,22vw,230px);height:auto}
@@ -131,6 +138,26 @@ ul,ol{margin:0;padding:0;list-style:none}
 .pp-b.is-on{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){.pp-b{transition:opacity .2s linear;transform:none}}
 
+/* Al saltar a una sección (o con el link "Saltar al contenido"), el
+   título no queda debajo del nav fijo. */
+section[id],header[id]{scroll-margin-top:72px}
+/* el foco que se lleva a una sección al saltar no dibuja un marco
+   alrededor de toda la sección */
+section[tabindex="-1"]:focus,header[tabindex="-1"]:focus{outline:none}
+
+/* Las fotos que todavía no terminaron de bajar cuando aparecen entran
+   con un fundido corto en vez de pintarse a medias (main.js marca
+   solo las que no estaban listas). Es animación y no transition para
+   no pisar las transiciones propias de cada foto. */
+.img-carga:not(.img-lista){opacity:0}
+.img-lista{animation:imgEntra .6s var(--ease-out)}
+@keyframes imgEntra{from{opacity:0}to{opacity:1}}
+
+/* Títulos con los renglones parejos y párrafos sin una palabra sola
+   en el último renglón. No cambia ningún texto, solo dónde corta. */
+h2,h3,h4{text-wrap:balance}
+p,li{text-wrap:pretty}
+
 /* NAV */
 .nav{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;align-items:center;
   justify-content:space-between;gap:20px;padding:16px var(--gut);background:transparent;
@@ -164,6 +191,83 @@ ul,ol{margin:0;padding:0;list-style:none}
 .nav-links a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--cel);
   transform:scaleX(0);transform-origin:right;transition:transform .35s var(--ease-out)}
 @media (hover:hover) and (pointer:fine){.nav-links a:hover::after{transform:scaleX(1);transform-origin:left}}
+/* la sección en la que estás queda subrayada */
+.nav-links a.is-current::after{transform:scaleX(1);transform-origin:left}
+
+/* MENÚ DEL TELÉFONO
+   El botón son dos barras que se cruzan en una X; el panel se abre
+   como un círculo que crece desde el botón —se ve de dónde salió— y
+   los links entran escalonados. Todo con transition, no keyframes:
+   si se toca el botón a mitad de camino, vuelve desde donde está. */
+.nav-toggle{display:none;position:relative;width:44px;height:44px;flex:none;border:0;border-radius:50%;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.34);cursor:pointer;color:#fff;
+  transition:background .3s var(--ease-out),border-color .3s var(--ease-out),color .3s var(--ease-out)}
+.nav.is-solid .nav-toggle{background:var(--bone);border-color:var(--hair);color:var(--ink)}
+.nav-toggle i{position:absolute;left:13px;right:13px;height:2px;border-radius:2px;background:currentColor;
+  transition:transform .32s var(--ease-out),top .32s var(--ease-out)}
+.nav-toggle i:nth-child(1){top:17px}
+.nav-toggle i:nth-child(2){top:25px}
+.nav-toggle:active{transform:scale(.94)}
+.menu-abierto .nav-toggle i:nth-child(1){top:21px;transform:rotate(45deg)}
+.menu-abierto .nav-toggle i:nth-child(2){top:21px;transform:rotate(-45deg)}
+/* con el menú abierto el nav queda sobre el panel navy: logo blanco,
+   sin fondo, y no se esconde al bajar */
+.nav.menu-abierto{background:transparent;border-bottom-color:transparent;transform:none}
+.nav.menu-abierto .brand-dark{opacity:1}
+.nav.menu-abierto .brand-light{opacity:0}
+.nav.menu-abierto .nav-toggle{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.34);color:#fff}
+.nav.menu-abierto .btn-sm{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.34)}
+.menu-movil{position:fixed;inset:0;z-index:89;background:var(--ink);color:#fff;
+  display:flex;flex-direction:column;justify-content:center;gap:clamp(28px,6vh,48px);
+  padding:calc(var(--nav-h, 80px) + 20px) var(--gut) calc(32px + env(safe-area-inset-bottom,0px));
+  overscroll-behavior:contain;overflow-y:auto;
+  clip-path:circle(0 at var(--mx,90%) var(--my,40px));visibility:hidden;
+  transition:clip-path .5s var(--ease-out),visibility 0s linear .5s}
+.menu-movil.is-open{clip-path:circle(150% at var(--mx,90%) var(--my,40px));visibility:visible;
+  transition:clip-path .55s var(--ease-out),visibility 0s}
+.menu-movil[hidden]{display:none}
+.menu-movil-links{display:flex;flex-direction:column;gap:clamp(6px,1.6vh,14px)}
+.menu-movil-links a{font-family:var(--display);font-size:clamp(34px,9.5vw,52px);line-height:1.08;letter-spacing:-.045em;
+  color:#fff;text-decoration:none;align-self:flex-start;
+  opacity:0;translate:0 18px;transition:opacity .3s var(--ease-out),translate .45s var(--ease-out),color .25s ease}
+.menu-movil.is-open .menu-movil-links a{opacity:1;translate:0 0}
+.menu-movil.is-open .menu-movil-links a:nth-child(1){transition-delay:.12s,.12s,0s}
+.menu-movil.is-open .menu-movil-links a:nth-child(2){transition-delay:.16s,.16s,0s}
+.menu-movil.is-open .menu-movil-links a:nth-child(3){transition-delay:.20s,.20s,0s}
+.menu-movil.is-open .menu-movil-links a:nth-child(4){transition-delay:.24s,.24s,0s}
+.menu-movil.is-open .menu-movil-links a:nth-child(5){transition-delay:.28s,.28s,0s}
+.menu-movil-links a.is-current{color:var(--cel)}
+.menu-movil-links a:active{color:var(--cel)}
+.menu-movil > .btn{align-self:flex-start;opacity:0;translate:0 18px;
+  transition:opacity .3s var(--ease-out),translate .45s var(--ease-out)}
+.menu-movil.is-open > .btn{opacity:1;translate:0 0;transition-delay:.34s}
+html.menu-open{overflow:hidden}
+@media (max-width:980px){
+  .nav-toggle{display:block}
+  .nav{gap:10px}
+  .nav .btn-sm{margin-left:auto}
+}
+.nav .btn-sm{white-space:nowrap}
+@media (max-width:420px){
+  .brand img{width:128px}
+  .nav .btn-sm{padding:10px 15px;font-size:12.5px}
+}
+@media (max-width:374px){
+  .brand img{width:112px}
+  .nav .btn-sm{padding:9px 12px;font-size:12px}
+  .nav-toggle{width:40px;height:40px}
+  .nav-toggle i{left:12px;right:12px}
+  .nav-toggle i:nth-child(1){top:15px}.nav-toggle i:nth-child(2){top:23px}
+  .menu-abierto .nav-toggle i:nth-child(1),.menu-abierto .nav-toggle i:nth-child(2){top:19px}
+}
+/* con el menú abierto, la barra de progreso y el botón de WhatsApp
+   no compiten con él */
+html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transition:opacity .2s ease}
+@media (prefers-reduced-motion:reduce){
+  .menu-movil,.menu-movil.is-open{clip-path:none;transition:opacity .25s ease,visibility 0s}
+  .menu-movil{opacity:0}.menu-movil.is-open{opacity:1}
+  .menu-movil-links a,.menu-movil > .btn{translate:none}
+}
 
 /* BOTONES */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:var(--signal);
@@ -174,7 +278,9 @@ ul,ol{margin:0;padding:0;list-style:none}
 @media (hover:hover) and (pointer:fine){
   .btn:hover{transform:translateY(-3px);box-shadow:0 16px 34px -12px rgba(26,98,201,.7)}
   .btn:hover svg{transform:translateX(4px)}}
-.btn:active{transform:translateY(-1px) scale(.99)}
+/* La presión responde rápido (100ms) y la suelta vuelve con la
+   transición normal: tiempos asimétricos, como un botón físico. */
+.btn:active{transform:translateY(0) scale(.97);transition-duration:.1s}
 .btn-sm{font-size:13px;padding:11px 19px;border-radius:999px;background:var(--ink)}
 @media (hover:hover) and (pointer:fine){.btn-sm:hover{background:var(--signal)}}
 .btn-lg{font-size:16.5px;padding:19px 34px}
@@ -296,8 +402,21 @@ ul,ol{margin:0;padding:0;list-style:none}
 .split-char,.split-word{display:inline-block;will-change:transform,opacity}
 .split-unit{display:inline-block;white-space:nowrap}
 [data-split]{opacity:1;transform:none}
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .85s var(--ease-out),transform .85s var(--ease-out)}
-.reveal.is-in{opacity:1;transform:none}
+/* La aparición va con la propiedad `translate` y un keyframe, no con
+   `transform` + transition. Así no choca con el hover de las tarjetas:
+   antes las tarjetas declaraban su propia transition y pisaban la del
+   reveal, entonces aparecían sin fundido, y el retardo del escalonado
+   les quedaba pegado para siempre —el hover de la tercera tarjeta
+   arrancaba un cuarto de segundo tarde—. El escalonado ahora es una
+   variable que solo lee la animación de entrada. */
+.reveal{opacity:0;translate:0 28px}
+.reveal.is-in{animation:revealIn .85s var(--ease-out) var(--rd,0s) both}
+@keyframes revealIn{from{opacity:0;translate:0 28px}to{opacity:1;translate:0 0}}
+@media (prefers-reduced-motion:reduce){
+  .reveal{translate:none}
+  .reveal.is-in{animation:revealFade .5s ease var(--rd,0s) both}
+  @keyframes revealFade{from{opacity:0}to{opacity:1}}
+}
 
 /* MARQUEE */
 /* display:flex, si no el clon del marquee —que es inline-flex y más
@@ -618,7 +737,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 /* Al pasar el mouse la tarjeta acerca su ícono: el movimiento ya está,
    el hover solo lo pone un poco más cerca. */
 .aud-ico{transition:transform .5s var(--ease-out)}
-.aud-card:hover .aud-ico{transform:scale(1.07)}
+@media (hover:hover) and (pointer:fine){.aud-card:hover .aud-ico{transform:scale(1.07)}}
 @media (max-width:900px){.aud-grid{grid-template-columns:1fr}}
 
 /* ---------------- SOBRE MÍ ---------------- */
@@ -1070,6 +1189,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .cform input::placeholder,.cform textarea::placeholder{color:rgba(157,180,204,.65)}
 .cform input:focus,.cform textarea:focus{outline:none;border-color:var(--cel);background:rgba(255,255,255,.1)}
 .cf-field.is-bad input,.cf-field.is-bad textarea{border-color:#E8805F}
+/* El campo que falta tiembla una vez: dice dónde está el problema
+   sin tener que leer la nota. */
+.cf-field.is-temblor{animation:cfTemblor .38s cubic-bezier(.36,.07,.19,.97)}
+@keyframes cfTemblor{10%,90%{translate:-1px 0}20%,80%{translate:3px 0}30%,50%,70%{translate:-5px 0}40%,60%{translate:5px 0}}
+@media (prefers-reduced-motion:reduce){.cf-field.is-temblor{animation:none}}
 
 .cf-chips{display:flex;gap:10px;flex-wrap:wrap}
 .cf-chips label{position:relative;cursor:pointer}
@@ -1119,9 +1243,9 @@ ul,ol{margin:0;padding:0;list-style:none}
 /* TÁCTIL — sin hover, el feedback lo da la pulsación */
 @media (hover:none){
   .btn{transition:transform .22s var(--ease-out),box-shadow .3s var(--ease-out)}
-  .btn:active{transform:scale(.965)}
+  .btn:active{transform:scale(.965);transition-duration:.1s}
   .prog,.voice,.why{transition:transform .22s var(--ease-out),box-shadow .4s var(--ease-out)}
-  .prog:active,.voice:active,.why:active{transform:scale(.982)}
+  .prog:active,.voice:active,.why:active{transform:scale(.982);transition-duration:.1s}
   .cima-index li:active{transform:scale(.95)}
 }
 /* Testimonios: en celular se deslizan de a uno en vez de apilarse */

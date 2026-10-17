@@ -30,6 +30,12 @@
     var splash = document.querySelector("[data-splash]");
     var done = function () { document.documentElement.classList.add("is-ready"); };
     if (!splash) { done(); return; }
+    /* Ya se vio en esta visita: nada de esperar, la página arranca. */
+    if (document.documentElement.classList.contains("sin-splash")) {
+      requestAnimationFrame(done);
+      return;
+    }
+    try { sessionStorage.setItem("splash-visto", "1"); } catch (e) { /* modo privado */ }
     var hide = function () { splash.classList.add("is-out"); done(); };
     if (document.readyState === "complete") setTimeout(hide, 650);
     else window.addEventListener("load", function () { setTimeout(hide, 500); });
@@ -124,7 +130,7 @@
         return a.compareDocumentPosition(b) & 4 ? -1 : 1;
       });
       batch.forEach(function (el, i) {
-        el.style.transitionDelay = Math.min(i * 0.085, 0.42) + "s";
+        el.style.setProperty("--rd", Math.min(i * 0.07, 0.35) + "s");
         el.classList.add("is-in");
         io.unobserve(el);
       });
@@ -225,14 +231,19 @@
       var note = form.querySelector(".cf-note");
       var noteBase = note ? note.textContent : "";
 
+      /* la nota se lee en voz alta cuando cambia (lectores de pantalla) */
+      if (note) note.setAttribute("aria-live", "polite");
       function fail(field, msg) {
         field.classList.add("is-bad");
+        /* el temblor se reinicia aunque el mismo campo falle dos veces */
+        field.classList.remove("is-temblor"); void field.offsetWidth; field.classList.add("is-temblor");
         if (note) { note.textContent = msg; note.classList.add("is-bad"); }
         var input = field.querySelector("input, textarea");
-        if (input) input.focus();
+        if (input) { input.setAttribute("aria-invalid", "true"); input.focus(); }
       }
       function clear() {
         form.querySelectorAll(".is-bad").forEach(function (e) { e.classList.remove("is-bad"); });
+        form.querySelectorAll("[aria-invalid]").forEach(function (e) { e.removeAttribute("aria-invalid"); });
         if (note) note.textContent = noteBase;
       }
       form.addEventListener("input", clear);
@@ -401,6 +412,76 @@
       tls.forEach(function (tl) { tl.timeScale(tl.timeScale() + (want - tl.timeScale()) * 0.07); });
       v *= 0.92;
     });
+  }
+
+  /* ---------------- FOTOS QUE CARGAN ----------------
+     Solo se marcan las lazy que todavía no llegaron: las que ya están
+     en caché se ven directo, sin fundido. Si una falla, igual se
+     muestra (el alt) en vez de quedar invisible. */
+  function initImagenes() {
+    document.querySelectorAll('img[loading="lazy"]').forEach(function (img) {
+      if (img.complete && img.naturalWidth) return;
+      img.classList.add("img-carga");
+      var listo = function () { img.classList.add("img-lista"); };
+      img.addEventListener("load", listo, { once: true });
+      img.addEventListener("error", listo, { once: true });
+    });
+  }
+
+  /* ---------------- MENÚ DEL TELÉFONO ----------------
+     Se abre desde el botón: el círculo del panel crece desde su
+     centro. Esc cierra, el foco queda adentro mientras está abierto y
+     vuelve al botón al cerrar. Tocar un link cierra el menú ANTES de
+     que initAnchors haga el scroll (se registra antes en boot). */
+  function initMenu() {
+    var btn = document.querySelector("[data-menu-toggle]");
+    var menu = document.querySelector("[data-menu]");
+    var nav = document.querySelector("[data-nav]");
+    if (!btn || !menu || !nav) return;
+    var abierto = false, cierre = 0;
+    function focos() { return [btn].concat([].slice.call(menu.querySelectorAll("a"))); }
+    function abrir() {
+      if (abierto) return;
+      abierto = true;
+      clearTimeout(cierre);
+      var r = btn.getBoundingClientRect();
+      menu.style.setProperty("--mx", Math.round(r.left + r.width / 2) + "px");
+      menu.style.setProperty("--my", Math.round(r.top + r.height / 2) + "px");
+      menu.hidden = false;
+      void menu.offsetWidth;                 /* que el círculo arranque cerrado */
+      menu.classList.add("is-open");
+      nav.classList.add("menu-abierto");
+      document.documentElement.classList.add("menu-open");
+      btn.setAttribute("aria-expanded", "true");
+      btn.setAttribute("aria-label", "Cerrar menú");
+      var primero = menu.querySelector("a");
+      if (primero) primero.focus({ preventScroll: true });
+    }
+    function cerrar(devolverFoco) {
+      if (!abierto) return;
+      abierto = false;
+      menu.classList.remove("is-open");
+      nav.classList.remove("menu-abierto");
+      document.documentElement.classList.remove("menu-open");
+      btn.setAttribute("aria-expanded", "false");
+      btn.setAttribute("aria-label", "Abrir menú");
+      cierre = setTimeout(function () { if (!abierto) menu.hidden = true; }, 560);
+      if (devolverFoco) btn.focus({ preventScroll: true });
+    }
+    btn.addEventListener("click", function () { abierto ? cerrar(true) : abrir(); });
+    menu.querySelectorAll("a").forEach(function (a) {
+      a.addEventListener("click", function () { cerrar(false); });
+    });
+    document.addEventListener("keydown", function (e) {
+      if (!abierto) return;
+      if (e.key === "Escape") { e.preventDefault(); cerrar(true); return; }
+      if (e.key !== "Tab") return;
+      var f = focos(), i = f.indexOf(document.activeElement);
+      if (e.shiftKey && (i <= 0)) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+    });
+    /* si se agranda la ventana a escritorio con el menú abierto */
+    matchMedia("(min-width: 981px)").addEventListener("change", function (q) { if (q.matches) cerrar(false); });
   }
 
   /* ---------------- NAV, PROGRESO Y WHATSAPP ---------------- */
@@ -824,14 +905,49 @@
         e.preventDefault();
         window.scrollTo({ top: t.getBoundingClientRect().top + window.pageYOffset - 70,
           behavior: reduced ? "auto" : "smooth" });
+        /* el foco del teclado acompaña al salto (sin volver a scrollear)
+           y la dirección queda apuntando a la sección */
+        if (!t.hasAttribute("tabindex")) t.setAttribute("tabindex", "-1");
+        t.focus({ preventScroll: true });
+        try { history.replaceState(null, "", id); } catch (err) { /* file:// */ }
       });
     });
+  }
+
+  /* ---------------- SECCIÓN ACTUAL ----------------
+     El link de la sección que está en el medio de la pantalla queda
+     marcado, en el nav de escritorio y en el menú del teléfono. */
+  function initSeccionActual() {
+    if (!("IntersectionObserver" in window)) return;
+    var links = document.querySelectorAll('.nav-links a[href^="#"], .menu-movil-links a[href^="#"]');
+    var ids = {};
+    links.forEach(function (a) { ids[a.getAttribute("href").slice(1)] = true; });
+    var actual = null;
+    function marcar(id) {
+      if (id === actual) return;
+      actual = id;
+      links.forEach(function (a) {
+        var si = a.getAttribute("href") === "#" + id;
+        a.classList.toggle("is-current", si);
+        if (si) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
+      });
+    }
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) marcar(e.target.id); });
+    }, { rootMargin: "-48% 0px -48% 0px" });
+    Object.keys(ids).forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
+    /* arriba de todo, en el hero, no hay ninguna marcada */
+    var hero = document.querySelector(".hero");
+    if (hero) new IntersectionObserver(function (es) { if (es[0].isIntersecting) marcar(null); },
+      { rootMargin: "-48% 0px -48% 0px" }).observe(hero);
   }
 
   function boot() {
     safe(initSplash, "splash");
     safe(initHero, "hero");
     safe(initChrome, "chrome");
+    safe(initMenu, "menu");
+    safe(initImagenes, "imagenes");
     safe(initNavHeight, "navHeight");
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
@@ -847,6 +963,7 @@
     safe(initParallax, "parallax");
     safe(initCima, "cima");
     safe(initAnchors, "anchors");
+    safe(initSeccionActual, "seccionActual");
     if (hasGSAP) {
       var resort = function () { ScrollTrigger.sort(); ScrollTrigger.refresh(); };
       resort();

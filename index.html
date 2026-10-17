@@ -6,6 +6,9 @@
 <title>Iñaki Etchegaray — Coach deportivo</title>
 <meta name="description" content="Coaching deportivo de alto rendimiento. Acompaño a deportistas, equipos y entrenadores a construir confianza, foco y consistencia con el método CIMA.">
 <meta name="theme-color" content="#031D40">
+<!-- El splash es la bienvenida: se ve una vez por visita. Si ya se vio
+     en esta pestaña, se saca antes de pintar, sin parpadeo. -->
+<script>try{if(sessionStorage.getItem("splash-visto"))document.documentElement.classList.add("sin-splash")}catch(e){}</script>
 <link rel="canonical" href="https://maurotondato.github.io/i-akiweb/">
 
 <!-- Vista previa al compartir (WhatsApp, Instagram, Telegram, LinkedIn…).
@@ -46,7 +49,7 @@
 <link rel="preload" href="assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/barlow-cond-600-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261081">
+<link rel="stylesheet" href="styles.css?v=20261083">
 </head>
 <body>
 
@@ -79,7 +82,21 @@
     <a href="#programas">Programas</a>
   </div>
   <a class="btn btn-sm" href="https://wa.me/5491159236762" data-magnetic data-magnetic-strength="0.25">Agendar reunión</a>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu-movil" aria-label="Abrir menú" data-menu-toggle><i></i><i></i></button>
 </nav>
+<!-- El menú del teléfono: los mismos cinco links del nav, a pantalla
+     completa. Va fuera del <nav> porque el nav tiene transform (se
+     esconde al bajar), y un fixed adentro quedaría atado a su caja. -->
+<div class="menu-movil" id="menu-movil" data-menu hidden>
+  <div class="menu-movil-links">
+    <a href="#metodo">Método</a>
+    <a href="#para-quienes">Para quiénes</a>
+    <a href="#sobre">Sobre mí</a>
+    <a href="#proceso">Un proceso</a>
+    <a href="#programas">Programas</a>
+  </div>
+  <a class="btn btn-lg" href="https://wa.me/5491159236762">Agendar reunión</a>
+</div>
 
 <!-- ============ HERO ============
      Un gráfico de rendimiento que se traza solo y cuya silueta es la
@@ -601,13 +618,13 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261081"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261081"></script>
-<script defer src="hero.js?v=20261081"></script>
-<script defer src="estadio.js?v=20261081"></script>
-<script defer src="pizarra.js?v=20261081"></script>
-<script defer src="tribuna.js?v=20261081"></script>
-<script defer src="palos.js?v=20261081"></script>
-<script defer src="main.js?v=20261081"></script>
+<script defer src="lib/gsap.min.js?v=20261083"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261083"></script>
+<script defer src="hero.js?v=20261083"></script>
+<script defer src="estadio.js?v=20261083"></script>
+<script defer src="pizarra.js?v=20261083"></script>
+<script defer src="tribuna.js?v=20261083"></script>
+<script defer src="palos.js?v=20261083"></script>
+<script defer src="main.js?v=20261083"></script>
 </body>
 </html>
