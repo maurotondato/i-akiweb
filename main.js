@@ -906,6 +906,162 @@
     });
   }
 
+  /* ---------------- LA PERSONA Y LOS DOLORES ----------------
+     Todo con el scroll y sin pinear nada (cada pin suma un tramo que se
+     recalcula, y en el teléfono eso es riesgo de saltos):
+     · los anillos se abren de adentro hacia afuera y las órbitas giran;
+     · el titular se enciende palabra por palabra, y los dos "crece"
+       llegan con su color;
+     · los párrafos se aclaran mientras los leés;
+     · por la lista baja una línea y cada problema se tilda cuando la
+       línea de lectura (62% de la pantalla) pasa por su casillero. Es
+       reversible: si volvés para arriba, se destilda;
+     · el lema, la pregunta y el cierre suben desde abajo una sola vez,
+       y el botón entra con un destello. */
+  function partirPalabras(el, conMascara) {
+    /* Parte los nodos de texto en palabras sin tocar las etiquetas que
+       ya hay (los .t-crece, las dos mitades del lema). Las palabras
+       siguen siendo texto real: nada de aria-hidden ni aria-label. */
+    var palabras = [], textos = [];
+    var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    while (w.nextNode()) textos.push(w.currentNode);
+    textos.forEach(function (t) {
+      var frag = document.createDocumentFragment();
+      t.textContent.split(/(\s+)/).forEach(function (p) {
+        if (!p) return;
+        if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+        var s = document.createElement("span");
+        s.className = "pw";
+        s.textContent = p;
+        palabras.push(s);
+        if (conMascara) {
+          var m = document.createElement("span");
+          m.className = "pw-mask";
+          m.appendChild(s);
+          frag.appendChild(m);
+        } else frag.appendChild(s);
+      });
+      t.parentNode.replaceChild(frag, t);
+    });
+    return palabras;
+  }
+  function initPersona() {
+    var sec = document.querySelector(".persona");
+    if (!sec || !hasGSAP || reduced) return;
+    try {
+      sec.classList.add("persona-viva");
+      var top = sec.querySelector(".persona-top");
+
+      /* Anillos: crecen con la primera mitad de la sección. */
+      var tlA = gsap.timeline({ scrollTrigger: { trigger: top, start: "top 90%", end: "bottom 40%", scrub: 0.8 } });
+      tlA.from(sec.querySelectorAll(".pa-anillo"), { scale: 0.3, opacity: 0, transformOrigin: "50% 50%",
+          stagger: 0.08, duration: 0.6, ease: "power2.out" }, 0)
+        .from(sec.querySelector(".pa-halo"), { scale: 0.4, opacity: 0, transformOrigin: "50% 50%",
+          duration: 0.7, ease: "power2.out" }, 0)
+        .from(sec.querySelector(".pa-trazo"), { scale: 0.7, opacity: 0, transformOrigin: "50% 50%",
+          duration: 0.6, ease: "power2.out" }, 0.25)
+        .from(sec.querySelectorAll(".pa-orbita"), { opacity: 0, duration: 0.3, stagger: 0.1 }, 0.45);
+      /* El trazo y las órbitas giran durante toda la sección (las
+         órbitas por afuera del titular, para no pasar entre las letras),
+         y el dibujo se queda un poco atrás del texto (parallax suave).
+         Cuando la lectura pasa a la lista, los anillos se apagan. */
+      var giro = function () { return { trigger: sec, start: "top bottom", end: "bottom top", scrub: 1 }; };
+      gsap.to(sec.querySelector(".pa-trazo"), { rotation: 140, svgOrigin: "0 0", ease: "none", scrollTrigger: giro() });
+      gsap.to(sec.querySelector(".pa-orbita-1"), { rotation: 120, svgOrigin: "0 0", ease: "none", scrollTrigger: giro() });
+      gsap.to(sec.querySelector(".pa-orbita-2"), { rotation: -90, svgOrigin: "0 0", ease: "none", scrollTrigger: giro() });
+      gsap.to(sec.querySelector(".persona-anillos"), { yPercent: -9, ease: "none", scrollTrigger: giro() });
+      gsap.to(sec.querySelector(".persona-anillos"),
+        { opacity: 0.3, ease: "none", scrollTrigger: { trigger: top, start: "bottom 55%", end: "bottom 5%", scrub: 0.8 } });
+
+      /* Titular: las palabras se encienden en orden de lectura. */
+      var titulo = sec.querySelector(".persona-title");
+      var pal = partirPalabras(titulo, false);
+      var tlT = gsap.timeline({ scrollTrigger: { trigger: titulo, start: "top 85%", end: "bottom 45%", scrub: 0.6 } });
+      pal.forEach(function (p, i) {
+        tlT.from(p, { opacity: 0.12, yPercent: 30, duration: 0.5, ease: "power1.out" }, i * 0.12);
+        if (p.closest(".t-crece")) {
+          tlT.from(p, { color: "#031D40", scale: 0.84, transformOrigin: "50% 85%", duration: 0.45,
+            ease: "back.out(2)" }, i * 0.12 + 0.18);
+        }
+      });
+
+      /* Párrafos: se aclaran a medida que suben. */
+      sec.querySelectorAll(".persona-p").forEach(function (p) {
+        gsap.fromTo(p, { opacity: 0.15, y: 24 }, { opacity: 1, y: 0, ease: "none",
+          scrollTrigger: { trigger: p, start: "top 92%", end: "top 64%", scrub: 0.6 } });
+      });
+
+      /* Lema, pregunta y cierre: suben desde su máscara, una vez. */
+      function subir(el, start, extra) {
+        var ws = partirPalabras(el, true);
+        gsap.set(ws, { yPercent: 115 });
+        var tl = gsap.timeline({ scrollTrigger: { trigger: el, start: start, once: true } });
+        tl.to(ws, { yPercent: 0, duration: 1, stagger: 0.045, ease: "expo.out" })
+          .call(function () { el.classList.add("is-on"); }, null, 0.25);
+        if (extra) extra(tl);
+        return tl;
+      }
+      subir(sec.querySelector(".persona-lema"), "top 86%");
+      subir(sec.querySelector(".dolores-title"), "top 85%");
+
+      /* La lista que se tilda sola. */
+      var wrap = sec.querySelector(".dolores-wrap");
+      var items = Array.prototype.slice.call(wrap.querySelectorAll(".dolor"));
+      var linea = wrap.querySelector(".dolores-linea");
+      var fill = linea.querySelector("i");
+      var barras = sec.querySelectorAll(".dolores-cuenta i");
+      var centros = [], c0 = 0, cN = 1, altoWrap = 1;
+      function medir() {
+        var r = wrap.getBoundingClientRect();
+        altoWrap = r.height || 1;
+        centros = items.map(function (li) {
+          var c = li.querySelector(".dolor-check").getBoundingClientRect();
+          return c.top + c.height / 2 - r.top;
+        });
+        c0 = centros[0]; cN = centros[centros.length - 1];
+        linea.style.top = c0 + "px";
+        linea.style.bottom = "auto";
+        linea.style.height = Math.max(0, cN - c0) + "px";
+      }
+      gsap.set(fill, { scaleY: 0, transformOrigin: "50% 0%" });
+      var llenar = gsap.quickTo(fill, "scaleY", { duration: 0.45, ease: "power3.out" });
+      function pintar(p) {
+        var lectura = p * altoWrap, n = 0;
+        llenar(clamp01((lectura - c0) / ((cN - c0) || 1)));
+        items.forEach(function (li, i) {
+          var si = lectura >= centros[i] - 2;
+          li.classList.toggle("is-check", si);
+          if (si) n++;
+        });
+        for (var i = 0; i < barras.length; i++) barras[i].classList.toggle("is-on", i < n);
+      }
+      medir();
+      ScrollTrigger.create({ trigger: wrap, start: "top 62%", end: "bottom 62%",
+        onRefresh: function (self) { medir(); pintar(self.progress); },
+        onUpdate: function (self) { pintar(self.progress); } });
+
+      /* Cierre: la frase sube, se subraya y aparece el botón. */
+      var cta = sec.querySelector(".dolores-cta");
+      gsap.set(cta, { opacity: 0, y: 18 });
+      subir(sec.querySelector(".dolores-frase"), "top 82%", function (tl) {
+        tl.to(cta, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", clearProps: "opacity,transform" }, "-=0.6")
+          .call(function () { cta.classList.add("is-brillo"); }, null, "-=0.3");
+      });
+      cta.addEventListener("animationend", function () { cta.classList.remove("is-brillo"); });
+      if (fine) cta.addEventListener("mouseenter", function () { cta.classList.add("is-brillo"); });
+    } catch (e) {
+      /* Si algo falla a mitad de camino, la sección vuelve a su estado
+         final: nada puede quedar apagado ni el botón invisible. */
+      ScrollTrigger.getAll().forEach(function (t) {
+        if (t.trigger && sec.contains(t.trigger)) t.kill(true);
+      });
+      sec.classList.remove("persona-viva");
+      gsap.set(sec.querySelectorAll(".pw, .pa-grupo, .pa-grupo *, .pa-halo, .pa-trazo, .pa-orbita, .persona-anillos, .persona-p, .dolores-linea i, .dolores-cta"),
+        { clearProps: "all" });
+      throw e;
+    }
+  }
+
   /* ---------------- BOTONES MAGNÉTICOS ---------------- */
   function initMagnetic() {
     if (!fine) return;
@@ -1001,6 +1157,7 @@
     safe(initWaForm, "waForm");
     safe(initMarquee, "marquee");
     safe(initDeportes, "deportes");
+    safe(initPersona, "persona");
     safe(initMagnetic, "magnetic");
     safe(initProgGlow, "progGlow");
     safe(initGaleria, "galeria");

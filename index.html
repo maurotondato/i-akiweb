@@ -49,7 +49,7 @@
 <link rel="preload" href="assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/barlow-cond-600-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261087">
+<link rel="stylesheet" href="styles.css?v=20261089">
 </head>
 <body>
 
@@ -175,27 +175,46 @@
      respuesta, que abre la sección del método. -->
 <section class="persona" id="persona" aria-labelledby="persona-t">
   <div class="shell persona-top">
-    <h2 class="persona-title reveal" id="persona-t" data-split="words">Cuando crece la persona, crece el deportista.</h2>
+    <div class="persona-cabeza">
+      <!-- Anillos de crecimiento, como los de un tronco: el núcleo es la
+           persona, los de afuera el deportista. Se expanden con el scroll. -->
+      <svg class="persona-anillos" viewBox="-300 -300 600 600" aria-hidden="true">
+        <defs><radialGradient id="gNucleo"><stop offset="0" stop-color="#7FCBF0" stop-opacity=".75"/><stop offset=".4" stop-color="#45AEE5" stop-opacity=".22"/><stop offset="1" stop-color="#45AEE5" stop-opacity="0"/></radialGradient></defs>
+        <circle class="pa-halo" r="150" fill="url(#gNucleo)"/>
+        <g class="pa-grupo"><circle class="pa-anillo" r="34"/><circle class="pa-anillo" r="62"/><circle class="pa-anillo" r="94"/><circle class="pa-anillo" r="130"/><circle class="pa-anillo" r="170"/><circle class="pa-anillo" r="214"/><circle class="pa-anillo" r="262"/></g>
+        <circle class="pa-trazo" r="196" pathLength="1"/>
+        <g class="pa-orbita pa-orbita-1"><circle cx="-185" cy="185" r="4.5"/></g>
+        <g class="pa-orbita pa-orbita-2"><circle cx="0" cy="-214" r="3.5"/></g>
+      </svg>
+      <h2 class="persona-title" id="persona-t">Cuando <span class="t-crece">crece</span> la persona, <span class="t-crece">crece</span> el deportista.</h2>
+    </div>
     <div class="persona-texto">
-      <p class="persona-p reveal">Detrás de cada deportista hay una persona que siente, duda, sueña y enfrenta sus propias batallas.</p>
-      <p class="persona-p reveal">Acompaño a esa persona a conocerse, desafiar sus límites y construir una confianza que vaya más allá de cualquier resultado.</p>
-      <p class="persona-p reveal">Porque lo que transformás en vos, se refleja en cómo vivís, entrenás y competís.</p>
-      <p class="persona-lema reveal"><span>Primero crecemos por dentro.</span> <span class="persona-lema-b">Después lo llevamos a la cancha.</span></p>
+      <p class="persona-p">Detrás de cada deportista hay una persona que siente, duda, sueña y enfrenta sus propias batallas.</p>
+      <p class="persona-p">Acompaño a esa persona a conocerse, desafiar sus límites y construir una confianza que vaya más allá de cualquier resultado.</p>
+      <p class="persona-p">Porque lo que transformás en vos, se refleja en cómo vivís, entrenás y competís.</p>
+      <p class="persona-lema"><span class="persona-lema-a">Primero crecemos por dentro.</span> <span class="persona-lema-b">Después lo llevamos a la cancha.</span></p>
     </div>
   </div>
   <div class="shell persona-dolores">
-    <h3 class="dolores-title reveal">¿Te pasa alguna de estas cosas?</h3>
-    <ul class="dolores">
-      <li class="dolor reveal"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span>Entrenás muy bien, pero en competencia no siempre podés mostrar tu mejor versión.</span></li>
-      <li class="dolor reveal"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span>Un error te saca del partido más tiempo del que te gustaría.</span></li>
-      <li class="dolor reveal"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span>Sentís que tu confianza depende demasiado del resultado.</span></li>
-      <li class="dolor reveal"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span>Te cuesta sostener el foco cuando aumenta la presión.</span></li>
-      <li class="dolor reveal"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span>Querés llegar a tu próximo nivel, pero sabés que no alcanza solo con entrenar más.</span></li>
-    </ul>
+    <div class="dolores-head">
+      <h3 class="dolores-title">¿Te pasa alguna de estas cosas?</h3>
+      <!-- cuántas se fueron tildando (solo con la animación activa) -->
+      <span class="dolores-cuenta" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+    <div class="dolores-wrap">
+      <span class="dolores-linea" aria-hidden="true"><i></i></span>
+      <ul class="dolores">
+        <li class="dolor"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect class="dolor-ping" x="2" y="2" width="20" height="20" rx="6"/><rect class="dolor-caja" x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span class="dolor-txt">Entrenás muy bien, pero en competencia no siempre podés mostrar tu mejor versión.</span></li>
+        <li class="dolor"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect class="dolor-ping" x="2" y="2" width="20" height="20" rx="6"/><rect class="dolor-caja" x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span class="dolor-txt">Un error te saca del partido más tiempo del que te gustaría.</span></li>
+        <li class="dolor"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect class="dolor-ping" x="2" y="2" width="20" height="20" rx="6"/><rect class="dolor-caja" x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span class="dolor-txt">Sentís que tu confianza depende demasiado del resultado.</span></li>
+        <li class="dolor"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect class="dolor-ping" x="2" y="2" width="20" height="20" rx="6"/><rect class="dolor-caja" x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span class="dolor-txt">Te cuesta sostener el foco cuando aumenta la presión.</span></li>
+        <li class="dolor"><svg class="dolor-check" viewBox="0 0 24 24" aria-hidden="true"><rect class="dolor-ping" x="2" y="2" width="20" height="20" rx="6"/><rect class="dolor-caja" x="2" y="2" width="20" height="20" rx="6"/><path class="dolor-tilde" pathLength="1" d="M7 12.4l3.4 3.4L17.2 8.6"/></svg><span class="dolor-txt">Querés llegar a tu próximo nivel, pero sabés que no alcanza solo con entrenar más.</span></li>
+      </ul>
+    </div>
   </div>
   <div class="shell dolores-cierre">
-    <p class="dolores-frase reveal"><span>No siempre necesitás entrenar más.</span> <span class="dolores-frase-b">A veces necesitás aprender a competir de otra manera.</span></p>
-    <a class="btn btn-lg reveal" href="https://wa.me/5491159236762?text=%C2%A1Hola%20I%C3%B1aki%21%20Vi%20tu%20web%20y%20quiero%20agendar%20una%20reuni%C3%B3n." target="_blank" rel="noopener">Agendar reunión</a>
+    <p class="dolores-frase"><span class="dolores-frase-a">No siempre necesitás entrenar más.</span> <span class="dolores-frase-b">A veces necesitás aprender a competir de otra manera.</span></p>
+    <a class="btn btn-lg dolores-cta" href="https://wa.me/5491159236762?text=%C2%A1Hola%20I%C3%B1aki%21%20Vi%20tu%20web%20y%20quiero%20agendar%20una%20reuni%C3%B3n." target="_blank" rel="noopener" data-magnetic data-magnetic-strength="0.2">Agendar reunión</a>
   </div>
 </section>
 
@@ -659,13 +678,13 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261087"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261087"></script>
-<script defer src="hero.js?v=20261087"></script>
-<script defer src="estadio.js?v=20261087"></script>
-<script defer src="pizarra.js?v=20261087"></script>
-<script defer src="tribuna.js?v=20261087"></script>
-<script defer src="palos.js?v=20261087"></script>
-<script defer src="main.js?v=20261087"></script>
+<script defer src="lib/gsap.min.js?v=20261089"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261089"></script>
+<script defer src="hero.js?v=20261089"></script>
+<script defer src="estadio.js?v=20261089"></script>
+<script defer src="pizarra.js?v=20261089"></script>
+<script defer src="tribuna.js?v=20261089"></script>
+<script defer src="palos.js?v=20261089"></script>
+<script defer src="main.js?v=20261089"></script>
 </body>
 </html>

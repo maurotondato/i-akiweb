@@ -55,7 +55,14 @@
   --gut:clamp(20px,4.4vw,64px);
 }
 *,*::before,*::after{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+/* Sin scroll-behavior:smooth en html: ScrollTrigger, al recalcular,
+   mueve el scroll y lo devuelve en el mismo instante; con el suave del
+   CSS ese movimiento dejaba de ser instantáneo y todas las animaciones
+   (el pin de CIMA incluido) quedaban medidas corridas si el recálculo
+   pasaba a mitad de página: al recargar, al entrar con #programas, al
+   girar el teléfono. El scroll suave de los links internos ya lo hace
+   main.js. */
+html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);
   font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 h1,h2,h3,h4{margin:0;font-family:var(--display);font-weight:400;letter-spacing:-.035em;line-height:.95}
@@ -781,52 +788,123 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 
 /* ============ LA PERSONA Y EL PROBLEMA ============
    Gris claro, entre el blanco de "Sobre mí" y el navy de CIMA. Arriba
-   la idea (titular grande a la izquierda, el texto a la derecha y el
-   remate en dos tonos, como el lema de CIMA). Abajo la pregunta y los
-   cinco problemas: cada uno se tilda cuando entra en pantalla —el
-   visitante se va reconociendo—. Cierra con la respuesta y la
-   invitación a hablar. */
-.persona{background:var(--bone);padding-block:clamp(74px,10vw,128px);
+   la idea: el titular se va encendiendo palabra por palabra con el
+   scroll, sobre unos anillos de crecimiento (como los de un tronco: el
+   núcleo es la persona, los de afuera el deportista) que se abren a
+   medida que bajás. Abajo la pregunta y los cinco problemas: una línea
+   baja por la lista y cada uno se tilda cuando la lectura pasa por él
+   —el visitante se va reconociendo—. Cierra con la respuesta y la
+   invitación a hablar.
+
+   Todo lo que está "apagado" depende de .persona-viva, que pone el JS
+   solo cuando va a animar: sin JS o con movimiento reducido se ve el
+   estado final, completo. */
+.persona{background:var(--bone);padding-block:clamp(74px,10vw,128px);position:relative;
+  overflow:hidden;overflow:clip;
   display:flex;flex-direction:column;gap:clamp(56px,7vw,96px)}
-.persona-top{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,80px);align-items:start}
+/* en una columna flex, el margin:auto del .shell lo achicaba al ancho
+   de su contenido: en tablet cada bloque quedaba centrado con su propio
+   ancho, desalineado del resto */
+.about>.shell,.persona>.shell{width:100%}
+.persona-top{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,80px);align-items:center}
+.persona-cabeza{position:relative;isolation:isolate}
+.persona-anillos{position:absolute;z-index:-1;left:30%;top:50%;width:min(800px,150vw);height:auto;
+  aspect-ratio:1;translate:-50% -50%;overflow:visible;pointer-events:none}
+.pa-anillo{fill:none;stroke:rgba(69,174,229,.34);stroke-width:1;vector-effect:non-scaling-stroke}
+.pa-anillo:nth-child(even){stroke:rgba(26,98,201,.16)}
+.pa-trazo{fill:none;stroke:var(--signal);stroke-opacity:.4;stroke-width:1.6;stroke-dasharray:.005 .013}
+.pa-orbita circle{fill:var(--signal)}
+.pa-orbita-2 circle{fill:var(--cel)}
 .persona-title{font-size:clamp(34px,5vw,66px);line-height:1;letter-spacing:-.05em;max-width:13ch}
+.t-crece{color:var(--cel-dk)}
+/* palabras partidas por el JS: sueltas (titular) o dentro de una
+   máscara que las deja subir desde abajo (lema, pregunta y cierre). El
+   relleno de la máscara es para que no corte tildes ni descendentes. */
+.pw{display:inline-block}
+.pw-mask{display:inline-block;overflow:hidden;vertical-align:top;
+  padding-block:.08em .14em;margin-block:-.08em -.14em}
 .persona-texto{display:flex;flex-direction:column;gap:16px;padding-top:clamp(0px,1vw,10px)}
 .persona-p{font-size:17px;line-height:1.7;color:var(--mute);max-width:50ch}
-.persona-lema{font-family:var(--display);font-size:clamp(22px,2.3vw,30px);line-height:1.18;letter-spacing:-.035em;
-  margin-top:10px;display:flex;flex-direction:column;gap:.12em}
+/* el remate, con una barra que lo acompaña de arriba a abajo */
+.persona-lema{position:relative;font-family:var(--display);font-size:clamp(22px,2.3vw,30px);line-height:1.18;
+  letter-spacing:-.035em;margin-top:10px;padding-left:22px;display:flex;flex-direction:column;gap:.12em}
+.persona-lema::before{content:"";position:absolute;left:0;top:.1em;bottom:.1em;width:3px;border-radius:3px;
+  background:linear-gradient(180deg,var(--cel),var(--signal));transform-origin:top;
+  transition:transform 1.1s cubic-bezier(.22,.9,.3,1) .2s}
+.persona-viva .persona-lema:not(.is-on)::before{transform:scaleY(0)}
 .persona-lema-b{color:var(--cel-dk)}
+
 .persona-dolores{display:grid;grid-template-columns:.82fr 1.18fr;gap:clamp(24px,4vw,64px);align-items:start}
+.dolores-head{position:sticky;top:110px}
 .dolores-title{font-family:var(--display);font-size:clamp(28px,3.4vw,46px);line-height:1.04;letter-spacing:-.045em;
-  max-width:12ch;position:sticky;top:110px}
-.dolores{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
-.dolor{display:flex;align-items:flex-start;gap:16px;background:var(--paper);border:1px solid var(--hair);
-  border-radius:14px;padding:20px 22px;font-size:17.5px;line-height:1.5;letter-spacing:-.01em;color:var(--ink);
-  transition:border-color .35s var(--ease-out),box-shadow .35s var(--ease-out)}
-@media (hover:hover) and (pointer:fine){
-  .dolor:hover{border-color:rgba(69,174,229,.55);box-shadow:0 18px 40px -26px rgba(3,29,64,.4)}}
-.dolor-check{width:26px;height:26px;flex:none;margin-top:1px;overflow:visible}
-.dolor-check rect{fill:var(--paper);stroke:var(--hair);stroke-width:1.6;
+  max-width:12ch}
+/* cinco rayitas que se llenan con la lista (acompañan al título fijo) */
+.dolores-cuenta{display:none;gap:6px;margin-top:24px}
+.persona-viva .dolores-cuenta{display:flex}
+.dolores-cuenta i{position:relative;width:28px;height:4px;border-radius:4px;background:var(--hair);overflow:hidden}
+.dolores-cuenta i::after{content:"";position:absolute;inset:0;background:var(--signal);
+  transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease-out)}
+.dolores-cuenta i.is-on::after{transform:scaleX(1)}
+
+/* la lista: casilleros en una canaleta de 26px, unidos por la línea */
+.dolores-wrap{position:relative}
+.dolores{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+.dolor{display:grid;grid-template-columns:26px minmax(0,1fr);gap:18px;align-items:center}
+.dolores-linea{position:absolute;left:12px;top:30px;bottom:30px;width:2px;border-radius:2px;
+  background:var(--hair);overflow:hidden}
+.dolores-linea i{position:absolute;inset:0;border-radius:inherit;transform-origin:top;
+  background:linear-gradient(180deg,var(--cel),var(--signal))}
+.dolor-check{width:26px;height:26px;overflow:visible;
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1)}
+.dolor-caja{fill:var(--signal);stroke:var(--signal);stroke-width:1.6;
   transition:fill .3s var(--ease-out),stroke .3s var(--ease-out)}
+.dolor-ping{fill:none;stroke:var(--cel);stroke-width:1.6;opacity:0;transform-box:fill-box;transform-origin:center}
 .dolor-tilde{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:1;stroke-dashoffset:0}
-/* se tilda cuando la fila termina de entrar */
-.dolor.is-in .dolor-check rect{fill:var(--signal);stroke:var(--signal);transition-delay:calc(var(--rd,0s) + .35s)}
-.dolor.reveal .dolor-tilde{stroke-dashoffset:1}
-.dolor.is-in .dolor-tilde{animation:tilde .45s var(--ease-out) calc(var(--rd,0s) + .45s) forwards}
-@keyframes tilde{to{stroke-dashoffset:0}}
+  stroke-dasharray:1;stroke-dashoffset:0;transition:stroke-dashoffset .4s var(--ease-out) .12s}
+.dolor-txt{display:block;background:var(--paper);border:1px solid rgba(69,174,229,.45);border-radius:14px;
+  padding:20px 22px;font-size:17.5px;line-height:1.5;letter-spacing:-.01em;color:var(--ink);
+  box-shadow:0 18px 40px -30px rgba(3,29,64,.45);
+  transition:opacity .5s var(--ease-out),transform .6s var(--ease-out),
+    border-color .4s var(--ease-out),box-shadow .5s var(--ease-out)}
+@media (hover:hover) and (pointer:fine){
+  .dolor:hover .dolor-txt{border-color:rgba(69,174,229,.85);box-shadow:0 22px 44px -26px rgba(3,29,64,.45)}}
+/* sin tildar todavía */
+.persona-viva .dolor:not(.is-check) .dolor-check{transform:scale(.86)}
+.persona-viva .dolor:not(.is-check) .dolor-caja{fill:var(--paper);stroke:#C9D5E3}
+.persona-viva .dolor:not(.is-check) .dolor-tilde{stroke-dashoffset:1;transition-delay:0s}
+.persona-viva .dolor:not(.is-check) .dolor-txt{opacity:.5;transform:translateX(14px);
+  border-color:var(--hair);box-shadow:none}
+/* al tildarse, una onda sale del casillero */
+.persona-viva .dolor.is-check .dolor-ping{animation:dolorPing .7s var(--ease-out)}
+@keyframes dolorPing{from{opacity:.75;transform:scale(1)}to{opacity:0;transform:scale(1.8)}}
+
 .dolores-cierre{display:flex;flex-direction:column;align-items:center;text-align:center;gap:28px}
 .dolores-frase{font-family:var(--display);font-size:clamp(26px,3.6vw,48px);line-height:1.12;letter-spacing:-.045em;
   max-width:24ch;display:flex;flex-direction:column;gap:.14em}
+.dolores-frase::after{content:"";align-self:center;width:72px;height:3px;border-radius:3px;margin-top:.42em;
+  background:linear-gradient(90deg,var(--cel),var(--signal));
+  transition:transform .9s cubic-bezier(.22,.9,.3,1) .05s}
+.persona-viva .dolores-frase:not(.is-on)::after{transform:scaleX(0)}
 .dolores-frase-b{color:var(--signal)}
 .dolores-frase span,.persona-lema span{text-wrap:balance}
+/* el botón entra con un destello que lo cruza (y lo repite al pasar el mouse) */
+.dolores-cta{position:relative;isolation:isolate;overflow:hidden}
+.dolores-cta::after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:42%;pointer-events:none;
+  background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.46) 50%,rgba(255,255,255,0) 100%);
+  transform:translateX(-170%) skewX(-18deg)}
+.dolores-cta.is-brillo::after{animation:ctaBrillo 1.05s var(--ease-in-out)}
+@keyframes ctaBrillo{to{transform:translateX(340%) skewX(-18deg)}}
 @media (prefers-reduced-motion:reduce){
-  .dolor.reveal .dolor-tilde,.dolor.is-in .dolor-tilde{animation:none;stroke-dashoffset:0}
-  .dolor.is-in .dolor-check rect{transition-delay:0s}
+  .dolores-cta::after{display:none}
 }
 @media (max-width:900px){
   .persona-top,.persona-dolores{grid-template-columns:1fr}
-  .dolores-title{position:static;max-width:none}
-  .dolor{padding:17px 18px;font-size:16.5px;gap:14px}
+  .persona-anillos{left:26%}
+  .dolores-head{position:static}
+  .dolores-title{max-width:none}
+  .persona-viva .dolores-cuenta{display:none}
+  .dolor{gap:14px}
+  .dolor-txt{padding:17px 18px;font-size:16.5px}
 }
 
 .why-wrap{display:flex;flex-direction:column;gap:30px}
@@ -1325,7 +1403,6 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 @media (prefers-reduced-motion:reduce){
   .grain{animation:none}
   .marquee-track{animation:none}
-  html{scroll-behavior:auto}
   .aud-card.is-in .ai-body,.aud-card.is-in .ai-ring,.aud-card.is-in .ai-link,
   .aud-card.is-in .ai-board,.aud-card.is-in .ai-clip,.aud-card.is-in .ai-play,
   .aud-card.is-in .ai-tip{animation:none;stroke-dashoffset:0}
