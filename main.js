@@ -971,14 +971,19 @@
         if (si) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current");
       });
     }
+    /* Cada sección marca el link de su parte: las que no tienen link
+       propio heredan el de la última que sí tiene ("La persona" es parte
+       de "Sobre mí", la pasarela y el lema son parte del método). El
+       hero y la pasarela de clubes no marcan ninguno. */
+    var seccionDe = new Map(), ultimo = null;
+    document.querySelectorAll("header.hero, body > section").forEach(function (s) {
+      if (s.id && ids[s.id]) ultimo = s.id;
+      seccionDe.set(s, s.classList.contains("hero") ? null : ultimo);
+    });
     var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) marcar(e.target.id); });
+      es.forEach(function (e) { if (e.isIntersecting) marcar(seccionDe.get(e.target)); });
     }, { rootMargin: "-48% 0px -48% 0px" });
-    Object.keys(ids).forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
-    /* arriba de todo, en el hero, no hay ninguna marcada */
-    var hero = document.querySelector(".hero");
-    if (hero) new IntersectionObserver(function (es) { if (es[0].isIntersecting) marcar(null); },
-      { rootMargin: "-48% 0px -48% 0px" }).observe(hero);
+    seccionDe.forEach(function (v, s) { io.observe(s); });
   }
 
   function boot() {

@@ -779,6 +779,56 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .about-quote{margin-top:6px;border-left:3px solid var(--cel);padding-left:20px;
   font-size:clamp(17px,1.6vw,21px);line-height:1.5;font-weight:600;letter-spacing:-.015em;max-width:42ch}
 
+/* ============ LA PERSONA Y EL PROBLEMA ============
+   Gris claro, entre el blanco de "Sobre mí" y el navy de CIMA. Arriba
+   la idea (titular grande a la izquierda, el texto a la derecha y el
+   remate en dos tonos, como el lema de CIMA). Abajo la pregunta y los
+   cinco problemas: cada uno se tilda cuando entra en pantalla —el
+   visitante se va reconociendo—. Cierra con la respuesta y la
+   invitación a hablar. */
+.persona{background:var(--bone);padding-block:clamp(74px,10vw,128px);
+  display:flex;flex-direction:column;gap:clamp(56px,7vw,96px)}
+.persona-top{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,80px);align-items:start}
+.persona-title{font-size:clamp(34px,5vw,66px);line-height:1;letter-spacing:-.05em;max-width:13ch}
+.persona-texto{display:flex;flex-direction:column;gap:16px;padding-top:clamp(0px,1vw,10px)}
+.persona-p{font-size:17px;line-height:1.7;color:var(--mute);max-width:50ch}
+.persona-lema{font-family:var(--display);font-size:clamp(22px,2.3vw,30px);line-height:1.18;letter-spacing:-.035em;
+  margin-top:10px;display:flex;flex-direction:column;gap:.12em}
+.persona-lema-b{color:var(--cel-dk)}
+.persona-dolores{display:grid;grid-template-columns:.82fr 1.18fr;gap:clamp(24px,4vw,64px);align-items:start}
+.dolores-title{font-family:var(--display);font-size:clamp(28px,3.4vw,46px);line-height:1.04;letter-spacing:-.045em;
+  max-width:12ch;position:sticky;top:110px}
+.dolores{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.dolor{display:flex;align-items:flex-start;gap:16px;background:var(--paper);border:1px solid var(--hair);
+  border-radius:14px;padding:20px 22px;font-size:17.5px;line-height:1.5;letter-spacing:-.01em;color:var(--ink);
+  transition:border-color .35s var(--ease-out),box-shadow .35s var(--ease-out)}
+@media (hover:hover) and (pointer:fine){
+  .dolor:hover{border-color:rgba(69,174,229,.55);box-shadow:0 18px 40px -26px rgba(3,29,64,.4)}}
+.dolor-check{width:26px;height:26px;flex:none;margin-top:1px;overflow:visible}
+.dolor-check rect{fill:var(--paper);stroke:var(--hair);stroke-width:1.6;
+  transition:fill .3s var(--ease-out),stroke .3s var(--ease-out)}
+.dolor-tilde{fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:0}
+/* se tilda cuando la fila termina de entrar */
+.dolor.is-in .dolor-check rect{fill:var(--signal);stroke:var(--signal);transition-delay:calc(var(--rd,0s) + .35s)}
+.dolor.reveal .dolor-tilde{stroke-dashoffset:1}
+.dolor.is-in .dolor-tilde{animation:tilde .45s var(--ease-out) calc(var(--rd,0s) + .45s) forwards}
+@keyframes tilde{to{stroke-dashoffset:0}}
+.dolores-cierre{display:flex;flex-direction:column;align-items:center;text-align:center;gap:28px}
+.dolores-frase{font-family:var(--display);font-size:clamp(26px,3.6vw,48px);line-height:1.12;letter-spacing:-.045em;
+  max-width:24ch;display:flex;flex-direction:column;gap:.14em}
+.dolores-frase-b{color:var(--signal)}
+.dolores-frase span,.persona-lema span{text-wrap:balance}
+@media (prefers-reduced-motion:reduce){
+  .dolor.reveal .dolor-tilde,.dolor.is-in .dolor-tilde{animation:none;stroke-dashoffset:0}
+  .dolor.is-in .dolor-check rect{transition-delay:0s}
+}
+@media (max-width:900px){
+  .persona-top,.persona-dolores{grid-template-columns:1fr}
+  .dolores-title{position:static;max-width:none}
+  .dolor{padding:17px 18px;font-size:16.5px;gap:14px}
+}
+
 .why-wrap{display:flex;flex-direction:column;gap:30px}
 .why-title{font-size:clamp(28px,3.8vw,48px);letter-spacing:-.04em}
 .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
@@ -1086,7 +1136,8 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .voices{background:var(--paper);padding-block:clamp(74px,10vw,125px);position:relative;overflow:hidden}
 .voices-head{display:flex;flex-direction:column;gap:14px;margin-bottom:46px}
 .voices-title{font-size:clamp(30px,4.4vw,56px);letter-spacing:-.04em;line-height:1.02;max-width:22ch}
-.voices-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.voices-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+/* cuatro testimonios: dos por fila, así ninguna cita queda angosta */
 .voice{position:relative;background:var(--bone);border:1px solid var(--hair);border-radius:16px;
   padding:34px 30px 28px;display:flex;flex-direction:column;gap:20px;justify-content:space-between;
   overflow:hidden;transition:transform .5s var(--ease-out),box-shadow .5s var(--ease-out),
