@@ -621,144 +621,73 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 
 
 /* ---------------- ¿PARA QUIÉNES? ----------------
-   Cada ícono representa su idea y la ejecuta al entrar en pantalla:
-   uno asciende, tres ascienden juntos, uno conduce al resto. */
+   Tres tarjetas, cada una con su foto arriba y el texto abajo sobre
+   blanco (nada se lee encima de la foto). Al aparecer, la foto se
+   destapa de abajo hacia arriba mientras la imagen se asienta desde
+   un poco más cerca; con el mouse encima, la tarjeta se levanta y la
+   foto se acerca. */
 .aud{background:var(--bone);padding-block:clamp(70px,10vw,124px)}
 .aud-title{font-size:clamp(30px,4.6vw,58px);letter-spacing:-.045em;max-width:16ch;margin-top:16px}
 .aud-lead{font-size:16.5px;color:var(--mute);max-width:54ch;margin-top:16px}
 .aud-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:clamp(36px,5vw,56px)}
-.aud-card{position:relative;background:var(--paper);border:1px solid var(--hair);border-radius:16px;
-  padding:32px 28px 30px;display:flex;flex-direction:column;gap:14px;overflow:hidden;
+.aud-card{position:relative;background:var(--paper);border:1px solid var(--hair);border-radius:18px;
+  display:flex;flex-direction:column;overflow:hidden;isolation:isolate;
   transition:transform .35s var(--ease-out),border-color .35s var(--ease-out),box-shadow .45s var(--ease-out)}
-.aud-card::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--cel);
+.aud-card::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;z-index:2;background:var(--cel);
   transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease-out)}
 @media (hover:hover) and (pointer:fine){
   .aud-card:hover{transform:translateY(-6px);border-color:transparent;
     box-shadow:0 28px 58px -28px rgba(3,29,64,.45)}
-  .aud-card:hover::after{transform:scaleX(1)}}
+  .aud-card:hover::after{transform:scaleX(1)}
+  .aud-card:hover .aud-zoom{transform:scale(1.06)}}
 @media (hover:none){.aud-card:active{transform:scale(.985)}}
+
+.aud-media{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--ink)}
+/* Un velo navy abajo: asienta tres fotos que vienen de luces muy
+   distintas (atardecer, noche, salón blanco) y las ata a la paleta. */
+.aud-media::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(3,29,64,0) 50%,rgba(3,29,64,.34) 100%)}
+/* El zoom va en una capa aparte: la entrada usa `scale`, el hover
+   `transform` y la carga de la foto su opacidad. Cada cosa en lo suyo. */
+.aud-zoom{position:absolute;inset:0;display:block;transition:transform .9s var(--ease-out)}
+.aud-zoom img{width:100%;height:100%;max-width:none;object-fit:cover}
+/* Qué parte de cada foto manda en el recorte */
+.aud-individual img{object-position:42% 30%}
+.aud-equipo img{object-position:50% 74%}
+.aud-staff img{object-position:50% 92%}
+
+.aud-body{display:flex;flex-direction:column;gap:12px;padding:26px 28px 30px}
 .aud-n{font-family:var(--cond);font-size:13px;font-weight:600;letter-spacing:.3em;color:var(--cel-dk)}
 .aud-card h3{font-size:25px;letter-spacing:-.03em}
 .aud-card p{font-size:15px;line-height:1.65;color:var(--mute)}
-.aud-ico{width:76px;height:76px;display:block;margin:4px 0 8px;overflow:visible}
-.ai-head{fill:var(--cel-dk);opacity:0;transform-box:fill-box;transform-origin:center}
-.ai-body{fill:none;stroke:var(--cel-dk);stroke-width:2.6;stroke-linecap:round;
-  stroke-dasharray:1;stroke-dashoffset:1}
-.ai-ring,.ai-link{fill:none;stroke:var(--cel);stroke-width:2;stroke-linecap:round;
-  stroke-dasharray:1;stroke-dashoffset:1}
-.ai-board,.ai-clip{fill:none;stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round;
-  stroke-dasharray:1;stroke-dashoffset:1}
-.ai-play{fill:none;stroke:var(--cel);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:1;stroke-dashoffset:1}
-.ai-tip{fill:none;stroke:var(--cel);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:1;stroke-dashoffset:1}
-.ai-dot{fill:var(--cel-dk);opacity:0;transform-box:fill-box;transform-origin:center}
 
-/* Cada ícono ejecuta su propia idea al entrar en pantalla:
-   uno se completa, tres se reúnen, una jugada se traza. */
-.aud-card.is-in .ai-head{animation:aiPop .45s var(--ease-out) forwards}
-.aud-card.is-in .ai-body{animation:aiDraw .6s var(--ease-out) forwards}
-.aud-card.is-in .ai-dot{animation:aiPop .4s var(--ease-out) forwards}
+/* Entrada: cuando la tarjeta aparece (.is-in, con el escalonado --rd
+   del reveal), la foto se destapa y se asienta. `backwards` y no
+   `both`: al terminar vuelve a mandar el CSS, y el hover funciona. */
+@keyframes audTelon{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes audAsienta{from{scale:1.16}to{scale:1}}
+.aud-card.is-in .aud-media{animation:audTelon 1.05s var(--ease-out) calc(var(--rd,0s) + .12s) backwards}
+.aud-card.is-in .aud-zoom{animation:audAsienta 1.6s var(--ease-out) calc(var(--rd,0s) + .12s) backwards}
 
-/* 01 · Individual: la persona aparece y el proceso se cierra en torno */
-.aud-card.is-in .ai-ring{animation:aiDraw 1.1s var(--ease-out) .55s forwards}
-
-/* 02 · Equipo: primero uno, después el grupo, y el arco los une */
-.aud-card.is-in .ai-pc .ai-head{animation-delay:.1s}
-.aud-card.is-in .ai-pc .ai-body{animation-delay:.2s}
-.aud-card.is-in .ai-pa .ai-head{animation-delay:.42s}
-.aud-card.is-in .ai-pa .ai-body{animation-delay:.52s}
-.aud-card.is-in .ai-pb .ai-head{animation-delay:.6s}
-.aud-card.is-in .ai-pb .ai-body{animation-delay:.7s}
-.aud-card.is-in .ai-link{animation:aiDraw .8s var(--ease-out) .95s forwards}
-
-/* 03 · Staff: la pizarra, y encima la jugada */
-.aud-card.is-in .ai-clip{animation:aiDraw .4s var(--ease-out) .1s forwards}
-.aud-card.is-in .ai-board{animation:aiDraw .8s var(--ease-out) .2s forwards}
-.aud-card.is-in .ai-play{animation:aiDraw 1s var(--ease-out) .75s forwards}
-.aud-card.is-in .ai-tip{animation:aiDraw .3s var(--ease-out) 1.6s forwards}
-.aud-card.is-in .ai-d1{animation-delay:.9s}
-.aud-card.is-in .ai-d2{animation-delay:1.1s}
-.aud-card.is-in .ai-d3{animation-delay:1.3s}
-
-@keyframes aiDraw{to{stroke-dashoffset:0}}
-@keyframes aiPop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
-
-/* ---- Movimiento propio de cada ícono, ya en reposo ----
-   Arranca cuando termina la entrada. Cada uno hace lo suyo: el
-   proceso individual sigue girando, el grupo respira en ola, y la
-   jugada se vuelve a dibujar. */
-.ai-orbit{fill:none;stroke:var(--cel);stroke-width:2.6;stroke-linecap:round;
-  stroke-dasharray:.1 .9;stroke-dashoffset:0;opacity:0;
-  transform-origin:50% 50%}
-.aud-card.is-in .ai-orbit{animation:aiFadeIn .5s var(--ease-out) 1.6s forwards,
-  aiOrbit 7s linear 1.6s infinite}
-@keyframes aiFadeIn{to{opacity:.9}}
-@keyframes aiOrbit{to{transform:rotate(360deg)}}
-
-.ai-p{transform-origin:50% 60%}
-.aud-card.is-in .ai-pc{animation:aiBob 3.6s var(--ease-in-out) 1.5s infinite}
-.aud-card.is-in .ai-pa{animation:aiBob 3.6s var(--ease-in-out) 1.72s infinite}
-.aud-card.is-in .ai-pb{animation:aiBob 3.6s var(--ease-in-out) 1.94s infinite}
-@keyframes aiBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.6px)}}
-
-.aud-card.is-in .ai-play{animation:aiDraw 1s var(--ease-out) .75s forwards,
-  aiReplay 7s var(--ease-out) 2.4s infinite}
-@keyframes aiReplay{0%{stroke-dashoffset:1}26%,100%{stroke-dashoffset:0}}
-.aud-card.is-in .ai-tip{animation:aiDraw .3s var(--ease-out) 1.6s forwards,
-  aiTip 7s var(--ease-out) 2.4s infinite}
-@keyframes aiTip{0%,22%{opacity:0}30%,100%{opacity:1}}
-.aud-card.is-in .ai-d1,.aud-card.is-in .ai-d2,.aud-card.is-in .ai-d3{
-  animation:aiPop .4s var(--ease-out) forwards, aiBlink 7s var(--ease-out) infinite}
-@keyframes aiBlink{0%,10%{opacity:1}14%{opacity:.25}22%,100%{opacity:1}}
-.aud-card.is-in .ai-d1{animation-delay:.9s,2.5s}
-.aud-card.is-in .ai-d2{animation-delay:1.1s,2.7s}
-.aud-card.is-in .ai-d3{animation-delay:1.3s,2.9s}
-
-/* Segunda capa de movimiento: que el ícono no se quede quieto nunca.
-   01 la figura respira dentro de un proceso que gira en dos sentidos,
-   02 un pulso viaja por el arco que une al grupo,
-   03 la pelota recorre la jugada mientras se traza. */
-
-/* 01 · Individual */
-.ai-orbit2{stroke-width:2.2;stroke-dasharray:.07 .93}
-.aud-card.is-in .ai-orbit2{animation:aiFadeDim .5s var(--ease-out) 1.9s forwards,
-  aiOrbitBack 5.2s linear 1.9s infinite}
-@keyframes aiFadeDim{to{opacity:.55}}
-@keyframes aiOrbitBack{to{transform:rotate(-360deg)}}
-.ai-ring{transform-box:fill-box;transform-origin:center}
-.aud-card.is-in .ai-ring{animation:aiDraw 1.1s var(--ease-out) .55s forwards,
-  aiBreathe 4.4s var(--ease-in-out) 1.7s infinite}
-@keyframes aiBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.055)}}
-.ai-fig{transform-box:fill-box;transform-origin:50% 100%}
-.aud-card.is-in .ai-fig{animation:aiRise 4.4s var(--ease-in-out) 1.7s infinite}
-@keyframes aiRise{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.2px)}}
-
-/* 02 · Equipo */
-.ai-flow{fill:none;stroke:var(--cel-dk);stroke-width:2.6;stroke-linecap:round;
-  stroke-dasharray:.1 .9;stroke-dashoffset:1;opacity:0}
-.aud-card.is-in .ai-flow{animation:aiFadeIn .4s var(--ease-out) 1.75s forwards,
-  aiPulse 3.2s linear 1.75s infinite}
-@keyframes aiPulse{to{stroke-dashoffset:0}}
-
-/* 03 · Staff */
-.ai-ball{fill:var(--cel-dk);opacity:0;
-  offset-path:path("M22 52 L31 40 L41 46 L50 28");offset-rotate:0deg}
-.aud-card.is-in .ai-ball{animation:aiBall 7s var(--ease-out) 2.4s infinite}
-@keyframes aiBall{
-  0%{offset-distance:0%;opacity:0}
-  4%{opacity:1}
-  26%{offset-distance:100%;opacity:1}
-  36%,100%{offset-distance:100%;opacity:0}}
-
-/* Al pasar el mouse la tarjeta acerca su ícono: el movimiento ya está,
-   el hover solo lo pone un poco más cerca. */
-.aud-ico{transition:transform .5s var(--ease-out)}
-@media (hover:hover) and (pointer:fine){.aud-card:hover .aud-ico{transform:scale(1.07)}}
-@media (max-width:900px){.aud-grid{grid-template-columns:1fr}}
+/* Tablet: una columna, foto a la izquierda y texto a la derecha */
+@media (max-width:900px){
+  .aud-grid{grid-template-columns:1fr}
+  .aud-card{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
+  .aud-media{aspect-ratio:auto;min-height:230px}
+  .aud-body{align-self:center}
+}
 
 /* ---------------- SOBRE MÍ ---------------- */
 .about{padding-block:clamp(70px,10vw,124px);display:flex;flex-direction:column;gap:clamp(54px,7vw,96px)}
+/* Corte entre la pasarela de clubes y "Sobre mí", que comparten el
+   blanco: una línea de pelo del ancho del contenido que se desvanece
+   en las puntas, con el rombo de la pasarela en el medio. */
+.marquee + .about{position:relative}
+.marquee + .about::before{content:"";position:absolute;top:0;left:50%;height:1px;
+  width:min(1320px - 2 * var(--gut),100% - 2 * var(--gut));translate:-50% 0;
+  background:linear-gradient(90deg,rgba(201,213,227,0),#C9D5E3 24%,#C9D5E3 76%,rgba(201,213,227,0))}
+.marquee + .about::after{content:"";position:absolute;top:0;left:50%;width:7px;height:7px;
+  margin:-3.5px 0 0 -3.5px;rotate:45deg;background:#fff;border:1px solid rgba(69,174,229,.6)}
 .about-top{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,74px);align-items:center}
 .about-frame{will-change:transform}
 .about-photo{margin:0;position:relative;border-radius:16px;overflow:hidden;
@@ -808,8 +737,12 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .about>.shell,.persona>.shell{width:100%}
 .persona-top{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,80px);align-items:center}
 .persona-cabeza{position:relative;isolation:isolate}
-.persona-anillos{position:absolute;z-index:-1;left:30%;top:50%;width:min(800px,150vw);height:auto;
-  aspect-ratio:1;translate:-50% -50%;overflow:visible;pointer-events:none}
+/* centrado con márgenes negativos y no con translate: GSAP pasa el
+   translate a píxeles fijos al animar el parallax, y si después cambia
+   el ancho (girar el teléfono) el dibujo quedaba descentrado */
+.persona-anillos{--pa-w:min(800px,150vw);position:absolute;z-index:-1;left:30%;top:50%;
+  width:var(--pa-w);height:var(--pa-w);margin:calc(var(--pa-w) / -2) 0 0 calc(var(--pa-w) / -2);
+  overflow:visible;pointer-events:none}
 .pa-anillo{fill:none;stroke:rgba(69,174,229,.34);stroke-width:1;vector-effect:non-scaling-stroke}
 .pa-anillo:nth-child(even){stroke:rgba(26,98,201,.16)}
 .pa-trazo{fill:none;stroke:var(--signal);stroke-opacity:.4;stroke-width:1.6;stroke-dasharray:.005 .013}
@@ -1005,21 +938,26 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
    se veían juntas, y la idea de la sección es justamente que se
    entienda de un vistazo que hay TRES formas de entrar.
 
-   Pasan a fila: ícono a la izquierda, título y texto a la derecha, y
-   el texto plegado a dos líneas. Se toca y se abre. Así las tres
-   entran juntas y el detalle sigue estando para quien lo quiera. */
+   Pasan a fila: la foto a la izquierda, a todo el alto de la tarjeta,
+   y a la derecha el título y el texto plegado a dos líneas. Se toca y
+   se abre (la foto se estira con él). Así las tres entran juntas y el
+   detalle sigue estando para quien lo quiera. */
 @media (max-width:620px){
   .aud{padding-block:clamp(44px,9vw,64px)}
   .aud-lead{font-size:15px;line-height:1.5}
   .aud-grid{gap:10px}
-  .aud-card{display:grid;grid-template-columns:46px 1fr;gap:0 14px;
-    align-items:start;padding:14px 15px}
-  .aud-n{grid-column:2;font-size:11px;letter-spacing:.24em;margin-bottom:1px}
-  .aud-ico{grid-column:1;grid-row:1 / span 3;width:46px;height:46px;margin:2px 0 0}
-  .aud-card h3{grid-column:2;font-size:19px;margin-bottom:3px}
-  .aud-card p{grid-column:2;font-size:14px;line-height:1.5;
+  .aud-card{grid-template-columns:104px minmax(0,1fr);border-radius:14px}
+  .aud-media{min-height:0}
+  .aud-body{align-self:start;gap:0;padding:14px 34px 26px 15px}
+  .aud-n{font-size:11px;letter-spacing:.24em;margin-bottom:1px}
+  .aud-card h3{font-size:19px;margin-bottom:3px}
+  .aud-card p{font-size:14px;line-height:1.5;
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
   .aud-card.is-open p{-webkit-line-clamp:unset;overflow:visible}
+  .aud-individual img{object-position:38% 40%}
+  .aud-equipo img{object-position:40% 70%}
+  /* en miniatura, la sala entera se volvía techo: se acerca a las sillas */
+  .aud-staff img{object-position:30% 86%;scale:1.6;transform-origin:34% 84%}
 
   /* La flecha avisa que hay más abajo; gira al abrir. */
   .aud-more{position:absolute;right:12px;bottom:10px;width:20px;height:20px;
@@ -1029,7 +967,6 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   .aud-more svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;
     stroke-linecap:round;stroke-linejoin:round}
   .aud-card.is-open .aud-more{transform:rotate(180deg)}
-  .aud-card{position:relative;padding-bottom:26px}
 }
 /* En pantallas donde las tres ya entran, la tarjeta es la de siempre
    y el texto va completo. */
@@ -1103,8 +1040,10 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 
 /* La imagen es más ancha que el marco: ese sobrante es el recorrido
    del paneo. --px llega hasta ±3.5 sobre un 112%, o sea 3.9% del
-   marco, con 6% de aire a cada lado. Nunca asoma el borde. */
-.gal-item img{position:absolute;top:0;left:-6%;width:112%;height:100%;
+   marco, con 6% de aire a cada lado. Nunca asoma el borde. El
+   max-width:none es porque el img{max-width:100%} general lo dejaba
+   en 100% y, corrido 6%, asomaba una franja vacía a la derecha. */
+.gal-item img{position:absolute;top:0;left:-6%;width:112%;max-width:none;height:100%;
   object-fit:cover;display:block;user-select:none;-webkit-user-drag:none;
   transform:translate3d(calc(var(--px,0) * 1%),0,0) scale(var(--z,1));
   transition:transform .5s var(--ease-out)}
@@ -1403,20 +1342,12 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 @media (prefers-reduced-motion:reduce){
   .grain{animation:none}
   .marquee-track{animation:none}
-  .aud-card.is-in .ai-body,.aud-card.is-in .ai-ring,.aud-card.is-in .ai-link,
-  .aud-card.is-in .ai-board,.aud-card.is-in .ai-clip,.aud-card.is-in .ai-play,
-  .aud-card.is-in .ai-tip{animation:none;stroke-dashoffset:0}
-  .aud-card.is-in .ai-head,.aud-card.is-in .ai-dot{animation:rgCalm .4s ease forwards}
-  .aud-card.is-in .ai-orbit,.aud-card.is-in .ai-p,.aud-card.is-in .ai-play,
-  .aud-card.is-in .ai-tip,.aud-card.is-in .ai-orbit2,.aud-card.is-in .ai-ring,
-  .aud-card.is-in .ai-fig,.aud-card.is-in .ai-flow,
-  .aud-card.is-in .ai-ball{animation:none}
-  .ai-orbit,.ai-flow,.ai-ball{opacity:0}
-  .aud-card:hover .aud-ico{transform:none}
+  /* las fotos de "Para quiénes" entran solo con el fundido de la tarjeta */
+  .aud-card.is-in .aud-media,.aud-card.is-in .aud-zoom{animation:none}
+  .aud-card:hover .aud-zoom{transform:none}
   .cima-motto.is-in .motto-b::after{transition-duration:.4s;transition-delay:.1s}
   .why-n i{transform:none!important}
   .why-eco{opacity:1!important;transform:none!important}
   .why-rule{transform:scaleX(1)!important}
   .motto-b::after{box-shadow:none}
-  @keyframes rgCalm{from{opacity:0}to{opacity:1}}
 }

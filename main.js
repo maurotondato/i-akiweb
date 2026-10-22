@@ -952,13 +952,17 @@
       sec.classList.add("persona-viva");
       var top = sec.querySelector(".persona-top");
 
-      /* Anillos: crecen con la primera mitad de la sección. */
+      /* Anillos: crecen con la primera mitad de la sección, todo
+         alrededor del centro del dibujo (0,0). Cada elemento tiene una
+         sola animación de transform: el trazo crece en su círculo y gira
+         en el grupo que lo envuelve. Con las dos sobre el mismo círculo,
+         GSAP compensaba el cambio de origen y lo dejaba fuera de centro. */
       var tlA = gsap.timeline({ scrollTrigger: { trigger: top, start: "top 90%", end: "bottom 40%", scrub: 0.8 } });
-      tlA.from(sec.querySelectorAll(".pa-anillo"), { scale: 0.3, opacity: 0, transformOrigin: "50% 50%",
+      tlA.from(sec.querySelectorAll(".pa-anillo"), { scale: 0.3, opacity: 0, svgOrigin: "0 0",
           stagger: 0.08, duration: 0.6, ease: "power2.out" }, 0)
-        .from(sec.querySelector(".pa-halo"), { scale: 0.4, opacity: 0, transformOrigin: "50% 50%",
+        .from(sec.querySelector(".pa-halo"), { scale: 0.4, opacity: 0, svgOrigin: "0 0",
           duration: 0.7, ease: "power2.out" }, 0)
-        .from(sec.querySelector(".pa-trazo"), { scale: 0.7, opacity: 0, transformOrigin: "50% 50%",
+        .from(sec.querySelector(".pa-trazo"), { scale: 0.7, opacity: 0, svgOrigin: "0 0",
           duration: 0.6, ease: "power2.out" }, 0.25)
         .from(sec.querySelectorAll(".pa-orbita"), { opacity: 0, duration: 0.3, stagger: 0.1 }, 0.45);
       /* El trazo y las órbitas giran durante toda la sección (las
@@ -966,7 +970,7 @@
          y el dibujo se queda un poco atrás del texto (parallax suave).
          Cuando la lectura pasa a la lista, los anillos se apagan. */
       var giro = function () { return { trigger: sec, start: "top bottom", end: "bottom top", scrub: 1 }; };
-      gsap.to(sec.querySelector(".pa-trazo"), { rotation: 140, svgOrigin: "0 0", ease: "none", scrollTrigger: giro() });
+      gsap.to(sec.querySelector(".pa-giro"), { rotation: 140, svgOrigin: "0 0", ease: "none", scrollTrigger: giro() });
       gsap.to(sec.querySelector(".pa-orbita-1"), { rotation: 120, svgOrigin: "0 0", ease: "none", scrollTrigger: giro() });
       gsap.to(sec.querySelector(".pa-orbita-2"), { rotation: -90, svgOrigin: "0 0", ease: "none", scrollTrigger: giro() });
       gsap.to(sec.querySelector(".persona-anillos"), { yPercent: -9, ease: "none", scrollTrigger: giro() });
@@ -1056,7 +1060,7 @@
         if (t.trigger && sec.contains(t.trigger)) t.kill(true);
       });
       sec.classList.remove("persona-viva");
-      gsap.set(sec.querySelectorAll(".pw, .pa-grupo, .pa-grupo *, .pa-halo, .pa-trazo, .pa-orbita, .persona-anillos, .persona-p, .dolores-linea i, .dolores-cta"),
+      gsap.set(sec.querySelectorAll(".pw, .pa-grupo, .pa-grupo *, .pa-halo, .pa-giro, .pa-trazo, .pa-orbita, .persona-anillos, .persona-p, .dolores-linea i, .dolores-cta"),
         { clearProps: "all" });
       throw e;
     }

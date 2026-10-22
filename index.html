@@ -49,7 +49,7 @@
 <link rel="preload" href="assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/barlow-cond-600-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261089">
+<link rel="stylesheet" href="styles.css?v=20261090">
 </head>
 <body>
 
@@ -182,7 +182,7 @@
         <defs><radialGradient id="gNucleo"><stop offset="0" stop-color="#7FCBF0" stop-opacity=".75"/><stop offset=".4" stop-color="#45AEE5" stop-opacity=".22"/><stop offset="1" stop-color="#45AEE5" stop-opacity="0"/></radialGradient></defs>
         <circle class="pa-halo" r="150" fill="url(#gNucleo)"/>
         <g class="pa-grupo"><circle class="pa-anillo" r="34"/><circle class="pa-anillo" r="62"/><circle class="pa-anillo" r="94"/><circle class="pa-anillo" r="130"/><circle class="pa-anillo" r="170"/><circle class="pa-anillo" r="214"/><circle class="pa-anillo" r="262"/></g>
-        <circle class="pa-trazo" r="196" pathLength="1"/>
+        <g class="pa-giro"><circle class="pa-trazo" r="196" pathLength="1"/></g>
         <g class="pa-orbita pa-orbita-1"><circle cx="-185" cy="185" r="4.5"/></g>
         <g class="pa-orbita pa-orbita-2"><circle cx="0" cy="-214" r="3.5"/></g>
       </svg>
@@ -310,8 +310,8 @@
 </section>
 
 <!-- ============ ¿PARA QUIÉNES? ============
-     Los tres destinatarios del PDF. Cada ícono representa su idea:
-     uno asciende, tres ascienden juntos, uno conduce al resto. -->
+     Los tres destinatarios del PDF, cada uno con su foto: el jugador
+     solo, el plantel abrazado y la sala lista para el cuerpo técnico. -->
 <section class="aud" id="para-quienes">
   <div class="shell">
     <p class="kicker reveal">¿Para quiénes?</p>
@@ -319,59 +319,48 @@
     <p class="aud-lead reveal">El método es el mismo. Lo que cambia es desde dónde se empieza y quién lo recorre.</p>
 
     <div class="aud-grid">
-      <article class="aud-card reveal" data-aud>
-        <span class="aud-n">01</span>
-        <svg class="aud-ico" viewBox="0 0 72 72" aria-hidden="true">
-          <circle class="ai-ring" pathLength="1" cx="36" cy="36" r="27"/>
-          <circle class="ai-orbit" pathLength="1" cx="36" cy="36" r="27"/>
-          <circle class="ai-orbit ai-orbit2" pathLength="1" cx="36" cy="36" r="21"/>
-          <g class="ai-fig">
-            <circle class="ai-head" cx="36" cy="27" r="7"/>
-            <path class="ai-body" pathLength="1" d="M23 51v-2a13 13 0 0 1 26 0v2"/>
-          </g>
-        </svg>
-        <h3>Individual</h3>
-        <p>Deportistas que buscan confianza, foco y consistencia. El método es el mismo en cualquier disciplina: hasta hoy acompañé procesos en tenis, fútbol, rugby, polo, golf, taekwondo, remo y ultratrail.</p>
+      <article class="aud-card aud-individual reveal" data-aud>
+        <div class="aud-media">
+          <span class="aud-zoom"><img src="assets/img/aud/individual-960.webp"
+               srcset="assets/img/aud/individual-480.webp 480w, assets/img/aud/individual-960.webp 960w"
+               sizes="(max-width:620px) 110px, (max-width:900px) 40vw, 420px"
+               alt="Jugador con pechera corriendo en una cancha al atardecer" width="960" height="640" loading="lazy" decoding="async"></span>
+        </div>
+        <div class="aud-body">
+          <span class="aud-n">01</span>
+          <h3>Individual</h3>
+          <p>Deportistas que buscan confianza, foco y consistencia. El método es el mismo en cualquier disciplina: hasta hoy acompañé procesos en tenis, fútbol, rugby, polo, golf, taekwondo, remo y ultratrail.</p>
+        </div>
         <button class="aud-more" type="button" aria-expanded="false" aria-label="Ver más"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5 10 4.5"/></svg></button>
       </article>
 
-      <article class="aud-card reveal" data-aud>
-        <span class="aud-n">02</span>
-        <svg class="aud-ico" viewBox="0 0 72 72" aria-hidden="true">
-          <path class="ai-link" pathLength="1" d="M13 55a28 28 0 0 1 46 0"/>
-          <path class="ai-flow" pathLength="1" d="M13 55a28 28 0 0 1 46 0"/>
-          <g class="ai-p ai-pa">
-            <circle class="ai-head" cx="13" cy="33" r="5.5"/>
-            <path class="ai-body" pathLength="1" d="M3 51v-1.5a10 10 0 0 1 20 0V51"/>
-          </g>
-          <g class="ai-p ai-pc">
-            <circle class="ai-head" cx="36" cy="25" r="7"/>
-            <path class="ai-body" pathLength="1" d="M23 47v-2a13 13 0 0 1 26 0v2"/>
-          </g>
-          <g class="ai-p ai-pb">
-            <circle class="ai-head" cx="59" cy="33" r="5.5"/>
-            <path class="ai-body" pathLength="1" d="M49 51v-1.5a10 10 0 0 1 20 0V51"/>
-          </g>
-        </svg>
-        <h3>Equipo</h3>
-        <p>Planteles que necesitan una identidad competitiva compartida. Trabajé con equipos de rugby, hockey y fútbol en primera división, y el proceso se adapta a cualquier deporte de conjunto.</p>
+      <article class="aud-card aud-equipo reveal" data-aud>
+        <div class="aud-media">
+          <span class="aud-zoom"><img src="assets/img/aud/equipo-960.webp"
+               srcset="assets/img/aud/equipo-480.webp 480w, assets/img/aud/equipo-960.webp 960w"
+               sizes="(max-width:620px) 110px, (max-width:900px) 40vw, 420px"
+               alt="Plantel abrazado en ronda en la cancha, de noche" width="960" height="928" loading="lazy" decoding="async"></span>
+        </div>
+        <div class="aud-body">
+          <span class="aud-n">02</span>
+          <h3>Equipo</h3>
+          <p>Planteles que necesitan una identidad competitiva compartida. Trabajé con equipos de rugby, hockey y fútbol en primera división, y el proceso se adapta a cualquier deporte de conjunto.</p>
+        </div>
         <button class="aud-more" type="button" aria-expanded="false" aria-label="Ver más"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5 10 4.5"/></svg></button>
       </article>
 
-      <article class="aud-card reveal" data-aud>
-        <span class="aud-n">03</span>
-        <svg class="aud-ico" viewBox="0 0 72 72" aria-hidden="true">
-          <path class="ai-board" pathLength="1" d="M17 15h38a3 3 0 0 1 3 3v40a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3V18a3 3 0 0 1 3-3z"/>
-          <path class="ai-clip" pathLength="1" d="M29 11h14v7H29z"/>
-          <path class="ai-play" pathLength="1" d="M22 52 L31 40 L41 46 L50 28"/>
-          <path class="ai-tip" pathLength="1" d="M44 28h6v6"/>
-          <circle class="ai-ball" cx="0" cy="0" r="2.8"/>
-          <circle class="ai-dot ai-d1" cx="22" cy="52" r="3"/>
-          <circle class="ai-dot ai-d2" cx="31" cy="40" r="3"/>
-          <circle class="ai-dot ai-d3" cx="41" cy="46" r="3"/>
-        </svg>
-        <h3>Staff</h3>
-        <p>Entrenadores y cuerpos técnicos de cualquier disciplina. Liderazgo de alto rendimiento: cómo se comunica, cómo se sostiene al grupo y cómo se decide bajo presión.</p>
+      <article class="aud-card aud-staff reveal" data-aud>
+        <div class="aud-media">
+          <span class="aud-zoom"><img src="assets/img/aud/staff-960.webp"
+               srcset="assets/img/aud/staff-480.webp 480w, assets/img/aud/staff-960.webp 960w"
+               sizes="(max-width:620px) 110px, (max-width:900px) 40vw, 420px"
+               alt="Salón con sillas en semicírculo, preparado para una charla con el cuerpo técnico" width="960" height="1280" loading="lazy" decoding="async"></span>
+        </div>
+        <div class="aud-body">
+          <span class="aud-n">03</span>
+          <h3>Staff</h3>
+          <p>Entrenadores y cuerpos técnicos de cualquier disciplina. Liderazgo de alto rendimiento: cómo se comunica, cómo se sostiene al grupo y cómo se decide bajo presión.</p>
+        </div>
         <button class="aud-more" type="button" aria-expanded="false" aria-label="Ver más"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5 10 4.5"/></svg></button>
       </article>
     </div>
@@ -460,7 +449,7 @@
         </li>
         <li class="gal-item gt" data-gal>
           <span class="gal-telon" aria-hidden="true"></span>
-          <img src="assets/img/galeria/gal-1018.webp" alt="Iñaki mirando un entrenamiento desde el borde del campo"
+          <img src="assets/img/galeria/gal-noche.webp" alt="Iñaki de noche en una cancha iluminada, con la mochila al hombro y una pizarra bajo el brazo"
                width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
         </li>
         <li class="gal-item gm" data-gal>
@@ -470,12 +459,17 @@
         </li>
         <li class="gal-item gt" data-gal>
           <span class="gal-telon" aria-hidden="true"></span>
-          <img src="assets/img/galeria/gal-5708.webp" alt="Iñaki caminando por el campo de juego"
+          <img src="assets/img/galeria/gal-1018.webp" alt="Iñaki mirando un entrenamiento desde el borde del campo"
                width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
         </li>
         <li class="gal-item gm" data-gal>
           <span class="gal-telon" aria-hidden="true"></span>
           <img src="assets/img/galeria/gal-5099.webp" alt="Retrato de Iñaki Etchegaray"
+               width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
+        </li>
+        <li class="gal-item gt" data-gal>
+          <span class="gal-telon" aria-hidden="true"></span>
+          <img src="assets/img/galeria/gal-5708.webp" alt="Iñaki caminando por el campo de juego"
                width="900" height="1200" loading="lazy" decoding="async" data-gal-img>
         </li>
     </ul>
@@ -678,13 +672,13 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261089"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261089"></script>
-<script defer src="hero.js?v=20261089"></script>
-<script defer src="estadio.js?v=20261089"></script>
-<script defer src="pizarra.js?v=20261089"></script>
-<script defer src="tribuna.js?v=20261089"></script>
-<script defer src="palos.js?v=20261089"></script>
-<script defer src="main.js?v=20261089"></script>
+<script defer src="lib/gsap.min.js?v=20261090"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261090"></script>
+<script defer src="hero.js?v=20261090"></script>
+<script defer src="estadio.js?v=20261090"></script>
+<script defer src="pizarra.js?v=20261090"></script>
+<script defer src="tribuna.js?v=20261090"></script>
+<script defer src="palos.js?v=20261090"></script>
+<script defer src="main.js?v=20261090"></script>
 </body>
 </html>
