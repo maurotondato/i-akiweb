@@ -642,7 +642,10 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   .aud-card:hover .aud-zoom{transform:scale(1.06)}}
 @media (hover:none){.aud-card:active{transform:scale(.985)}}
 
-.aud-media{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--ink)}
+/* Cuadrada: el jugador entra entero, de la cabeza a la pelota, y las
+   otras dos fotos (el plantel, casi cuadrada; la sala, vertical) no
+   pierden nada importante. */
+.aud-media{position:relative;aspect-ratio:1/1;overflow:hidden;background:var(--ink)}
 /* Un velo navy abajo: asienta tres fotos que vienen de luces muy
    distintas (atardecer, noche, salón blanco) y las ata a la paleta. */
 .aud-media::after{content:"";position:absolute;inset:0;pointer-events:none;
@@ -652,7 +655,7 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .aud-zoom{position:absolute;inset:0;display:block;transition:transform .9s var(--ease-out)}
 .aud-zoom img{width:100%;height:100%;max-width:none;object-fit:cover}
 /* Qué parte de cada foto manda en el recorte */
-.aud-individual img{object-position:42% 30%}
+.aud-individual img{object-position:50% 74%}
 .aud-equipo img{object-position:50% 74%}
 .aud-staff img{object-position:50% 92%}
 
@@ -672,8 +675,9 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 /* Tablet: una columna, foto a la izquierda y texto a la derecha */
 @media (max-width:900px){
   .aud-grid{grid-template-columns:1fr}
-  .aud-card{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
-  .aud-media{aspect-ratio:auto;min-height:230px}
+  .aud-card{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr)}
+  /* más alta que ancha, para que el jugador siga entrando entero */
+  .aud-media{aspect-ratio:auto;min-height:290px}
   .aud-body{align-self:center}
 }
 
@@ -954,7 +958,7 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   .aud-card p{font-size:14px;line-height:1.5;
     display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
   .aud-card.is-open p{-webkit-line-clamp:unset;overflow:visible}
-  .aud-individual img{object-position:38% 40%}
+  .aud-individual img{object-position:50% 30%}
   .aud-equipo img{object-position:40% 70%}
   /* en miniatura, la sala entera se volvía techo: se acerca a las sillas */
   .aud-staff img{object-position:30% 86%;scale:1.6;transform-origin:34% 84%}
