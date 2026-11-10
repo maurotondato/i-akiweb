@@ -146,9 +146,6 @@
     /* La jugada al lado del lema (pizarra.js). */
     var piz = document.querySelector("[data-pizarra]");
     if (piz && window.PIZARRA_mount) window.PIZARRA_mount(piz);
-    /* El estadio que se llena en el caso (tribuna.js). */
-    var tri = document.querySelector("[data-tribuna]");
-    if (tri && window.TRIBUNA_mount) window.TRIBUNA_mount(tri);
     /* Los palos del cierre (palos.js). */
     var pal = document.querySelector("[data-palos]");
     if (pal && window.PALOS_mount) window.PALOS_mount(pal);
@@ -366,24 +363,6 @@
         .fromTo(num, { yPercent: 115 }, { yPercent: 0, duration: 0.28, ease: "none" }, 0.04)
         .fromTo(eco, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "none" }, 0.06)
         .fromTo(eco, { y: 38 }, { y: -38, duration: 1, ease: "none" }, 0);
-    });
-  }
-
-  /* ---------------- "¿PARA QUIÉNES?": PLEGAR EN TELÉFONO ----------------
-     En teléfono el texto de cada tarjeta va plegado a dos líneas para
-     que las tres entren juntas. Esto lo abre. El plegado lo hace el
-     CSS, así que si este script no corre el texto se ve igual: no hay
-     forma de que quede contenido inaccesible. */
-  function initAudMore() {
-    document.querySelectorAll(".aud-card").forEach(function (card) {
-      var btn = card.querySelector(".aud-more");
-      if (!btn) return;
-      btn.addEventListener("click", function (e) {
-        e.stopPropagation();
-        var abierto = card.classList.toggle("is-open");
-        btn.setAttribute("aria-expanded", abierto ? "true" : "false");
-        btn.setAttribute("aria-label", abierto ? "Ver menos" : "Ver más");
-      });
     });
   }
 
@@ -1156,7 +1135,6 @@
     safe(initReveal, "reveal");
     safe(initSplitText, "split");
     safe(initCountUp, "countup");
-    safe(initAudMore, "audMore");
     safe(initWhyScroll, "whyScroll");
     safe(initWaForm, "waForm");
     safe(initMarquee, "marquee");

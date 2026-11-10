@@ -621,17 +621,18 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 
 
 /* ---------------- ¿PARA QUIÉNES? ----------------
-   Tres tarjetas, cada una con su foto arriba y el texto abajo sobre
-   blanco (nada se lee encima de la foto). Al aparecer, la foto se
-   destapa de abajo hacia arriba mientras la imagen se asienta desde
-   un poco más cerca; con el mouse encima, la tarjeta se levanta y la
-   foto se acerca. */
+   La pregunta es el título, en grande. Debajo, dos tarjetas anchas:
+   la foto a la izquierda, a todo el alto, y el texto a la derecha
+   sobre blanco (nada se lee encima de la foto). Al aparecer, la foto
+   se destapa de abajo hacia arriba mientras la imagen se asienta
+   desde un poco más cerca; con el mouse encima, la tarjeta se levanta
+   y la foto se acerca. */
 .aud{background:var(--bone);padding-block:clamp(70px,10vw,124px)}
-.aud-title{font-size:clamp(30px,4.6vw,58px);letter-spacing:-.045em;max-width:16ch;margin-top:16px}
-.aud-lead{font-size:16.5px;color:var(--mute);max-width:54ch;margin-top:16px}
-.aud-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:clamp(36px,5vw,56px)}
-.aud-card{position:relative;background:var(--paper);border:1px solid var(--hair);border-radius:18px;
-  display:flex;flex-direction:column;overflow:hidden;isolation:isolate;
+.aud-title{font-size:clamp(46px,8vw,112px);line-height:.94;letter-spacing:-.055em}
+.aud-lead{font-size:clamp(16.5px,1.5vw,19px);line-height:1.6;color:var(--mute);max-width:52ch;margin-top:clamp(16px,2vw,24px)}
+.aud-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(16px,2vw,24px);margin-top:clamp(36px,5vw,60px)}
+.aud-card{position:relative;background:var(--paper);border:1px solid var(--hair);border-radius:20px;
+  display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);overflow:hidden;isolation:isolate;
   transition:transform .35s var(--ease-out),border-color .35s var(--ease-out),box-shadow .45s var(--ease-out)}
 .aud-card::after{content:"";position:absolute;left:0;right:0;top:0;height:3px;z-index:2;background:var(--cel);
   transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease-out)}
@@ -642,12 +643,11 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   .aud-card:hover .aud-zoom{transform:scale(1.06)}}
 @media (hover:none){.aud-card:active{transform:scale(.985)}}
 
-/* Cuadrada: el jugador entra entero, de la cabeza a la pelota, y las
-   otras dos fotos (el plantel, casi cuadrada; la sala, vertical) no
-   pierden nada importante. */
-.aud-media{position:relative;aspect-ratio:1/1;overflow:hidden;background:var(--ink)}
-/* Un velo navy abajo: asienta tres fotos que vienen de luces muy
-   distintas (atardecer, noche, salón blanco) y las ata a la paleta. */
+/* Más alta que ancha: el jugador entra entero, de la cabeza a la
+   pelota, y el plantel queda centrado en la ronda. */
+.aud-media{position:relative;min-height:clamp(340px,30vw,420px);overflow:hidden;background:var(--ink)}
+/* Un velo navy abajo: asienta dos fotos de luces muy distintas
+   (estadio iluminado, noche con humo) y las ata a la paleta. */
 .aud-media::after{content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(3,29,64,0) 50%,rgba(3,29,64,.34) 100%)}
 /* El zoom va en una capa aparte: la entrada usa `scale`, el hover
@@ -655,14 +655,13 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .aud-zoom{position:absolute;inset:0;display:block;transition:transform .9s var(--ease-out)}
 .aud-zoom img{width:100%;height:100%;max-width:none;object-fit:cover}
 /* Qué parte de cada foto manda en el recorte */
-.aud-individual img{object-position:50% 74%}
+.aud-individual img{object-position:46% 60%}
 .aud-equipo img{object-position:50% 74%}
-.aud-staff img{object-position:50% 92%}
 
-.aud-body{display:flex;flex-direction:column;gap:12px;padding:26px 28px 30px}
+.aud-body{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:clamp(26px,2.6vw,38px) clamp(24px,2.4vw,34px)}
 .aud-n{font-family:var(--cond);font-size:13px;font-weight:600;letter-spacing:.3em;color:var(--cel-dk)}
-.aud-card h3{font-size:25px;letter-spacing:-.03em}
-.aud-card p{font-size:15px;line-height:1.65;color:var(--mute)}
+.aud-card h3{font-size:clamp(26px,2.4vw,32px);letter-spacing:-.035em}
+.aud-card p{font-size:clamp(15px,1.15vw,16.5px);line-height:1.65;color:var(--mute)}
 
 /* Entrada: cuando la tarjeta aparece (.is-in, con el escalonado --rd
    del reveal), la foto se destapa y se asienta. `backwards` y no
@@ -672,26 +671,31 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .aud-card.is-in .aud-media{animation:audTelon 1.05s var(--ease-out) calc(var(--rd,0s) + .12s) backwards}
 .aud-card.is-in .aud-zoom{animation:audAsienta 1.6s var(--ease-out) calc(var(--rd,0s) + .12s) backwards}
 
-/* Tablet: una columna, foto a la izquierda y texto a la derecha */
-@media (max-width:900px){
+/* Tablet: las dos tarjetas una abajo de la otra, misma estructura */
+@media (max-width:980px){
   .aud-grid{grid-template-columns:1fr}
-  .aud-card{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr)}
-  /* más alta que ancha, para que el jugador siga entrando entero */
-  .aud-media{aspect-ratio:auto;min-height:290px}
-  .aud-body{align-self:center}
+  .aud-card{grid-template-columns:minmax(0,4fr) minmax(0,7fr)}
+  .aud-media{min-height:300px}
+}
+/* Teléfono: la foto angosta a la izquierda y el texto completo al
+   lado. Con dos tarjetas ya no hace falta plegar el texto: entran las
+   dos casi en una pantalla. */
+@media (max-width:620px){
+  .aud{padding-block:clamp(48px,11vw,72px)}
+  .aud-lead{font-size:15px;line-height:1.5}
+  .aud-grid{gap:12px}
+  .aud-card{grid-template-columns:118px minmax(0,1fr);border-radius:16px}
+  .aud-media{min-height:0}
+  .aud-body{justify-content:flex-start;gap:4px;padding:16px 16px 18px}
+  .aud-n{font-size:11px;letter-spacing:.24em}
+  .aud-card h3{font-size:21px}
+  .aud-card p{font-size:14px;line-height:1.55}
+  .aud-individual img{object-position:50% 34%}
+  .aud-equipo img{object-position:42% 70%}
 }
 
 /* ---------------- SOBRE MÍ ---------------- */
 .about{padding-block:clamp(70px,10vw,124px);display:flex;flex-direction:column;gap:clamp(54px,7vw,96px)}
-/* Corte entre la pasarela de clubes y "Sobre mí", que comparten el
-   blanco: una línea de pelo del ancho del contenido que se desvanece
-   en las puntas, con el rombo de la pasarela en el medio. */
-.marquee + .about{position:relative}
-.marquee + .about::before{content:"";position:absolute;top:0;left:50%;height:1px;
-  width:min(1320px - 2 * var(--gut),100% - 2 * var(--gut));translate:-50% 0;
-  background:linear-gradient(90deg,rgba(201,213,227,0),#C9D5E3 24%,#C9D5E3 76%,rgba(201,213,227,0))}
-.marquee + .about::after{content:"";position:absolute;top:0;left:50%;width:7px;height:7px;
-  margin:-3.5px 0 0 -3.5px;rotate:45deg;background:#fff;border:1px solid rgba(69,174,229,.6)}
 .about-top{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,74px);align-items:center}
 .about-frame{will-change:transform}
 .about-photo{margin:0;position:relative;border-radius:16px;overflow:hidden;
@@ -937,44 +941,6 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 
    Son animaciones CSS y no rAF: corren fuera del hilo principal, así
    que no pueden trabarse mientras la página sigue cargando. */
-/* ---- "¿Para quiénes?" en teléfono ----
-   Apiladas en vertical, las tres tarjetas pedían 2,2 pantallas: nunca
-   se veían juntas, y la idea de la sección es justamente que se
-   entienda de un vistazo que hay TRES formas de entrar.
-
-   Pasan a fila: la foto a la izquierda, a todo el alto de la tarjeta,
-   y a la derecha el título y el texto plegado a dos líneas. Se toca y
-   se abre (la foto se estira con él). Así las tres entran juntas y el
-   detalle sigue estando para quien lo quiera. */
-@media (max-width:620px){
-  .aud{padding-block:clamp(44px,9vw,64px)}
-  .aud-lead{font-size:15px;line-height:1.5}
-  .aud-grid{gap:10px}
-  .aud-card{grid-template-columns:104px minmax(0,1fr);border-radius:14px}
-  .aud-media{min-height:0}
-  .aud-body{align-self:start;gap:0;padding:14px 34px 26px 15px}
-  .aud-n{font-size:11px;letter-spacing:.24em;margin-bottom:1px}
-  .aud-card h3{font-size:19px;margin-bottom:3px}
-  .aud-card p{font-size:14px;line-height:1.5;
-    display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-  .aud-card.is-open p{-webkit-line-clamp:unset;overflow:visible}
-  .aud-individual img{object-position:50% 30%}
-  .aud-equipo img{object-position:40% 70%}
-  /* en miniatura, la sala entera se volvía techo: se acerca a las sillas */
-  .aud-staff img{object-position:30% 86%;scale:1.6;transform-origin:34% 84%}
-
-  /* La flecha avisa que hay más abajo; gira al abrir. */
-  .aud-more{position:absolute;right:12px;bottom:10px;width:20px;height:20px;
-    border:0;background:none;padding:0;color:var(--cel-dk);
-    display:grid;place-items:center;cursor:pointer;
-    transition:transform .32s var(--ease-out)}
-  .aud-more svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;
-    stroke-linecap:round;stroke-linejoin:round}
-  .aud-card.is-open .aud-more{transform:rotate(180deg)}
-}
-/* En pantallas donde las tres ya entran, la tarjeta es la de siempre
-   y el texto va completo. */
-@media (min-width:621px){ .aud-more{display:none} }
 
 @media (max-width:980px){
   .why-n{display:block;overflow:hidden;line-height:1}
@@ -1111,15 +1077,37 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   .gal-item{height:clamp(280px,44vh,380px);height:clamp(280px,44svh,380px)}
 }
 
-/* ---------------- UN PROCESO (sin foto) ---------------- */
+/* ---------------- UN PROCESO ---------------- */
 .case{background:var(--bone);padding-block:clamp(70px,10vw,124px)}
 .case-inner{display:flex;flex-direction:column;gap:20px;align-items:flex-start}
 .case-title{font-size:clamp(30px,4.6vw,62px);line-height:1.02;letter-spacing:-.045em;max-width:22ch}
-/* El estadio del sueño, de noche: un panel como las fotos de la
-   galería, entre el título y la historia. */
-.case-estadio{align-self:stretch;position:relative;height:clamp(230px,30vw,400px);border-radius:16px;
-  overflow:hidden;background:#021428;margin-block:12px 18px;box-shadow:0 34px 70px -40px rgba(3,29,64,.65)}
-.case-tribuna{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* Tobías Wade, con la 7 de Los Pumas 7s: un panel ancho entre el
+   título y la historia, con su nombre abajo a la izquierda sobre un
+   velo navy. Entra como las fotos de "Para quiénes": se destapa de
+   abajo hacia arriba y la imagen se asienta; el nombre sube después. */
+.case-jugador{align-self:stretch;position:relative;margin:12px 0 18px;height:clamp(300px,40vw,520px);
+  border-radius:18px;overflow:hidden;isolation:isolate;background:var(--ink);
+  box-shadow:0 34px 70px -40px rgba(3,29,64,.65)}
+.case-foto{position:absolute;inset:0;display:block}
+.case-foto img{width:100%;height:100%;max-width:none;object-fit:cover;object-position:62% 6%}
+@media (max-width:760px){.case-foto img{object-position:62% 30%}}
+.case-jugador::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(2,20,40,.78) 0%,rgba(2,20,40,.32) 38%,rgba(2,20,40,0) 60%),
+             linear-gradient(0deg,rgba(2,20,40,.55) 0%,rgba(2,20,40,0) 45%)}
+.case-nombre{position:absolute;left:clamp(20px,3.4vw,46px);bottom:clamp(18px,3vw,40px);z-index:1;
+  display:flex;flex-direction:column;gap:8px;color:#fff}
+.case-equipo{font-family:var(--cond);font-size:clamp(12px,1vw,14px);font-weight:600;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--cel-lt);display:flex;align-items:center;gap:10px}
+.case-equipo::before{content:"";width:22px;height:2px;background:currentColor}
+.case-nombre b{font-family:var(--display);font-weight:400;font-size:clamp(34px,5.6vw,78px);line-height:.92;
+  letter-spacing:-.04em;text-transform:uppercase}
+/* lleva también la aparición del reveal: si no, al terminar el telón
+   volvía al opacity:0 de .reveal */
+.case-jugador.is-in{animation:revealIn .85s var(--ease-out) var(--rd,0s) both,
+  audTelon 1.1s var(--ease-out) var(--rd,0s) backwards}
+.case-jugador.is-in .case-foto{animation:audAsienta 1.8s var(--ease-out) var(--rd,0s) backwards}
+@keyframes nombreSube{from{opacity:0;translate:0 26px}to{opacity:1;translate:0 0}}
+.case-jugador.is-in .case-nombre{animation:nombreSube .9s var(--ease-out) calc(var(--rd,0s) + .55s) backwards}
 .case-body{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,72px);
   margin-top:18px;width:100%;align-items:start}
 .case-col{display:flex;flex-direction:column;gap:18px}
@@ -1130,10 +1118,11 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   color:var(--signal);font-variant-numeric:tabular-nums}
 .stat span{font-family:var(--cond);font-size:13.5px;font-weight:600;letter-spacing:.18em;
   text-transform:uppercase;color:var(--mute);line-height:1.35}
-/* El trofeo de los torneos y la medalla de oro, en el mismo dibujo
-   que los íconos del CV: forma sólida con el degradado de la marca y
-   los detalles calados. Entran subiendo cuando arranca el contador; al
-   terminar, la medalla se balancea y por la copa pasa un brillo. */
+/* El trofeo de los circuitos y la antorcha olímpica, en el mismo
+   dibujo que los íconos del CV: forma sólida con el degradado de la
+   marca y los detalles calados. Entran subiendo cuando arranca el
+   contador; al terminar, por la copa pasa un brillo y la llama se
+   aviva. */
 .stats{--ico-bg:var(--bone)}
 .stat .stat-fila{display:flex;align-items:center;gap:.12em;font-size:clamp(46px,6.4vw,84px)}
 .stat .stat-fila b{font-size:1em}
@@ -1143,13 +1132,13 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .stat-ico .ci-anillo{stroke-width:1.4}
 .stat-ico .ci-asa{stroke-width:3.2}
 .stat-brillo{fill:#fff;opacity:.6;transform:skewX(-18deg)}
-.stat-oro .stat-ico{transform-origin:50% 4%}
+.stat-fuego{transform-box:fill-box;transform-origin:50% 100%}
 .stat-anim .stat-ico{clip-path:inset(100% 0 0 0);opacity:0}
 .stat-anim.is-run .stat-ico{animation:icoSube .72s var(--ease-out) forwards}
 .stat-anim.is-won .stat-brillo{animation:copaBrillo 1s var(--ease-out) forwards}
-.stat-anim.is-won.stat-oro .stat-ico{animation:icoSube .72s var(--ease-out) forwards,medallaVaiven 1.3s .1s ease-out}
+.stat-anim.is-won.stat-llama .stat-fuego{animation:llamaAviva 1.2s ease-out}
 @keyframes copaBrillo{from{transform:skewX(-18deg) translateX(0)}to{transform:skewX(-18deg) translateX(52px)}}
-@keyframes medallaVaiven{0%{rotate:0deg}25%{rotate:9deg}50%{rotate:-6deg}72%{rotate:3deg}100%{rotate:0deg}}
+@keyframes llamaAviva{0%{scale:1 1}28%{scale:1.1 1.18}55%{scale:.96 .94}78%{scale:1.03 1.05}100%{scale:1 1}}
 .case-note{border-left:3px solid var(--cel);padding-left:19px;font-size:15.5px;line-height:1.6;font-weight:500}
 @media (max-width:980px){.case-body{grid-template-columns:1fr}}
 
@@ -1213,6 +1202,21 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .programs{background:var(--bone);padding-block:clamp(74px,10vw,125px)}
 .programs-title{font-size:clamp(34px,5.4vw,70px);letter-spacing:-.045em;max-width:16ch;margin-top:16px}
 .programs-lead{font-size:16.5px;color:var(--mute);max-width:52ch;margin-top:16px}
+/* Encabezado con Iñaki a la derecha: la oferta tiene cara. Un bloque
+   celeste corrido detrás, como una copia apoyada, y al aparecer la
+   foto se asienta desde un poco más cerca. */
+.programs-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(28px,5vw,80px);align-items:center}
+.programs-foto{position:relative;margin:0 14px 14px 0;width:clamp(210px,20vw,280px);aspect-ratio:4/5;
+  border-radius:20px;overflow:hidden;isolation:isolate;background:var(--ink);
+  box-shadow:14px 14px 0 0 var(--cel),0 30px 60px -34px rgba(3,29,64,.55)}
+.programs-zoom{position:absolute;inset:0;display:block}
+.programs-zoom img{width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 28%}
+.programs-foto.is-in .programs-zoom{animation:audAsienta 1.6s var(--ease-out) calc(var(--rd,0s) + .1s) backwards}
+@media (max-width:760px){
+  .programs-head{grid-template-columns:1fr}
+  .programs-foto{width:auto;aspect-ratio:16/11;margin:4px 10px 10px 0;box-shadow:10px 10px 0 0 var(--cel),0 24px 48px -30px rgba(3,29,64,.55)}
+  .programs-zoom img{object-position:50% 22%}
+}
 .prog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:50px;align-items:stretch}
 .prog{position:relative;border:1px solid var(--hair);border-radius:16px;padding:34px 28px 30px;
   background:var(--paper);display:flex;flex-direction:column;gap:18px;overflow:hidden;
@@ -1229,7 +1233,12 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .prog-top{display:flex;flex-direction:column;gap:7px}
 .prog-step{font-family:var(--cond);font-size:13px;font-weight:600;letter-spacing:.3em;color:var(--cel-dk)}
 .prog h3{font-size:26px;letter-spacing:-.03em}
-.prog-quote{font-size:14px;color:var(--mute);line-height:1.5;font-style:italic}
+/* La frase de cada programa es la voz de quien lo elige: va destacada,
+   en negrita, sobre una franja celeste con su filete. */
+.prog-quote{margin-top:8px;padding:12px 14px 12px 16px;border-left:3px solid var(--cel);
+  border-radius:0 10px 10px 0;background:rgba(69,174,229,.1);
+  font-size:16px;line-height:1.4;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.prog-feat .prog-quote{background:rgba(69,174,229,.17)}
 .prog-ses{display:flex;align-items:baseline;gap:11px;padding-bottom:18px;border-bottom:1px solid var(--hair)}
 .prog-ses b{font-family:var(--display);font-size:46px;line-height:1;letter-spacing:-.055em;
   color:var(--signal);font-variant-numeric:tabular-nums}
@@ -1349,6 +1358,11 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   /* las fotos de "Para quiénes" entran solo con el fundido de la tarjeta */
   .aud-card.is-in .aud-media,.aud-card.is-in .aud-zoom{animation:none}
   .aud-card:hover .aud-zoom{transform:none}
+  /* Tobías y la foto de Programas: solo el fundido */
+  .case-jugador.is-in{animation:revealFade .5s ease var(--rd,0s) both}
+  .case-jugador.is-in .case-foto,.case-jugador.is-in .case-nombre,
+  .programs-foto.is-in .programs-zoom{animation:none}
+  .stat-anim.is-won.stat-llama .stat-fuego{animation:none}
   .cima-motto.is-in .motto-b::after{transition-duration:.4s;transition-delay:.1s}
   .why-n i{transform:none!important}
   .why-eco{opacity:1!important;transform:none!important}
