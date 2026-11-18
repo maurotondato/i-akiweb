@@ -9,7 +9,7 @@
 <!-- El splash es la bienvenida: se ve una vez por visita. Si ya se vio
      en esta pestaña, se saca antes de pintar, sin parpadeo. -->
 <script>try{if(sessionStorage.getItem("splash-visto"))document.documentElement.classList.add("sin-splash")}catch(e){}</script>
-<link rel="canonical" href="https://maurotondato.github.io/i-akiweb/">
+<link rel="canonical" href="https://inakietchegaray.com.ar/">
 
 <!-- Vista previa al compartir (WhatsApp, Instagram, Telegram, LinkedIn…).
      Tres cosas que WhatsApp necesita sí o sí y antes no estaban:
@@ -21,13 +21,13 @@
      previa por URL durante días. Si se cambia la imagen, hay que
      subirle el número. -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://maurotondato.github.io/i-akiweb/">
+<meta property="og:url" content="https://inakietchegaray.com.ar/">
 <meta property="og:site_name" content="Iñaki Etchegaray · Coach deportivo">
 <meta property="og:locale" content="es_AR">
 <meta property="og:title" content="Iñaki Etchegaray — Coach deportivo">
 <meta property="og:description" content="La cima no se alcanza, se construye. Acompaño a deportistas, equipos y cuerpos técnicos a construir confianza, foco y consistencia con el método CIMA.">
-<meta property="og:image" content="https://maurotondato.github.io/i-akiweb/assets/brand/og-cover.jpg?v=1">
-<meta property="og:image:secure_url" content="https://maurotondato.github.io/i-akiweb/assets/brand/og-cover.jpg?v=1">
+<meta property="og:image" content="https://inakietchegaray.com.ar/assets/brand/og-cover.jpg?v=1">
+<meta property="og:image:secure_url" content="https://inakietchegaray.com.ar/assets/brand/og-cover.jpg?v=1">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -36,7 +36,48 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Iñaki Etchegaray — Coach deportivo">
 <meta name="twitter:description" content="La cima no se alcanza, se construye. Coaching deportivo de alto rendimiento para deportistas, equipos y cuerpos técnicos.">
-<meta name="twitter:image" content="https://maurotondato.github.io/i-akiweb/assets/brand/og-cover.jpg?v=1">
+<meta name="twitter:image" content="https://inakietchegaray.com.ar/assets/brand/og-cover.jpg?v=1">
+<!-- Para Google: quién es Iñaki y qué ofrece (schema.org). Son los
+     mismos datos que ya muestra la página: nombre, mail, Instagram y
+     WhatsApp. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://inakietchegaray.com.ar/#inaki",
+      "name": "Iñaki Etchegaray",
+      "jobTitle": "Coach deportivo",
+      "url": "https://inakietchegaray.com.ar/",
+      "image": "https://inakietchegaray.com.ar/assets/img/g3-brazos.webp",
+      "email": "mailto:ietchegarayp@gmail.com",
+      "sameAs": ["https://instagram.com/ietchegaray"]
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": "https://inakietchegaray.com.ar/#coaching",
+      "name": "Iñaki Etchegaray — Coach deportivo",
+      "description": "Coaching deportivo de alto rendimiento. Acompaño a deportistas, equipos y entrenadores a construir confianza, foco y consistencia con el método CIMA.",
+      "url": "https://inakietchegaray.com.ar/",
+      "image": "https://inakietchegaray.com.ar/assets/brand/og-cover.jpg",
+      "logo": "https://inakietchegaray.com.ar/assets/brand/logo-color.webp",
+      "telephone": "+54 9 11 5923-6762",
+      "email": "ietchegarayp@gmail.com",
+      "founder": {"@id": "https://inakietchegaray.com.ar/#inaki"},
+      "sameAs": ["https://instagram.com/ietchegaray"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://inakietchegaray.com.ar/#web",
+      "url": "https://inakietchegaray.com.ar/",
+      "name": "Iñaki Etchegaray",
+      "inLanguage": "es-AR",
+      "publisher": {"@id": "https://inakietchegaray.com.ar/#inaki"}
+    }
+  ]
+}
+</script>
 
 <link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
 <!-- iOS ignora el favicon SVG: usa este cuando alguien guarda la web
