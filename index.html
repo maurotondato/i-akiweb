@@ -52,10 +52,12 @@
       "url": "https://inakietchegaray.com.ar/",
       "image": "https://inakietchegaray.com.ar/assets/img/g3-brazos.webp",
       "email": "mailto:ietchegarayp@gmail.com",
+      "knowsAbout": ["Coaching deportivo", "Entrenamiento mental", "Liderazgo de alto rendimiento", "Construcción de equipos deportivos"],
+      "mainEntityOfPage": "https://inakietchegaray.com.ar/sobre-mi/",
       "sameAs": ["https://instagram.com/ietchegaray"]
     },
     {
-      "@type": "ProfessionalService",
+      "@type": ["ProfessionalService", "Organization"],
       "@id": "https://inakietchegaray.com.ar/#coaching",
       "name": "Iñaki Etchegaray — Coach deportivo",
       "description": "Coaching deportivo de alto rendimiento. Acompaño a deportistas, equipos y entrenadores a construir confianza, foco y consistencia con el método CIMA.",
@@ -64,6 +66,15 @@
       "logo": "https://inakietchegaray.com.ar/assets/brand/logo-color.webp",
       "telephone": "+54 9 11 5923-6762",
       "email": "ietchegarayp@gmail.com",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "telephone": "+54 9 11 5923-6762",
+        "email": "ietchegarayp@gmail.com",
+        "url": "https://inakietchegaray.com.ar/contacto/",
+        "availableLanguage": ["es"]
+      },
+      "address": {"@type": "PostalAddress", "addressCountry": "AR"},
       "founder": {"@id": "https://inakietchegaray.com.ar/#inaki"},
       "sameAs": ["https://instagram.com/ietchegaray"]
     },
@@ -108,7 +119,7 @@
 <link rel="preload" href="assets/fonts/archivo-var-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/archivo-black-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/barlow-cond-600-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261094">
+<link rel="stylesheet" href="styles.css?v=20261095">
 </head>
 <body>
 
@@ -794,6 +805,7 @@
 <footer class="site-foot">
   <div class="shell foot-in">
     <img class="foot-logo" src="assets/brand/logo-blanco.webp" alt="Iñaki Etchegaray" width="1200" height="583" loading="lazy">
+    <nav class="foot-links" aria-label="Páginas"><a href="/sobre-mi/">Sobre mí</a><a href="/contacto/">Contacto</a><a href="/privacidad/">Privacidad</a></nav>
     <span class="foot-motto">La cima no se alcanza. Se construye.</span>
   </div>
 </footer>
@@ -803,12 +815,12 @@
   <span class="wa-label">Escribime</span>
 </a>
 
-<script defer src="lib/gsap.min.js?v=20261094"></script>
-<script defer src="lib/ScrollTrigger.min.js?v=20261094"></script>
-<script defer src="hero.js?v=20261094"></script>
-<script defer src="estadio.js?v=20261094"></script>
-<script defer src="pizarra.js?v=20261094"></script>
-<script defer src="palos.js?v=20261094"></script>
-<script defer src="main.js?v=20261094"></script>
+<script defer src="lib/gsap.min.js?v=20261095"></script>
+<script defer src="lib/ScrollTrigger.min.js?v=20261095"></script>
+<script defer src="hero.js?v=20261095"></script>
+<script defer src="estadio.js?v=20261095"></script>
+<script defer src="pizarra.js?v=20261095"></script>
+<script defer src="palos.js?v=20261095"></script>
+<script defer src="main.js?v=20261095"></script>
 </body>
 </html>
