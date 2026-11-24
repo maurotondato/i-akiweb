@@ -1419,7 +1419,7 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .site-foot{background:var(--deep);color:#6B819A;padding-block:26px;font-size:13px}
 .foot-in{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:center}
 .foot-logo{width:150px;height:auto;opacity:.75}
-.foot-motto{width:100%;font-family:var(--cond);letter-spacing:.2em;text-transform:uppercase;font-size:12.5px}
+.foot-motto{font-family:var(--cond);letter-spacing:.2em;text-transform:uppercase;font-size:12.5px}
 
 /* WHATSAPP FLOTANTE */
 .wa{position:fixed;right:clamp(16px,3vw,28px);bottom:calc(clamp(16px,3vw,28px) + env(safe-area-inset-bottom,0px));
@@ -1532,26 +1532,6 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .pag-pie-lema{width:100%;font-family:var(--cond);font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:#7F96AE}
 /* crédito de quien hizo la web, discreto, en el pie de todas las páginas */
 .pag-pie-credito,.foot-credito{width:100%;font-size:12.5px;color:#5E7690;letter-spacing:.01em}
-.pag-pie-links a[aria-current="page"]{color:#fff}
-/* Páginas temáticas: preguntas frecuentes, comparativa y aviso */
-.pag-faq{border-top:1px solid var(--hair);padding-top:16px;display:flex;flex-direction:column;gap:8px}
-.pag-faq h3{font-family:var(--display);font-size:clamp(18px,1.7vw,21px);line-height:1.25;letter-spacing:-.02em;color:var(--ink)}
-.pag-art .pag-aviso{background:var(--bone);border:1px solid var(--hair);border-left:3px solid var(--signal);
-  border-radius:12px;padding:16px 18px;font-size:15.5px;line-height:1.65;max-width:none}
-.pag-aviso b{color:var(--ink)}
-.pag-tabla-wrap{overflow-x:auto;border:1px solid var(--hair);border-radius:14px}
-.pag-tabla{width:100%;border-collapse:collapse;font-size:15px;line-height:1.5;color:#35506F}
-.pag-tabla th,.pag-tabla td{padding:13px 16px;text-align:left;vertical-align:top;border-bottom:1px solid var(--hair)}
-.pag-tabla tbody tr:last-child>*{border-bottom:0}
-.pag-tabla thead th{font-family:var(--cond);font-size:13px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--cel-dk);background:var(--bone)}
-.pag-tabla tbody th{font-weight:700;color:var(--ink);width:24%}
-.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-@media (max-width:560px){
-  .pag-tabla{font-size:14px}
-  .pag-tabla th,.pag-tabla td{padding:11px 10px}
-  .pag-tabla thead th{font-size:11.5px;letter-spacing:.12em}
-}
 @media (max-width:760px){
   .pag-intro,.pag-cima,.pag-canales{grid-template-columns:1fr}
   .pag-foto{aspect-ratio:16/11;margin-right:10px;box-shadow:10px 10px 0 0 var(--cel),0 22px 44px -30px rgba(3,29,64,.55)}
