@@ -1045,6 +1045,46 @@
     }
   }
 
+  /* ---------------- FORMACIONES ----------------
+     Los módulos de cada programa se encienden de a uno, con la misma
+     línea de lectura que la lista de "¿Te pasa alguna de estas cosas?":
+     cuando el número cruza el 62% de la pantalla se enciende, y el
+     tramo hasta el módulo siguiente se llena a medida que se scrollea.
+     Va y vuelve con el scroll. */
+  function initFormaciones() {
+    var sec = document.querySelector(".forma");
+    if (!sec || !hasGSAP || reduced) return;
+    var listas = sec.querySelectorAll(".curso-mods");
+    if (!listas.length) return;
+    sec.classList.add("forma-viva");
+    listas.forEach(function (ol) {
+      var items = Array.prototype.slice.call(ol.querySelectorAll(".curso-mod"));
+      var centros = [], alto = 1;
+      function medir() {
+        var r = ol.getBoundingClientRect();
+        alto = r.height || 1;
+        centros = items.map(function (li) {
+          var n = li.querySelector(".curso-mod-n").getBoundingClientRect();
+          return n.top + n.height / 2 - r.top;
+        });
+      }
+      function pintar(p) {
+        var lectura = p * alto;
+        items.forEach(function (li, i) {
+          li.classList.toggle("is-on", lectura >= centros[i] - 2);
+          if (i < items.length - 1) {
+            var tramo = clamp01((lectura - centros[i]) / ((centros[i + 1] - centros[i]) || 1));
+            li.style.setProperty("--seg", tramo.toFixed(3));
+          }
+        });
+      }
+      medir();
+      ScrollTrigger.create({ trigger: ol, start: "top 62%", end: "bottom 62%",
+        onRefresh: function (self) { medir(); pintar(self.progress); },
+        onUpdate: function (self) { pintar(self.progress); } });
+    });
+  }
+
   /* ---------------- BOTONES MAGNÉTICOS ---------------- */
   function initMagnetic() {
     if (!fine) return;
@@ -1140,6 +1180,7 @@
     safe(initMarquee, "marquee");
     safe(initDeportes, "deportes");
     safe(initPersona, "persona");
+    safe(initFormaciones, "formaciones");
     safe(initMagnetic, "magnetic");
     safe(initProgGlow, "progGlow");
     safe(initGaleria, "galeria");
