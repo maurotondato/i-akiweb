@@ -1,6 +1,6 @@
 # Iñaki Etchegaray — Coach deportivo
 
-> Coach deportivo argentino. Acompaña a deportistas, equipos y cuerpos técnicos a construir confianza, foco y consistencia con el método CIMA (Claridad, Identidad, Mentalidad, Acción). Trabaja en español. Todo proceso arranca con una entrevista sin compromiso.
+> Coach deportivo argentino. Acompaña a deportistas, equipos y cuerpos técnicos a construir confianza, foco y consistencia con el método CIMA (Claridad, Identidad, Mentalidad, Acción). Trabaja en español y online, con deportistas y equipos de toda la Argentina y de cualquier lugar del mundo. Todo proceso arranca con una entrevista sin compromiso.
 
 Sitio oficial: https://inakietchegaray.com.ar/
 
@@ -35,9 +35,9 @@ Todos arrancan con una entrevista. Pago único o dos cuotas iguales sin recargo.
 - CIMA 90: 12 sesiones (8 semanales y 4 quincenales). Para construir herramientas de mentalidad; incluye trabajo sobre situaciones de crisis y revisión de hábitos y rutinas.
 - Media temporada: 16 sesiones (8 semanales y 8 quincenales). Para sostener el trabajo durante la competencia, con acompañamiento continuo.
 
-## Formación para entrenadores y profesionales del deporte
+## Formaciones para entrenadores y profesionales del deporte
 
-- Construcción de equipos deportivos: 1 mes, 4 encuentros semanales, 100% virtual, con clases grabadas. Módulos: contexto e identidad, comunicación, equipos que aprenden y cohesión. https://inakietchegaray.com.ar/#formacion-equipos
+- Construcción de equipos deportivos: 1 mes, 4 encuentros semanales, inicio febrero 2027, 100% virtual, con clases grabadas. Módulos: contexto e identidad, comunicación, equipos que aprenden y cohesión. https://inakietchegaray.com.ar/#formacion-equipos
 - Coaching deportivo: 4 meses, inicio marzo 2027, enfoque teórico-práctico. Módulos: fundamentos del coaching deportivo, liderazgo y gestión emocional, competencias individuales y mirada sistémica, y coaching de equipos. https://inakietchegaray.com.ar/#formacion-coaching
 
 ## Trayectoria
@@ -48,7 +48,7 @@ Todos arrancan con una entrevista. Pago único o dos cuotas iguales sin recargo.
 
 ## Páginas
 
-- [Inicio](https://inakietchegaray.com.ar/): método CIMA, para quiénes, un proceso real, testimonios, programas y formación.
+- [Inicio](https://inakietchegaray.com.ar/): método CIMA, para quiénes, un proceso real, testimonios, programas y formaciones.
 - [Sobre mí](https://inakietchegaray.com.ar/sobre-mi/): historia, formación y trayectoria.
 - [Contacto](https://inakietchegaray.com.ar/contacto/)
 - [Privacidad](https://inakietchegaray.com.ar/privacidad/)

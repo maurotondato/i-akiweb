@@ -1268,7 +1268,7 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .forma{background:var(--paper);padding-block:clamp(74px,10vw,125px)}
 .forma-inner{display:flex;flex-direction:column;gap:clamp(22px,3vw,34px)}
 .forma-head{margin-bottom:clamp(14px,2vw,26px)}
-.forma-title{font-size:clamp(34px,5.4vw,70px);letter-spacing:-.045em;max-width:16ch;margin-top:16px}
+.forma-title{font-size:clamp(34px,5.4vw,70px);letter-spacing:-.045em;max-width:16ch}
 .forma-lead{font-size:16.5px;color:var(--mute);max-width:52ch;margin-top:16px}
 
 .curso{--c-txt:var(--ink);--c-suave:var(--mute);--c-acento:var(--cel-dk);--c-linea:var(--hair);
