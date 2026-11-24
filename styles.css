@@ -252,11 +252,12 @@ p,li{text-wrap:pretty}
 .menu-movil.is-open .menu-movil-links a:nth-child(3){transition-delay:.20s,.20s,0s}
 .menu-movil.is-open .menu-movil-links a:nth-child(4){transition-delay:.24s,.24s,0s}
 .menu-movil.is-open .menu-movil-links a:nth-child(5){transition-delay:.28s,.28s,0s}
+.menu-movil.is-open .menu-movil-links a:nth-child(6){transition-delay:.32s,.32s,0s}
 .menu-movil-links a.is-current{color:var(--cel)}
 .menu-movil-links a:active{color:var(--cel)}
 .menu-movil > .btn{align-self:flex-start;opacity:0;translate:0 18px;
   transition:opacity .3s var(--ease-out),translate .45s var(--ease-out)}
-.menu-movil.is-open > .btn{opacity:1;translate:0 0;transition-delay:.34s}
+.menu-movil.is-open > .btn{opacity:1;translate:0 0;transition-delay:.38s}
 html.menu-open{overflow:hidden}
 @media (max-width:980px){
   .nav-toggle{display:block}
@@ -1257,6 +1258,96 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
   border-left:2px solid var(--cel-dk);border-bottom:2px solid var(--cel-dk);transform:rotate(-45deg)}
 .prog-note{margin-top:26px;font-size:14px;color:var(--mute);max-width:66ch}
 @media (max-width:900px){.prog-grid{grid-template-columns:1fr}}
+
+/* FORMACIÓN
+   Programas para entrenadores y profesionales del deporte. Cada uno es
+   un panel grande: qué es y cómo se cursa a la izquierda, los cuatro
+   módulos a la derecha, y abajo su frase con la consulta. El primero
+   en navy, el segundo claro. Los módulos se encadenan con una línea que
+   se dibuja al aparecer, y cada número se enciende cuando llega. */
+.forma{background:var(--paper);padding-block:clamp(74px,10vw,125px)}
+.forma-inner{display:flex;flex-direction:column;gap:clamp(22px,3vw,34px)}
+.forma-head{margin-bottom:clamp(14px,2vw,26px)}
+.forma-title{font-size:clamp(34px,5.4vw,70px);letter-spacing:-.045em;max-width:16ch;margin-top:16px}
+.forma-lead{font-size:16.5px;color:var(--mute);max-width:52ch;margin-top:16px}
+
+.curso{--c-txt:var(--ink);--c-suave:var(--mute);--c-acento:var(--cel-dk);--c-linea:var(--hair);
+  position:relative;overflow:hidden;isolation:isolate;border-radius:28px;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(30px,5vw,80px);
+  padding:clamp(30px,4.6vw,66px);color:var(--c-txt)}
+.curso-oscuro{--c-txt:#fff;--c-suave:#9DB4CC;--c-acento:var(--cel-lt);--c-linea:rgba(255,255,255,.14);
+  background:radial-gradient(760px 520px at 100% 0%,rgba(69,174,229,.2),transparent 62%),var(--ink)}
+.curso-claro{background:radial-gradient(760px 520px at 100% 0%,rgba(69,174,229,.12),transparent 62%),var(--bone);
+  border:1px solid var(--hair)}
+
+.curso-intro{display:flex;flex-direction:column;gap:16px}
+.curso-n{font-family:var(--cond);font-size:13.5px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--c-acento);display:flex;align-items:center;gap:12px}
+.curso-n::before{content:"";width:26px;height:1px;background:currentColor}
+.curso-title{font-size:clamp(32px,4.2vw,58px);line-height:1;letter-spacing:-.045em;max-width:14ch}
+.curso-bajada{font-size:clamp(18px,1.6vw,21px);line-height:1.4;font-weight:700;letter-spacing:-.015em;
+  color:var(--c-acento);max-width:34ch}
+.curso-text{font-size:16px;line-height:1.7;color:var(--c-suave);max-width:54ch}
+.curso-sub{font-family:var(--cond);font-size:14px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--c-acento);margin-top:10px}
+
+/* Modalidad: una franja a todo el ancho, como la ficha del curso, con
+   los datos uno al lado del otro separados por filetes */
+.curso-modalidad{grid-column:1 / -1;display:flex;flex-direction:column;gap:10px}
+.curso-modalidad .curso-sub{margin-top:0}
+.curso-datos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:0 28px;margin:0}
+.curso-datos div{padding:13px 0;border-top:1px solid var(--c-linea)}
+.curso-datos dt{font-family:var(--cond);font-size:12.5px;font-weight:600;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--c-suave)}
+.curso-datos dd{margin:4px 0 0;font-size:15.5px;line-height:1.45;font-weight:600}
+
+/* Módulos encadenados */
+.curso-plan{display:flex;flex-direction:column;gap:18px}
+.curso-mods{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.curso-mod{position:relative;display:grid;grid-template-columns:46px minmax(0,1fr);gap:18px;padding-bottom:26px}
+.curso-mod:last-child{padding-bottom:0}
+.curso-mod::before{content:"";position:absolute;left:22px;top:50px;bottom:4px;width:2px;border-radius:2px;
+  background:var(--c-linea)}
+.curso-mod::after{content:"";position:absolute;left:22px;top:50px;bottom:4px;width:2px;border-radius:2px;
+  background:linear-gradient(180deg,var(--cel),var(--signal));transform-origin:top;
+  transition:transform .9s var(--ease-out) calc(var(--rd,0s) + .45s)}
+.curso-mod:last-child::before,.curso-mod:last-child::after{display:none}
+.curso-mod-n{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
+  font-family:var(--display);font-size:15px;letter-spacing:-.02em;
+  border:1.5px solid var(--cel);background:var(--cel);color:var(--ink);
+  transition:background .45s var(--ease-out) calc(var(--rd,0s) + .3s),
+             color .45s var(--ease-out) calc(var(--rd,0s) + .3s)}
+.curso-mod h5{font-size:clamp(18px,1.5vw,21px);line-height:1.25;letter-spacing:-.02em;margin:10px 0 6px}
+.curso-mod p{font-size:15px;line-height:1.65;color:var(--c-suave)}
+/* antes de entrar: número apagado y línea sin dibujar (solo con JS,
+   que es quien pone .reveal en marcha) */
+.curso-mod.reveal:not(.is-in) .curso-mod-n{background:transparent;color:var(--cel)}
+.curso-mod.reveal:not(.is-in)::after{transform:scaleY(0)}
+
+/* Pie: la frase del programa y la consulta */
+.curso-pie{grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:24px 40px;
+  flex-wrap:wrap;padding-top:clamp(24px,3vw,36px);border-top:1px solid var(--c-linea)}
+.curso-frase{font-family:var(--display);font-size:clamp(22px,2.6vw,34px);line-height:1.12;letter-spacing:-.035em;
+  max-width:26ch;text-wrap:balance}
+.curso-oscuro .curso-frase{color:#fff}
+.curso-cta{flex:none}
+
+@media (max-width:980px){
+  .curso{grid-template-columns:1fr}
+}
+@media (max-width:620px){
+  .curso{border-radius:20px;padding:26px 20px 28px}
+  .curso-datos{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px}
+  .curso-mod{grid-template-columns:40px minmax(0,1fr);gap:14px}
+  .curso-mod-n{width:40px;height:40px;font-size:13.5px}
+  .curso-mod::before,.curso-mod::after{left:19px;top:44px}
+  .curso-mod h5{margin-top:8px}
+  .curso-pie{flex-direction:column;align-items:stretch}
+  .curso-cta{text-align:center}
+}
+@media (prefers-reduced-motion:reduce){
+  .curso-mod::after,.curso-mod-n{transition-delay:0s}
+}
 
 /* CIERRE */
 .final{position:relative;background:var(--ink);color:#fff;overflow:hidden;padding-block:clamp(84px,12vw,150px)}
