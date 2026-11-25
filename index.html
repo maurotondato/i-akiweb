@@ -50,7 +50,7 @@
       "name": "Iñaki Etchegaray",
       "jobTitle": ["Coach deportivo", "Coach ontológico"],
       "url": "https://inakietchegaray.com.ar/",
-      "image": "https://inakietchegaray.com.ar/assets/img/g3-brazos.webp",
+      "image": {"@id": "https://inakietchegaray.com.ar/#foto-inaki"},
       "email": "mailto:ietchegarayp@gmail.com",
       "knowsAbout": ["Coaching deportivo", "Coaching ontológico", "Entrenamiento mental", "Motivación deportiva", "Neuropsicología aplicada al deporte", "Mindfulness aplicado al deporte", "Liderazgo de alto rendimiento", "Construcción de equipos deportivos"],
       "hasCredential": [
@@ -68,7 +68,7 @@
       "description": "Coach deportivo y coach ontológico certificado. Entrenamiento mental, confianza y motivación deportiva para deportistas, equipos y entrenadores, con el método CIMA. Sesiones online.",
       "knowsAbout": ["Coaching deportivo", "Coaching ontológico", "Entrenamiento mental", "Motivación deportiva", "Construcción de equipos deportivos"],
       "url": "https://inakietchegaray.com.ar/",
-      "image": "https://inakietchegaray.com.ar/assets/brand/og-cover.jpg",
+      "image": {"@id": "https://inakietchegaray.com.ar/#foto-inaki"},
       "logo": "https://inakietchegaray.com.ar/assets/brand/logo-color.webp",
       "telephone": "+54 9 11 5923-6762",
       "email": "ietchegarayp@gmail.com",
@@ -104,6 +104,25 @@
       "provider": {"@id": "https://inakietchegaray.com.ar/#inaki"}
     },
     {
+      "@type": "ImageObject",
+      "@id": "https://inakietchegaray.com.ar/#foto-inaki",
+      "url": "https://inakietchegaray.com.ar/assets/img/inaki-cancha.jpg",
+      "contentUrl": "https://inakietchegaray.com.ar/assets/img/inaki-cancha.jpg",
+      "width": 1000,
+      "height": 1000,
+      "caption": "Iñaki Etchegaray, coach deportivo, en una cancha de rugby"
+    },
+    {
+      "@type": "WebPage",
+      "@id": "https://inakietchegaray.com.ar/#inicio",
+      "url": "https://inakietchegaray.com.ar/",
+      "name": "Coach deportivo y coach ontológico | Iñaki Etchegaray",
+      "inLanguage": "es-AR",
+      "isPartOf": {"@id": "https://inakietchegaray.com.ar/#web"},
+      "about": {"@id": "https://inakietchegaray.com.ar/#coaching"},
+      "primaryImageOfPage": {"@id": "https://inakietchegaray.com.ar/#foto-inaki"}
+    },
+    {
       "@type": "WebSite",
       "@id": "https://inakietchegaray.com.ar/#web",
       "url": "https://inakietchegaray.com.ar/",
@@ -115,7 +134,8 @@
 }
 </script>
 
-<link rel="icon" href="assets/brand/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/assets/brand/favicon.svg?v=2" type="image/svg+xml">
 <!-- iOS ignora el favicon SVG: usa este cuando alguien guarda la web
      en la pantalla de inicio. Va con fondo opaco a propósito, porque
      iOS rellena de negro cualquier transparencia. -->

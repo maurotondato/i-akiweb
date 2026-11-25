@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
 
+# El recorte del inicio (sin fondo) no sirve como miniatura en Google:
+# en los resultados aparecía sobre blanco. La foto elegida para eso
+# está marcada en los datos estructurados (assets/img/inaki-cancha.jpg).
+User-agent: Googlebot-Image
+Disallow: /assets/img/hero-cuerpo.webp
+
 Sitemap: https://inakietchegaray.com.ar/sitemap.xml
