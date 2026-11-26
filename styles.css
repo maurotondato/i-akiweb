@@ -1532,6 +1532,8 @@ html.menu-open .progress,html.menu-open .wa{opacity:0;pointer-events:none;transi
 .pag-pie-lema{width:100%;font-family:var(--cond);font-size:13px;letter-spacing:.24em;text-transform:uppercase;color:#7F96AE}
 /* crédito de quien hizo la web, discreto, en el pie de todas las páginas */
 .pag-pie-credito,.foot-credito{width:100%;font-size:12.5px;color:#5E7690;letter-spacing:.01em}
+.pag-pie-credito a,.foot-credito a{color:#9DB4CC;text-decoration:none;text-underline-offset:3px}
+@media (hover:hover) and (pointer:fine){.pag-pie-credito a:hover,.foot-credito a:hover{color:#fff;text-decoration:underline}}
 @media (max-width:760px){
   .pag-intro,.pag-cima,.pag-canales{grid-template-columns:1fr}
   .pag-foto{aspect-ratio:16/11;margin-right:10px;box-shadow:10px 10px 0 0 var(--cel),0 22px 44px -30px rgba(3,29,64,.55)}
